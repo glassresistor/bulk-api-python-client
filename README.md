@@ -1,1 +1,1 @@
-# bulk-api-python-client
+# Python client for Bulk Importer API
