@@ -20,7 +20,7 @@ def test_client():
     """Test Client class works as intented"""
     token = random_string()
     url = random_string()
-    test_client = Client(token=token, api_url=url)
+    test_client = Client(token, api_url=url)
     assert test_client.token == token
     assert test_client.api_url == url
 
@@ -29,7 +29,7 @@ def test_client_request():
     """Test Client method uses request library"""
     token = random_string()
     url = random_string()
-    test_client = Client(token=token, api_url=url)
+    test_client = Client(token, api_url=url)
     method = 'GET'
     path = random_string()
     full_path = urljoin(url, path)
@@ -47,8 +47,11 @@ def test_client_app_method():
     token = random_string()
     url = random_string()
     test_client = Client(token, api_url=url)
-    test_app_obj = test_client.app('test_app_label')
-    assert test_app_obj.app_label == 'test_app_label'
+    test_app_name = 'test_model_name'
+    with mock.patch.object(AppAPI, '__init__', return_value=None) as fn:
+        test_app_obj = test_client.app(test_app_name)
+        fn.assert_called_with(test_client, test_app_name)
+    assert isinstance(test_app_obj, AppAPI)
 
 
 def test_app_api_model():
@@ -56,11 +59,13 @@ def test_app_api_model():
     token = random_string()
     url = random_string()
     test_client = Client(token, api_url=url)
-    test_app = AppAPI(client=test_client, app_label='test_app_label')
+    test_app = AppAPI(test_client, 'test_app_label')
     test_model_name = 'test_model_name'
-    test_model_obj = test_app.model(model_name=test_model_name)
+    with mock.patch.object(ModelAPI, '__init__', return_value=None) as fn:
+        test_model_obj = test_app.model(test_model_name)
+        fn.assert_called_with(test_app, test_model_name)
     assert test_app.app_label == 'test_app_label'
-    assert test_model_obj.model_name == test_model_name
+    assert isinstance(test_model_obj, ModelAPI)
 
 
 def test_model_api_query():
