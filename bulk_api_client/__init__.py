@@ -1,5 +1,7 @@
 import requests
 from urllib.parse import urljoin
+import pandas
+import io
 
 
 class Client(object):
@@ -13,23 +15,30 @@ class Client(object):
                                 params=params, headers=headers)
 
     def app(self, app_label):
-        class AppAPI(object):
-            def __init__(self, app_label):
-                self.app_label = app_label
-
-        return AppAPI
+        return AppAPI(self, app_label)
 
 
-class AppAPI(Client):
-    def __init__(self, token, app_label, api_url='https://data-warehouse.pivot',
-                 ):
-        super().__init__(token)
+class AppAPI(object):
+    def __init__(self, client, app_label,):
+        self.client = client
         self.app_label = app_label
 
     def model(self, model_name):
-        return ModelAPI(model_name)
+        return ModelAPI(self, model_name)
 
 
 class ModelAPI(object):
-    def __init__(self, model_name):
+    def __init__(self, app_api, model_name):
+        self.app = app_api
         self.model_name = model_name
+
+    def query(self, fields=[], filter=None, order=None, page=None,
+              page_size=None):
+        path = 'bulk/pandas_views/{}/{}'.format(
+            self.app.app_label, self.model_name)
+        params = {'fields': ','.join(fields), 'filter': filter,
+                  'ordering': order, 'page': page, 'page_size': page_size}
+        response = self.app.client.request('GET', path, params=params,)
+        # breakpoint()
+        csv_file = pandas.read_csv(response.content)
+        return csv_file
