@@ -9,7 +9,10 @@ setup(
     author='Mikela Clemmons & Donnell Muse',
     author_email='infra@pivotbio.com',
     url='https://github.com/pivotbio/bulk-api-python-client',
-    install_requires=[],
+    install_requires=[
+        'pandas~=0.24.2',
+        'requests~=2.22.0',
+    ],
     extras_require={
         'dev': [
             'pytest==4.0.0',
