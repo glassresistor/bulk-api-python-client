@@ -1,7 +1,7 @@
 import requests
 from urllib.parse import urljoin
 import pandas
-import io
+from io import BytesIO
 
 
 class Client(object):
@@ -32,13 +32,12 @@ class ModelAPI(object):
         self.app = app_api
         self.model_name = model_name
 
-    def query(self, fields=[], filter=None, order=None, page=None,
+    def query(self, fields=None, filter=None, order=None, page=None,
               page_size=None):
         path = 'bulk/pandas_views/{}/{}'.format(
             self.app.app_label, self.model_name)
         params = {'fields': ','.join(fields), 'filter': filter,
                   'ordering': order, 'page': page, 'page_size': page_size}
         response = self.app.client.request('GET', path, params=params,)
-        # breakpoint()
-        csv_file = pandas.read_csv(response.content)
+        csv_file = pandas.read_csv(BytesIO(response.content))
         return csv_file

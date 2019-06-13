@@ -1,8 +1,9 @@
 import pytest
 import random
 import string
-import csv
+import json
 from unittest import mock
+from pandas import DataFrame
 from urllib.parse import urljoin
 from requests.models import Response
 
@@ -67,14 +68,26 @@ def test_model_api_query():
     token = random_string()
     url = random_string()
     test_client = Client(token, api_url=url)
-    test_app = AppAPI(test_client, 'bulk_importer')
-    test_model_name = 'examplefortesting'
+    test_app = AppAPI(test_client, 'test_app_name')
+    test_model_name = 'test_app_model'
     test_model = ModelAPI(test_app, test_model_name)
     assert test_model.model_name == test_model_name
 
     test_fields = ['id', 'text']
     test_order = 'text'
+    test_filter = 'filter'
+    test_page = 'page'
+    test_page_size = 'page_size'
+    response = Response()
+    response._content = b'col1,col2\n1,2'
+    path = 'bulk/pandas_views/test_app_name/test_app_model'
+    params = {'fields': ','.join(test_fields), 'filter': test_filter,
+              'ordering': test_order, 'page': test_page,
+              'page_size': test_page_size}
     with mock.patch.object(Client, 'request') as fn:
-        fn.return_value = Response()
+        fn.return_value = response
         test_model_data_frame = test_model.query(
-            fields=test_fields, order=test_order)
+            fields=test_fields, filter=test_filter, order=test_order,
+            page=test_page, page_size=test_page_size)
+        fn.assert_called_with('GET', path, params=params)
+    assert isinstance(test_model_data_frame, DataFrame)
