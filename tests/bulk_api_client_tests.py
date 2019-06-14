@@ -1,3 +1,4 @@
+import os
 import pytest
 import random
 import string
@@ -7,13 +8,17 @@ from pandas import DataFrame
 from urllib.parse import urljoin
 from requests.models import Response
 
-from bulk_api_client import Client, AppAPI, ModelAPI, requests
+from bulk_api_client import Client, AppAPI, ModelAPI, requests, CERT_PATH
 
 
 def random_string(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
+
+
+def test_cert_path():
+    assert os.path.isfile(CERT_PATH)
 
 
 def test_client():
@@ -39,7 +44,7 @@ def test_client_request():
         fn.return_value = ''
         test_client.request(method, path, params)
         fn.assert_called_with(
-            method, full_path, params=params, headers=headers)
+            method, full_path, params=params, headers=headers, verify=CERT_PATH)
 
 
 def test_client_app_method():

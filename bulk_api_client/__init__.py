@@ -1,7 +1,15 @@
-import requests
-from urllib.parse import urljoin
+import os
 import pandas
+import requests
+
 from io import BytesIO
+from urllib.parse import urljoin
+
+
+CERT_PATH = os.path.join(
+    os.path.dirname(
+        os.path.realpath(__file__)),
+    'data-warehouse.pivot.pem')
 
 
 class Client(object):
@@ -11,8 +19,14 @@ class Client(object):
 
     def request(self, method, path, params, ):
         headers = {'Authorization': 'Token {}'.format(self.token)}
-        return requests.request(method, urljoin(self.api_url, path),
-                                params=params, headers=headers)
+        return requests.request(
+            method,
+            urljoin(
+                self.api_url,
+                path),
+            params=params,
+            headers=headers,
+            verify=CERT_PATH)
 
     def app(self, app_label):
         return AppAPI(self, app_label)
