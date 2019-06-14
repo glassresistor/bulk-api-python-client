@@ -1,6 +1,7 @@
 import os
 import pandas
 import requests
+import json
 
 from io import BytesIO
 from urllib.parse import urljoin
@@ -12,7 +13,13 @@ CERT_PATH = os.path.join(
     'data-warehouse.pivot.pem')
 
 
+class BulkAPIError(Exception):
+    pass
+
+
 class Client(object):
+    app_api_urls = None
+
     def __init__(self, token, api_url='https://data-warehouse.pivot'):
         self.token = token
         self.api_url = api_url
@@ -36,6 +43,15 @@ class AppAPI(object):
     def __init__(self, client, app_label,):
         self.client = client
         self.app_label = app_label
+
+        path = 'bulk/pandas/{}'.format(self.app_label)
+        params = {}
+        response = self.client.request('GET', path, params)
+        if not self.client.app_api_urls:
+            self.client.app_api_urls = json.loads(response.content)
+        if self.app_label not in self.client.app_api_urls:
+            raise BulkAPIError({'app_api':
+                                "Application does not exist in bulk api"})
 
     def model(self, model_name):
         return ModelAPI(self, model_name)
