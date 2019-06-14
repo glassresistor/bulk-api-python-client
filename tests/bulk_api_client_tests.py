@@ -101,3 +101,26 @@ def test_model_api_query():
             page=test_page, page_size=test_page_size)
         fn.assert_called_with('GET', path, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
+
+
+def test_model_api_query_null_params():
+    """Test ModelAPI class works as intented"""
+    token = random_string()
+    url = random_string()
+    test_client = Client(token, api_url=url)
+    test_app = AppAPI(test_client, 'test_app_name')
+    test_model_name = 'test_app_model'
+    test_model = ModelAPI(test_app, test_model_name)
+    assert test_model.model_name == test_model_name
+
+    response = Response()
+    response._content = b'col1,col2\n1,2'
+    path = 'bulk/pandas_views/test_app_name/test_app_model'
+    params = {'fields': None, 'filter': None,
+              'ordering': None, 'page': None,
+              'page_size': None}
+    with mock.patch.object(Client, 'request') as fn:
+        fn.return_value = response
+        test_model_data_frame = test_model.query()
+        fn.assert_called_with('GET', path, params=params)
+    assert isinstance(test_model_data_frame, DataFrame)
