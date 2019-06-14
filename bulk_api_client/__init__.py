@@ -50,7 +50,9 @@ class ModelAPI(object):
               page_size=None):
         path = 'bulk/pandas_views/{}/{}'.format(
             self.app.app_label, self.model_name)
-        params = {'fields': ','.join(fields), 'filter': filter,
+        if fields:
+            fields = ','.join(fields)
+        params = {'fields': fields, 'filter': filter,
                   'ordering': order, 'page': page, 'page_size': page_size}
         response = self.app.client.request('GET', path, params=params,)
         csv_file = pandas.read_csv(BytesIO(response.content))
