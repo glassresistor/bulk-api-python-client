@@ -17,7 +17,7 @@ def random_string(stringLength=10):
 @pytest.fixture
 def client():
     token = random_string()
-    url = "http://{}".format(random_string())
+    url = "http://test"
     return Client(token, api_url=url)
 
 
@@ -25,16 +25,12 @@ def client():
 def app_api(client):
     app_label = random_string()
     data = {
-        'app_label_1': "test",
-        'app_label_2': "test",
-        'app_label_3': "test",
         app_label: "test"
     }
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, 'request') as fn:
-        fn.return_value = response
+    with mock.patch.object(Client, 'request', return_value=response):
         app_api = AppAPI(client, app_label)
     return app_api
 
@@ -42,4 +38,13 @@ def app_api(client):
 @pytest.fixture
 def model_api(app_api):
     model_name = random_string()
-    return ModelAPI(app_api, model_name)
+    data = {
+        model_name: "test",
+    }
+    response = Response()
+    response._content = json.dumps(data)
+    response.status_code = 200
+    with mock.patch.object(Client, 'request') as fn:
+        fn.return_value = response
+        model_api = ModelAPI(app_api, model_name)
+    return model_api
