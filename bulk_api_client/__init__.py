@@ -85,7 +85,7 @@ class AppAPI(object):
         self.client = client
         self.app_label = app_label
 
-        path = 'bulk/pandas_views/{}'.format(self.app_label)
+        path = 'bulk/pandas_views/'
         params = {}
         response = self.client.request('GET', path, params)
         if not self.client.app_api_urls:
@@ -123,8 +123,8 @@ class ModelAPI(object):
         self.app = app_api
         self.model_name = model_name
 
-        path = 'bulk/pandas_views/{}/{}'.format(
-            self.app.app_label, self.model_name)
+        path = 'bulk/pandas_views/{}'.format(
+            self.app.app_label)
         params = {}
         response = self.app.client.request('GET', path, params)
         if self.app.app_label not in self.app.client.model_api_urls:
