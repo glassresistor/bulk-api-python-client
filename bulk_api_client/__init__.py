@@ -131,8 +131,7 @@ class ModelAPI(object):
         self.app = app_api
         self.model_name = model_name
 
-        url = urljoin(self.app.client.app_api_urls[self.app.app_label],
-                      self.model_name)
+        url = self.app.client.app_api_urls[self.app.app_label]
         params = {}
         response = self.app.client.request('GET', url, params)
 
