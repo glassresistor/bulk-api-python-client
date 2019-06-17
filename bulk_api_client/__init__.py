@@ -26,12 +26,14 @@ def is_kv(kv_str):
 
 
 class Client(object):
-    """
+    """API Client object for bulk_importer for app and model requests
     """
     app_api_urls = None
     model_api_urls = {}
 
-    def __init__(self, token, api_url='https://data-warehouse.pivot'):
+    def __init__(self,
+                 token,
+                 api_url='https://data-warehouse.pivot/bulk/pandas_views/'):
         """Base Client class to handle bulk_importer API requests
 
         Args:
@@ -42,7 +44,7 @@ class Client(object):
         self.token = token
         self.api_url = api_url
 
-    def request(self, method, path, params, ):
+    def request(self, method, url, params, ):
         """Request function to construct and send a request
 
         Args:
@@ -58,9 +60,7 @@ class Client(object):
         headers = {'Authorization': 'Token {}'.format(self.token)}
         return requests.request(
             method,
-            urljoin(
-                self.api_url,
-                path),
+            url,
             params=params,
             headers=headers,
             verify=CERT_PATH)
@@ -93,9 +93,9 @@ class AppAPI(object):
         self.client = client
         self.app_label = app_label
 
-        path = 'bulk/pandas_views/'
+        url = self.client.api_url
         params = {}
-        response = self.client.request('GET', path, params)
+        response = self.client.request('GET', url, params)
         if not self.client.app_api_urls:
             self.client.app_api_urls = json.loads(response.content)
         if self.app_label not in self.client.app_api_urls:
@@ -131,10 +131,11 @@ class ModelAPI(object):
         self.app = app_api
         self.model_name = model_name
 
-        path = 'bulk/pandas_views/{}'.format(
-            self.app.app_label)
+        url = urljoin(self.app.client.app_api_urls[self.app.app_label],
+                      self.model_name)
         params = {}
-        response = self.app.client.request('GET', path, params)
+        response = self.app.client.request('GET', url, params)
+
         if self.app.app_label not in self.app.client.model_api_urls:
             self.app.client.model_api_urls[self.app.app_label] = json.loads(
                 response.content)
@@ -155,11 +156,10 @@ class ModelAPI(object):
             page_size (str): page size for the page_size query
 
         Returns:
-            csv file obj
+            pandas dataframe
 
         """
-        path = 'bulk/pandas_views/{}/{}'.format(
-            self.app.app_label, self.model_name)
+
         if fields is not None:
             if not isinstance(fields, list):
                 raise TypeError("fields arguement must be list")
@@ -180,8 +180,12 @@ class ModelAPI(object):
         if page_size is not None and (
                 not isinstance(page_size, int) or page_size <= 0):
             raise TypeError("page size must be a positive integer")
+
+        url = self.app.client.model_api_urls[self.app.app_label][
+            self.model_name]
         params = {'fields': fields, 'filter': filter,
                   'ordering': order, 'page': page, 'page_size': page_size}
-        response = self.app.client.request('GET', path, params=params,)
+        response = self.app.client.request('GET', url, params=params,)
         csv_file = pandas.read_csv(BytesIO(response.content))
+
         return csv_file

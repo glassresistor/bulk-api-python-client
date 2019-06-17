@@ -47,7 +47,7 @@ def test_client_request(client):
     params = {'teset_param': 1}
     headers = {'Authorization': 'Token {}'.format(client.token)}
     with mock.patch.object(requests, 'request', return_value='') as fn:
-        client.request(method, path, params)
+        client.request(method, full_path, params)
         fn.assert_called_with(
             method, full_path, params=params, headers=headers, verify=CERT_PATH)
 
@@ -100,6 +100,9 @@ def test_app_api_invalid_app(client):
 def test_model_api_query(app_api):
     """Test ModelAPI class works as intented"""
     test_model_name = random_string()
+    path = 'bulk/pandas_views/{}/{}'.format(
+        app_api.app_label, test_model_name)
+    url = urljoin(app_api.client.api_url, path)
 
     test_fields = ['id', 'text']
     test_filter = 'key=value|key=value&key=value'
@@ -111,14 +114,12 @@ def test_model_api_query(app_api):
         'model_name_1': "rgrg",
         'model_name_2': "rgrg",
         'model_name_3': "rgrg",
-        test_model_name: "test",
+        test_model_name: url,
     }
 
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    path = 'bulk/pandas_views/{}/{}'.format(
-        app_api.app_label, test_model_name)
     params = {
         'fields': ','.join(test_fields),
         'filter': test_filter,
@@ -135,7 +136,7 @@ def test_model_api_query(app_api):
         test_model_data_frame = test_model.query(
             fields=test_fields, filter=test_filter, order=test_order,
             page=test_page, page_size=test_page_size)
-        fn.assert_called_with('GET', path, params=params)
+        fn.assert_called_with('GET', url, params=params)
     assert test_model.model_name == test_model_name
     assert isinstance(test_model_data_frame, DataFrame)
 
@@ -143,19 +144,21 @@ def test_model_api_query(app_api):
 def test_model_api_query_null_params(app_api):
     """Test ModelAPI class works as intented"""
     test_model_name = random_string()
+    path = 'bulk/pandas_views/{}/{}'.format(
+        app_api.app_label, test_model_name)
+    url = urljoin(app_api.client.api_url, path)
 
     data = {
         'model_name_1': "rgrg",
         'model_name_2': "rgrg",
         'model_name_3': "rgrg",
-        test_model_name: "test",
+        test_model_name: url,
     }
 
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    path = 'bulk/pandas_views/{}/{}'.format(
-        app_api.app_label, test_model_name)
+
     params = {
         'fields': None,
         'filter': None,
@@ -169,7 +172,7 @@ def test_model_api_query_null_params(app_api):
     response._content = b'col1,col2\n1,2'
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model_data_frame = test_model.query()
-        fn.assert_called_with('GET', path, params=params)
+        fn.assert_called_with('GET', url, params=params)
     assert test_model.model_name == test_model_name
     assert isinstance(test_model_data_frame, DataFrame)
 
