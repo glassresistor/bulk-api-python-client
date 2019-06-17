@@ -9,13 +9,21 @@ from urllib.parse import urljoin
 from requests.models import Response
 
 from bulk_api_client import Client, AppAPI, ModelAPI
-from bulk_api_client import requests, CERT_PATH, BulkAPIError
+from bulk_api_client import requests, CERT_PATH, BulkAPIError, is_kv
 
 
 def random_string(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_lowercase
     return ''.join(random.choice(letters) for i in range(stringLength))
+
+
+@pytest.mark.parametrize("test_input,expected",
+                         [("key=value", True), ("test=test", True),
+                          ("invalid", False), ("!@#$", False)])
+def test_is_kv(test_input, expected):
+    """Test is_kv func returns correct bool for if pair is a key:val pair"""
+    assert is_kv(test_input) == expected
 
 
 def test_cert_path():
@@ -94,10 +102,10 @@ def test_model_api_query(app_api):
     test_model_name = random_string()
 
     test_fields = ['id', 'text']
+    test_filter = 'key=value|key=value&key=value'
     test_order = 'text'
-    test_filter = 'filter'
-    test_page = 'page'
-    test_page_size = 'page_size'
+    test_page = 1
+    test_page_size = 1
 
     data = {
         'model_name_1': "rgrg",
@@ -111,9 +119,13 @@ def test_model_api_query(app_api):
     response.status_code = 200
     path = 'bulk/pandas_views/{}/{}'.format(
         app_api.app_label, test_model_name)
-    params = {'fields': ','.join(test_fields), 'filter': test_filter,
-              'ordering': test_order, 'page': test_page,
-              'page_size': test_page_size}
+    params = {
+        'fields': ','.join(test_fields),
+        'filter': test_filter,
+        'ordering': test_order,
+        'page': test_page,
+        'page_size': test_page_size
+    }
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model = ModelAPI(app_api, test_model_name)
     response = Response()
@@ -144,9 +156,13 @@ def test_model_api_query_null_params(app_api):
     response.status_code = 200
     path = 'bulk/pandas_views/{}/{}'.format(
         app_api.app_label, test_model_name)
-    params = {'fields': None, 'filter': None,
-              'ordering': None, 'page': None,
-              'page_size': None}
+    params = {
+        'fields': None,
+        'filter': None,
+        'ordering': None,
+        'page': None,
+        'page_size': None
+    }
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model = ModelAPI(app_api, test_model_name)
 
@@ -156,6 +172,54 @@ def test_model_api_query_null_params(app_api):
         fn.assert_called_with('GET', path, params=params)
     assert test_model.model_name == test_model_name
     assert isinstance(test_model_data_frame, DataFrame)
+
+
+@pytest.mark.parametrize("kwarg,val,msg",
+                         [("fields", "invalid_field",
+                           "fields arguement must be list"),
+                          ("filter", 1,
+                           "filter must be a string of form field_name=value"),
+                          ("filter", "invalid",
+                           "filter must be a string of form field_name=value"),
+                          ("order", 1, "order must be a string"),
+                          ("page", "invalid_page",
+                           "page must be a positive integer"),
+                          ("page", 0, "page must be a positive integer"),
+                          ("page", -1, "page must be a positive integer"),
+                          ("page_size", "invalid_page_size",
+                           "page size must be a positive integer"),
+                          ("page_size", 0,
+                           "page size must be a positive integer"),
+                          ("page_size", -1,
+                           "page size must be a positive integer")])
+def test_model_api_query_invalid_params(app_api, kwarg, val, msg):
+    """Test ModelAPI class works as intented"""
+
+    test_model_name = random_string()
+
+    data = {
+        'model_name_1': "rgrg",
+        'model_name_2': "rgrg",
+        'model_name_3': "rgrg",
+        test_model_name: "test",
+    }
+
+    response = Response()
+    response._content = json.dumps(data)
+    response.status_code = 200
+    path = 'bulk/pandas_views/{}/{}'.format(
+        app_api.app_label, test_model_name)
+    params = {
+        kwarg: val,
+    }
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        test_model = ModelAPI(app_api, test_model_name)
+
+    response._content = b'col1,col2\n1,2'
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        with pytest.raises(TypeError) as err:
+            test_model_data_frame = test_model.query(**params)
+    assert str(err.value) == msg
 
 
 def test_model_api_invalid_model(app_api):

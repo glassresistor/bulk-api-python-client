@@ -2,6 +2,7 @@ import os
 import pandas
 import requests
 import json
+import re
 
 from io import BytesIO
 from urllib.parse import urljoin
@@ -15,6 +16,13 @@ CERT_PATH = os.path.join(
 
 class BulkAPIError(Exception):
     pass
+
+
+filter_error = TypeError("filter must be a string of form field_name=value")
+
+
+def is_kv(kv_str):
+    return bool(re.fullmatch(r'(^\w+=\w+$)', kv_str))
 
 
 class Client(object):
@@ -152,8 +160,26 @@ class ModelAPI(object):
         """
         path = 'bulk/pandas_views/{}/{}'.format(
             self.app.app_label, self.model_name)
-        if fields:
+        if fields is not None:
+            if not isinstance(fields, list):
+                raise TypeError("fields arguement must be list")
             fields = ','.join(fields)
+        if filter is not None:
+            if not isinstance(filter, str):
+                raise filter_error
+            q_list = re.split(r"(\||\&)", filter)
+            for q_val in q_list:
+                if not is_kv(q_val) and not re.fullmatch(r'(^[\||\&]$)', q_val):
+                    raise filter_error
+        if order is not None:
+            if not isinstance(order, str):
+                raise TypeError("order must be a string")
+        if page is not None and (
+                not isinstance(page, int) or page <= 0):
+            raise TypeError("page must be a positive integer")
+        if page_size is not None and (
+                not isinstance(page_size, int) or page_size <= 0):
+            raise TypeError("page size must be a positive integer")
         params = {'fields': fields, 'filter': filter,
                   'ordering': order, 'page': page, 'page_size': page_size}
         response = self.app.client.request('GET', path, params=params,)
