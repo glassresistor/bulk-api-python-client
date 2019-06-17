@@ -89,19 +89,8 @@ def test_app_api_invalid_app(client):
             AppAPI(client, 'invalid_label')
 
 
-def test_model_api_query(client):
+def test_model_api_query(app_api):
     """Test ModelAPI class works as intented"""
-
-    app_label = random_string()
-    data = {
-        app_label: "test"
-    }
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response):
-        app_api = AppAPI(client, app_label)
-
     test_model_name = random_string()
 
     test_fields = ['id', 'text']
@@ -139,19 +128,8 @@ def test_model_api_query(client):
     assert isinstance(test_model_data_frame, DataFrame)
 
 
-def test_model_api_query_null_params(client):
+def test_model_api_query_null_params(app_api):
     """Test ModelAPI class works as intented"""
-
-    app_label = random_string()
-    data = {
-        app_label: "test"
-    }
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response):
-        app_api = AppAPI(client, app_label)
-
     test_model_name = random_string()
 
     data = {

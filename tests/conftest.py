@@ -18,6 +18,8 @@ def random_string(stringLength=10):
 def client():
     token = random_string()
     url = "http://test"
+    Client.app_api_urls = None
+    Client.model_api_urls = {}
     return Client(token, api_url=url)
 
 
