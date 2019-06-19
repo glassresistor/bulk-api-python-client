@@ -46,10 +46,39 @@ def test_client_request(client):
     full_path = urljoin(client.api_url, path)
     params = {'teset_param': 1}
     headers = {'Authorization': 'Token {}'.format(client.token)}
-    with mock.patch.object(requests, 'request', return_value='') as fn:
+    response = Response()
+    response._content = b''
+    response.status_code = 200
+    with mock.patch.object(requests, 'request', return_value=response) as fn:
         client.request(method, full_path, params)
         fn.assert_called_with(
             method, full_path, params=params, headers=headers, verify=CERT_PATH)
+
+
+@pytest.mark.django_db
+@pytest.mark.parametrize("status_code,err_msg", [
+    (401, {"detail":
+           "You do not have permission to perform this action."}),
+    (403, {"detail":
+           "You do not have permission to perform this action."}),
+    (404, {"detail":
+           "Not found."}), ])
+def test_client_request_errors(client, status_code, err_msg):
+    """Test Client request method handles errors as intended"""
+    method = 'GET'
+    path = random_string()
+    full_path = urljoin(client.api_url, path)
+    params = {'teset_param': 1}
+    headers = {'Authorization': 'Token {}'.format(client.token)}
+    response = Response()
+    response._content = json.dumps(err_msg)
+    response.status_code = status_code
+    with mock.patch.object(requests, 'request', return_value=response) as fn:
+        with pytest.raises(BulkAPIError) as err:
+            client.request(method, full_path, params)
+        fn.assert_called_with(
+            method, full_path, params=params, headers=headers, verify=CERT_PATH)
+    assert str(err.value) == str(err_msg)
 
 
 def test_client_app_method(client):
@@ -177,24 +206,27 @@ def test_model_api_query_null_params(app_api):
     assert isinstance(test_model_data_frame, DataFrame)
 
 
-@pytest.mark.parametrize("kwarg,val,msg",
-                         [("fields", "invalid_field",
-                           "fields arguement must be list"),
-                          ("filter", 1,
-                           "filter must be a string of form field_name=value"),
-                          ("filter", "invalid",
-                           "filter must be a string of form field_name=value"),
-                          ("order", 1, "order must be a string"),
-                          ("page", "invalid_page",
-                           "page must be a positive integer"),
-                          ("page", 0, "page must be a positive integer"),
-                          ("page", -1, "page must be a positive integer"),
-                          ("page_size", "invalid_page_size",
-                           "page size must be a positive integer"),
-                          ("page_size", 0,
-                           "page size must be a positive integer"),
-                          ("page_size", -1,
-                           "page size must be a positive integer")])
+@pytest.mark.parametrize("kwarg,val,msg", [
+    ("fields", "invalid_field", {
+        'detail': "fields arguement must be list"}),
+    ("filter", 1, {
+        'detail': "filter must be a string of form field_name=value"}),
+    ("filter", "invalid", {
+        'detail': "filter must be a string of form field_name=value"}),
+    ("order", 1, {
+        'detail': "order must be a string"}),
+    ("page", "invalid_page", {
+        'detail': "page must be a positive integer"}),
+    ("page", 0, {
+        'detail': "page must be a positive integer"}),
+    ("page", -1, {
+        'detail': "page must be a positive integer"}),
+    ("page_size", "invalid_page_size", {
+     'detail': "page size must be a positive integer"}),
+    ("page_size", 0, {
+        'detail': "page size must be a positive integer"}),
+    ("page_size", -1, {
+        'detail': "page size must be a positive integer"})])
 def test_model_api_query_invalid_params(app_api, kwarg, val, msg):
     """Test ModelAPI class works as intented"""
 
@@ -222,7 +254,7 @@ def test_model_api_query_invalid_params(app_api, kwarg, val, msg):
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         with pytest.raises(TypeError) as err:
             test_model_data_frame = test_model.query(**params)
-    assert str(err.value) == msg
+    assert str(err.value) == str(msg)
 
 
 def test_model_api_invalid_model(app_api):

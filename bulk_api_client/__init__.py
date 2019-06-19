@@ -18,7 +18,8 @@ class BulkAPIError(Exception):
     pass
 
 
-filter_error = TypeError("filter must be a string of form field_name=value")
+filter_error = TypeError({
+    'detail': "filter must be a string of form field_name=value"})
 
 
 def is_kv(kv_str):
@@ -58,12 +59,15 @@ class Client(object):
 
         """
         headers = {'Authorization': 'Token {}'.format(self.token)}
-        return requests.request(
+        response = requests.request(
             method,
             url,
             params=params,
             headers=headers,
             verify=CERT_PATH)
+        if response.status_code != 200:
+            raise BulkAPIError(json.loads(response.content))
+        return response
 
     def app(self, app_label):
         """Creates AppAPI object from a given app label
@@ -161,7 +165,7 @@ class ModelAPI(object):
 
         if fields is not None:
             if not isinstance(fields, list):
-                raise TypeError("fields arguement must be list")
+                raise TypeError({'detail': "fields arguement must be list"})
             fields = ','.join(fields)
         if filter is not None:
             if not isinstance(filter, str):
@@ -172,13 +176,13 @@ class ModelAPI(object):
                     raise filter_error
         if order is not None:
             if not isinstance(order, str):
-                raise TypeError("order must be a string")
+                raise TypeError({'detail': "order must be a string"})
         if page is not None and (
                 not isinstance(page, int) or page <= 0):
-            raise TypeError("page must be a positive integer")
+            raise TypeError({'detail': "page must be a positive integer"})
         if page_size is not None and (
                 not isinstance(page_size, int) or page_size <= 0):
-            raise TypeError("page size must be a positive integer")
+            raise TypeError({'detail': "page size must be a positive integer"})
 
         url = self.app.client.model_api_urls[self.app.app_label][
             self.model_name]
