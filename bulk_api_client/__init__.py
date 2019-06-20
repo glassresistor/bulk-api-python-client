@@ -3,15 +3,18 @@ import pandas
 import requests
 import json
 import re
+import shutil
 
-from io import BytesIO
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
+from tempfile import gettempdir
 
 
 CERT_PATH = os.path.join(
     os.path.dirname(
         os.path.realpath(__file__)),
     'data-warehouse.pivot.pem')
+
+CSV_CHUNKSIZE = 10 ** 6
 
 
 class BulkAPIError(Exception):
@@ -44,6 +47,8 @@ class Client(object):
         """
         self.token = token
         self.api_url = api_url
+        self.temp_dir = os.path.join(gettempdir(), 'bulk-api-cache')
+        os.makedirs(self.temp_dir, exist_ok=True)
 
     def request(self, method, url, params, ):
         """Request function to construct and send a request
@@ -64,10 +69,24 @@ class Client(object):
             url,
             params=params,
             headers=headers,
-            verify=CERT_PATH)
+            verify=CERT_PATH,
+            stream=True
+        )
+
         if response.status_code != 200:
             raise BulkAPIError(json.loads(response.content))
         return response
+
+    def clear_cache(self):
+        """Empty the temp directory"""
+
+        if os.path.exists(self.temp_dir):
+            for path in os.listdir(self.temp_dir):
+                path = os.path.join(self.temp_dir, path)
+                if os.path.isdir(path):
+                    shutil.rmtree(path)
+                if os.path.isfile(path):
+                    os.unlink(path)
 
     def app(self, app_label):
         """Creates AppAPI object from a given app label
@@ -188,7 +207,21 @@ class ModelAPI(object):
             self.model_name]
         params = {'fields': fields, 'filter': filter,
                   'ordering': order, 'page': page, 'page_size': page_size}
-        response = self.app.client.request('GET', url, params=params,)
-        csv_file = pandas.read_csv(BytesIO(response.content))
+        path = urlparse(url).path[1:]
+        path = os.path.join(self.app.client.temp_dir, path)
+        os.makedirs(path, exist_ok=True)
+        query_hash = "{}.csv".format(hash(json.dumps(params, sort_keys=True)))
+        csv_path = os.path.join(path, query_hash)
+        if not os.path.exists(csv_path):
+            with self.app.client.request('GET', url, params=params) as response:
+                with open(csv_path, 'wb') as f:
+                    shutil.copyfileobj(response.raw, f)
 
-        return csv_file
+        df = pandas.concat(
+            pandas.read_csv(
+                csv_path,
+                chunksize=CSV_CHUNKSIZE
+            ),
+            ignore_index=True)
+
+        return df

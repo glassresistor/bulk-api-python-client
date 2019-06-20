@@ -3,6 +3,7 @@ import pytest
 import random
 import string
 import json
+from io import BytesIO
 from unittest import mock
 from pandas import DataFrame
 from urllib.parse import urljoin
@@ -52,7 +53,13 @@ def test_client_request(client):
     with mock.patch.object(requests, 'request', return_value=response) as fn:
         client.request(method, full_path, params)
         fn.assert_called_with(
-            method, full_path, params=params, headers=headers, verify=CERT_PATH)
+            method,
+            full_path,
+            params=params,
+            headers=headers,
+            verify=CERT_PATH,
+            stream=True
+        )
 
 
 @pytest.mark.django_db
@@ -77,7 +84,13 @@ def test_client_request_errors(client, status_code, err_msg):
         with pytest.raises(BulkAPIError) as err:
             client.request(method, full_path, params)
         fn.assert_called_with(
-            method, full_path, params=params, headers=headers, verify=CERT_PATH)
+            method,
+            full_path,
+            params=params,
+            headers=headers,
+            verify=CERT_PATH,
+            stream=True
+        )
     assert str(err.value) == str(err_msg)
 
 
@@ -88,6 +101,15 @@ def test_client_app_method(client):
         test_app_obj = client.app(test_app_name)
         fn.assert_called_with(client, test_app_name)
     assert isinstance(test_app_obj, AppAPI)
+
+
+def test_client_clear_cache(client):
+    """Test cache clearing method empties the temp dir"""
+    with open(os.path.join(client.temp_dir, "test.txt"), 'wb') as f:
+        f.write(b'test')
+    client.clear_cache()
+
+    assert not os.listdir(client.temp_dir)
 
 
 def test_app_api_model(client):
@@ -102,8 +124,9 @@ def test_app_api_model(client):
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=response):
         test_app = AppAPI(client, app_label)
+
     test_model_name = 'test_model_name'
     with mock.patch.object(ModelAPI, '__init__', return_value=None) as fn:
         test_model_obj = test_app.model(test_model_name)
@@ -121,8 +144,8 @@ def test_app_api_invalid_app(client):
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
-        with pytest.raises(BulkAPIError) as e:
+    with mock.patch.object(Client, 'request', return_value=response):
+        with pytest.raises(BulkAPIError):
             AppAPI(client, 'invalid_label')
 
 
@@ -156,11 +179,13 @@ def test_model_api_query(app_api):
         'page': test_page,
         'page_size': test_page_size
     }
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=response):
         test_model = ModelAPI(app_api, test_model_name)
+
     response = Response()
     response._content = b'col1,col2\n1,2'
     response.status_code = 200
+    response.raw = BytesIO(b'col1,col2\n1,2')
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model_data_frame = test_model.query(
             fields=test_fields, filter=test_filter, order=test_order,
@@ -184,22 +209,26 @@ def test_model_api_query_null_params(app_api):
         test_model_name: url,
     }
 
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
+    model_response = Response()
+    model_response._content = json.dumps(data)
+    model_response.status_code = 200
 
     params = {
         'fields': None,
         'filter': None,
         'ordering': None,
         'page': None,
-        'page_size': None
+        'page_size': None,
     }
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=model_response):
         test_model = ModelAPI(app_api, test_model_name)
 
-    response._content = b'col1,col2\n1,2'
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    query_response = Response()
+    query_response.status_code = 200
+    query_response._content = b'col1,col2\n1,2'
+    query_response.raw = BytesIO(b'col1,col2\n1,2')
+    with mock.patch.object(Client, 'request',
+                           return_value=query_response) as fn:
         test_model_data_frame = test_model.query()
         fn.assert_called_with('GET', url, params=params)
     assert test_model.model_name == test_model_name
@@ -247,11 +276,11 @@ def test_model_api_query_invalid_params(app_api, kwarg, val, msg):
     params = {
         kwarg: val,
     }
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=response):
         test_model = ModelAPI(app_api, test_model_name)
 
     response._content = b'col1,col2\n1,2'
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=response):
         with pytest.raises(TypeError) as err:
             test_model_data_frame = test_model.query(**params)
     assert str(err.value) == str(msg)
@@ -266,6 +295,6 @@ def test_model_api_invalid_model(app_api):
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
-        with pytest.raises(BulkAPIError) as e:
+    with mock.patch.object(Client, 'request', return_value=response):
+        with pytest.raises(BulkAPIError):
             ModelAPI(app_api, 'invalid_model')

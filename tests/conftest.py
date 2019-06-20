@@ -20,7 +20,9 @@ def client():
     url = "http://test"
     Client.app_api_urls = None
     Client.model_api_urls = {}
-    return Client(token, api_url=url)
+    client = Client(token, api_url=url)
+    client.clear_cache()
+    return client
 
 
 @pytest.fixture
