@@ -7,20 +7,9 @@ Client for handling app and model requests to the bulk importer API
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 
-### Prerequisites
-
-What things you need to install the software and how to install them
-
-Dependencies
-
-```
-pandas
-requests
-```
-
 ## Installing
 
-Since this is a private repo, you will have to install using SSH. This will require the use of your github username and oAuth Token ([How to get your token](https://docs.cachethq.io/docs/github-oauth-token))
+Since this is a private repo, you will have to install using SSH
 
 To install the project
 
