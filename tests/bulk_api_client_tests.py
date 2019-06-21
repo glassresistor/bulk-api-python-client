@@ -62,7 +62,6 @@ def test_client_request(client):
         )
 
 
-@pytest.mark.django_db
 @pytest.mark.parametrize("status_code,err_msg", [
     (401, {"detail":
            "You do not have permission to perform this action."}),
@@ -148,35 +147,48 @@ def test_app_api_invalid_app(client):
             AppAPI(client, 'invalid_label')
 
 
-def test_app_api_model(client):
-    """Test AppAPI class works as intented"""
-    app_label = random_string()
+def test_model_api(app_api):
+    """Test ModelAPI class works as intented"""
+    test_model_name = random_string()
+    path = app_api.client.api_url
+    url = urljoin(path, app_api.app_label)
+    params = {}
     data = {
-        'app_label_1': "rgrg",
-        'app_label_2': "rgrg",
-        'app_label_3': "rgrg",
-        app_label: "test"
+        'model_name_1': "rgrg",
+        'model_name_2': "rgrg",
+        'model_name_3': "rgrg",
+        test_model_name: url,
+    }
+
+    response = Response()
+    response._content = json.dumps(data)
+    response.status_code = 200
+
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        test_model_obj = ModelAPI(app_api, test_model_name)
+    fn.assert_called_with('GET', url, params)
+    assert test_model_obj.model_name == test_model_name
+
+
+def test_model_api_invalid_model(app_api):
+    """Test ModelAPI class init with invalid model name works as intented"""
+    data = {
+        'model_name_1': "rgrg",
+        'model_name_2': "rgrg",
+        'model_name_3': "rgrg",
     }
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response):
-        test_app = AppAPI(client, app_label)
-
-    test_model_name = 'test_model_name'
-    with mock.patch.object(ModelAPI, '__init__', return_value=None) as fn:
-        test_model_obj = test_app.model(test_model_name)
-        fn.assert_called_with(test_app, test_model_name)
-    assert test_app.app_label == app_label
-    assert isinstance(test_model_obj, ModelAPI)
+        with pytest.raises(BulkAPIError):
+            ModelAPI(app_api, 'invalid_model')
 
 
-def test_model_api_query(app_api):
-    """Test ModelAPI class works as intented"""
-    test_model_name = random_string()
-    path = 'bulk/pandas_views/{}/{}'.format(
-        app_api.app_label, test_model_name)
-    url = urljoin(app_api.client.api_url, path)
+def test_model_api_query(model_api):
+    """Test ModelAPI query method works as intented"""
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, model_api.model_name)
 
     test_fields = ['id', 'text']
     test_filter = 'key=value|key=value&key=value'
@@ -184,16 +196,6 @@ def test_model_api_query(app_api):
     test_page = 1
     test_page_size = 1
 
-    data = {
-        'model_name_1': "rgrg",
-        'model_name_2': "rgrg",
-        'model_name_3': "rgrg",
-        test_model_name: url,
-    }
-
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
     params = {
         'fields': ','.join(test_fields),
         'filter': test_filter,
@@ -201,39 +203,26 @@ def test_model_api_query(app_api):
         'page': test_page,
         'page_size': test_page_size
     }
-    with mock.patch.object(Client, 'request', return_value=response):
-        test_model = ModelAPI(app_api, test_model_name)
 
     response = Response()
     response._content = b'col1,col2\n1,2'
     response.status_code = 200
-    response.raw = BytesIO(b'col1,col2\n1,2')
+    response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        test_model_data_frame = test_model.query(
+        test_model_data_frame = model_api.query(
             fields=test_fields, filter=test_filter, order=test_order,
             page=test_page, page_size=test_page_size)
         fn.assert_called_with('GET', url, params=params)
-    assert test_model.model_name == test_model_name
     assert isinstance(test_model_data_frame, DataFrame)
+    assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
+    assert test_model_data_frame.values.tolist() == [[1, 2], [3, 4]]
+    assert test_model_data_frame.shape == (2, 2)
 
 
-def test_model_api_query_null_params(app_api):
-    """Test ModelAPI class works as intented"""
-    test_model_name = random_string()
-    path = 'bulk/pandas_views/{}/{}'.format(
-        app_api.app_label, test_model_name)
-    url = urljoin(app_api.client.api_url, path)
-
-    data = {
-        'model_name_1': "rgrg",
-        'model_name_2': "rgrg",
-        'model_name_3': "rgrg",
-        test_model_name: url,
-    }
-
-    model_response = Response()
-    model_response._content = json.dumps(data)
-    model_response.status_code = 200
+def test_model_api_query_null_params(model_api):
+    """Test ModelAPI query method with null parameters works as intented"""
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, model_api.model_name)
 
     params = {
         'fields': None,
@@ -242,19 +231,19 @@ def test_model_api_query_null_params(app_api):
         'page': None,
         'page_size': None,
     }
-    with mock.patch.object(Client, 'request', return_value=model_response):
-        test_model = ModelAPI(app_api, test_model_name)
 
-    query_response = Response()
-    query_response.status_code = 200
-    query_response._content = b'col1,col2\n1,2'
-    query_response.raw = BytesIO(b'col1,col2\n1,2')
+    response = Response()
+    response.status_code = 200
+    response._content = b'col1,col2\n1,2'
+    response.raw = BytesIO(b'col1,col2\n1,2')
     with mock.patch.object(Client, 'request',
-                           return_value=query_response) as fn:
-        test_model_data_frame = test_model.query()
+                           return_value=response) as fn:
+        test_model_data_frame = model_api.query()
         fn.assert_called_with('GET', url, params=params)
-    assert test_model.model_name == test_model_name
     assert isinstance(test_model_data_frame, DataFrame)
+    assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
+    assert test_model_data_frame.values.tolist() == [[1, 2]]
+    assert test_model_data_frame.shape == (1, 2)
 
 
 @pytest.mark.parametrize("kwarg,val,msg", [
@@ -278,45 +267,16 @@ def test_model_api_query_null_params(app_api):
         'detail': "page size must be a positive integer"}),
     ("page_size", -1, {
         'detail': "page size must be a positive integer"})])
-def test_model_api_query_invalid_params(app_api, kwarg, val, msg):
-    """Test ModelAPI class works as intented"""
+def test_model_api_query_invalid_params(model_api, kwarg, val, msg):
+    """Test ModelAPI class errors works as intented"""
 
-    test_model_name = random_string()
-
-    data = {
-        'model_name_1': "rgrg",
-        'model_name_2': "rgrg",
-        'model_name_3': "rgrg",
-        test_model_name: "test",
-    }
-
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
-    path = 'bulk/pandas_views/{}/{}'.format(
-        app_api.app_label, test_model_name)
     params = {
         kwarg: val,
     }
-    with mock.patch.object(Client, 'request', return_value=response):
-        test_model = ModelAPI(app_api, test_model_name)
-
+    response = Response()
+    response.status_code = 200
     response._content = b'col1,col2\n1,2'
     with mock.patch.object(Client, 'request', return_value=response):
         with pytest.raises(TypeError) as err:
-            test_model_data_frame = test_model.query(**params)
+            test_model_data_frame = model_api.query(**params)
     assert str(err.value) == str(msg)
-
-
-def test_model_api_invalid_model(app_api):
-    data = {
-        'model_name_1': "rgrg",
-        'model_name_2': "rgrg",
-        'model_name_3': "rgrg",
-    }
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response):
-        with pytest.raises(BulkAPIError):
-            ModelAPI(app_api, 'invalid_model')

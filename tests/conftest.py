@@ -3,6 +3,7 @@ import random
 import string
 import json
 from unittest import mock
+from urllib.parse import urljoin
 from requests.models import Response
 
 from bulk_api_client import Client, AppAPI, ModelAPI
@@ -29,7 +30,7 @@ def client():
 def app_api(client):
     app_label = random_string()
     data = {
-        app_label: "test"
+        app_label: urljoin(client.api_url, app_label),
     }
     response = Response()
     response._content = json.dumps(data)
@@ -43,7 +44,7 @@ def app_api(client):
 def model_api(app_api):
     model_name = random_string()
     data = {
-        model_name: "test",
+        model_name: urljoin(app_api.client.api_url, model_name),
     }
     response = Response()
     response._content = json.dumps(data)
