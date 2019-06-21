@@ -112,6 +112,42 @@ def test_client_clear_cache(client):
     assert not os.listdir(client.temp_dir)
 
 
+def test_app_api(client):
+    """Test AppAPI class works as intented"""
+    test_app_label = random_string()
+    url = client.api_url
+    params = {}
+    data = {
+        'app_label_1': "rgrg",
+        'app_label_2': "rgrg",
+        'app_label_3': "rgrg",
+        test_app_label: url
+    }
+
+    response = Response()
+    response._content = json.dumps(data)
+    response.status_code = 200
+
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        test_app_obj = AppAPI(client, test_app_label)
+    fn.assert_called_with('GET', url, params)
+    assert test_app_obj.app_label == test_app_label
+
+
+def test_app_api_invalid_app(client):
+    data = {
+        'app_label_1': "rgrg",
+        'app_label_2': "rgrg",
+        'app_label_3': "rgrg"
+    }
+    response = Response()
+    response._content = json.dumps(data)
+    response.status_code = 200
+    with mock.patch.object(Client, 'request', return_value=response):
+        with pytest.raises(BulkAPIError):
+            AppAPI(client, 'invalid_label')
+
+
 def test_app_api_model(client):
     """Test AppAPI class works as intented"""
     app_label = random_string()
@@ -133,20 +169,6 @@ def test_app_api_model(client):
         fn.assert_called_with(test_app, test_model_name)
     assert test_app.app_label == app_label
     assert isinstance(test_model_obj, ModelAPI)
-
-
-def test_app_api_invalid_app(client):
-    data = {
-        'app_label_1': "rgrg",
-        'app_label_2': "rgrg",
-        'app_label_3': "rgrg"
-    }
-    response = Response()
-    response._content = json.dumps(data)
-    response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response):
-        with pytest.raises(BulkAPIError):
-            AppAPI(client, 'invalid_label')
 
 
 def test_model_api_query(app_api):
