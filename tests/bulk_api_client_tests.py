@@ -5,7 +5,7 @@ import string
 import json
 from io import BytesIO
 from unittest import mock
-from pandas import DataFrame
+from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
 from requests.models import Response
 
@@ -186,7 +186,40 @@ def test_model_api_invalid_model(app_api):
 
 
 def test_model_api_query(model_api):
-    """Test ModelAPI query method works as intented"""
+    """Test ModelAPI query_request method works as intented"""
+
+    test_fields = ['id', 'text']
+    test_filter = 'key=value|key=value&key=value'
+    test_order = 'text'
+    test_page = [1, 2]
+    test_page_size = 1
+
+    dataframes = [read_csv(BytesIO(b'col1,col2\n1,2')),
+                  read_csv(BytesIO(b'col1,col2\n3,4'))]
+
+    with mock.patch.object(ModelAPI, 'query_request',) as fn:
+        fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
+        test_model_data_frame = model_api.query(
+            fields=test_fields,
+            filter=test_filter,
+            order=test_order,
+            page_size=test_page_size
+        )
+        fn.assert_called_with(
+            fields=test_fields,
+            filter=test_filter,
+            order=test_order,
+            page=test_page.pop(),
+            page_size=test_page_size
+        )
+    assert isinstance(test_model_data_frame, DataFrame)
+    assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
+    assert test_model_data_frame.values.tolist() == [[1, 2], [3, 4]]
+    assert test_model_data_frame.shape == (2, 2)
+
+
+def test_model_api_query_request(model_api):
+    """Test ModelAPI query_request method works as intented"""
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
     url = urljoin(path, model_api.model_name)
 
@@ -207,9 +240,11 @@ def test_model_api_query(model_api):
     response = Response()
     response._content = b'col1,col2\n1,2'
     response.status_code = 200
+    response.headers['page_count'] = 1
+    response.headers['current_page'] = 1
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        test_model_data_frame = model_api.query(
+        test_model_data_frame, pages_left = model_api.query_request(
             fields=test_fields, filter=test_filter, order=test_order,
             page=test_page, page_size=test_page_size)
         fn.assert_called_with('GET', url, params=params)
@@ -217,10 +252,12 @@ def test_model_api_query(model_api):
     assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
     assert test_model_data_frame.values.tolist() == [[1, 2], [3, 4]]
     assert test_model_data_frame.shape == (2, 2)
+    assert pages_left == 0
 
 
-def test_model_api_query_null_params(model_api):
-    """Test ModelAPI query method with null parameters works as intented"""
+def test_model_api_query_request_null_params(model_api):
+    """Test ModelAPI query_request method with null parameters works as intented
+    """
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
     url = urljoin(path, model_api.model_name)
 
@@ -234,16 +271,19 @@ def test_model_api_query_null_params(model_api):
 
     response = Response()
     response.status_code = 200
+    response.headers['page_count'] = 1
+    response.headers['current_page'] = 1
     response._content = b'col1,col2\n1,2'
     response.raw = BytesIO(b'col1,col2\n1,2')
     with mock.patch.object(Client, 'request',
                            return_value=response) as fn:
-        test_model_data_frame = model_api.query()
+        test_model_data_frame, pages_left = model_api.query_request()
         fn.assert_called_with('GET', url, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
     assert test_model_data_frame.values.tolist() == [[1, 2]]
     assert test_model_data_frame.shape == (1, 2)
+    assert pages_left == 0
 
 
 @pytest.mark.parametrize("kwarg,val,msg", [
@@ -267,7 +307,7 @@ def test_model_api_query_null_params(model_api):
         'detail': "page size must be a positive integer"}),
     ("page_size", -1, {
         'detail': "page size must be a positive integer"})])
-def test_model_api_query_invalid_params(model_api, kwarg, val, msg):
+def test_model_api_query_request_invalid_params(model_api, kwarg, val, msg):
     """Test ModelAPI class errors works as intented"""
 
     params = {
@@ -278,5 +318,5 @@ def test_model_api_query_invalid_params(model_api, kwarg, val, msg):
     response._content = b'col1,col2\n1,2'
     with mock.patch.object(Client, 'request', return_value=response):
         with pytest.raises(TypeError) as err:
-            test_model_data_frame = model_api.query(**params)
+            model_api.query_request(**params)
     assert str(err.value) == str(msg)

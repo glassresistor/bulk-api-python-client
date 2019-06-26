@@ -180,9 +180,39 @@ class ModelAPI(object):
             raise BulkAPIError({'model_api':
                                 "Model does not exist in bulk api"})
 
-    def query(self, fields=None, filter=None, order=None, page=None,
-              page_size=None):
-        """Query to create a Pandas DataFrame for given queryset. The default
+    def query(self, fields=None, filter=None, order=None, page_size=None):
+        """Queries to create a Pandas DataFrame for given queryset. The default
+        query may be obtained by calling the function, without passing
+        any parameters.
+
+        Args:
+            fields (list): list of specified fields for the fields query
+            filter (str): filter for the filter query
+            order (str): order for the ordering query
+            page_size (str): page size for the page_size query; Default: 10,000
+
+        Returns:
+            pandas dataframe
+
+        """
+        dataframes = []
+        current_page = 1
+        pages_left = 1
+        while pages_left > 0:
+            df, pages_left = self.query_request(
+                fields=fields,
+                filter=filter,
+                order=order,
+                page=current_page,
+                page_size=page_size
+            )
+            current_page += 1
+            dataframes.append(df)
+        return pandas.concat(dataframes)
+
+    def query_request(self, fields=None, filter=None, order=None, page=None,
+                      page_size=None):
+        """Queries to create a Pandas DataFrame for given queryset. The default
         query may be obtained by calling the function, without passing
         any parameters.
 
@@ -230,6 +260,8 @@ class ModelAPI(object):
         csv_path = os.path.join(path, query_hash)
         if not os.path.exists(csv_path):
             with self.app.client.request('GET', url, params=params) as response:
+                pages_left = response.headers['page_count'] - response.headers[
+                    'current_page']
                 with open(csv_path, 'wb') as f:
                     shutil.copyfileobj(response.raw, f)
 
@@ -240,4 +272,4 @@ class ModelAPI(object):
             ),
             ignore_index=True)
 
-        return df
+        return df, pages_left
