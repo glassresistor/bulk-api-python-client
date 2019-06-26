@@ -24,9 +24,35 @@ jobs:
       - run:
           command: |
             pycodestyle
+  deploy_prod:
+    docker:
+      - image: circleci/python:3.7.1
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "7e:ea:bf:b3:d4:c5:d2:ed:78:40:e1:47:34:58:2a:b9"
+      - run:
+          command: |
+            git clone --single-branch --branch gh-pages git@github.com:pivotbio/bulk-api-python-client.git docs
+            cd docs
+            git rm . -rf
+            cd ..
+            pdoc --html --output-dir docs/ bulk_api_client --force
+            cd docs
+            git config user.email "ci-build@pivotbio.com"
+            git config user.name "ci-build"
+            git add .
+            git commit -m "update docs after build"
+            git push origin gh-pages
 
 workflows:
   version: 2
   build-and-test:
     jobs:
       - build
+      - deploy_prod:
+          requires:
+            - build
+          filters:
+            branches:
+              only: release

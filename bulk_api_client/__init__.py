@@ -26,19 +26,30 @@ filter_error = TypeError({
 
 
 def is_kv(kv_str):
+    """Determines if an input string is of key=value type
+
+    Args:
+        kv_str (str): string to use
+
+    Returns:
+        Bool
+    """
     return bool(re.fullmatch(r'(^\w+=\w+$)', kv_str))
 
 
 class Client(object):
-    """API Client object for bulk_importer for app and model requests
-    """
     app_api_urls = None
+    """Dict of Bulk Importer app urls. Updated with the initialization of a
+    AppAPI object"""
     model_api_urls = {}
+    """Dict of Bulk Importer model urls. Updated with the initialization of a
+    ModelAPI object"""
 
     def __init__(self,
                  token,
                  api_url='https://data-warehouse.pivot/bulk/pandas_views/'):
-        """Base Client class to handle bulk_importer API requests
+        """API Client object for bulk_importer to handle app and model requests.
+        Requies a user token with access to data-warehouse
 
         Args:
             token (str): user token with permissions to access the API
@@ -48,10 +59,12 @@ class Client(object):
         self.token = token
         self.api_url = api_url
         self.temp_dir = os.path.join(gettempdir(), 'bulk-api-cache')
+        """Temp directory to host files created by the client"""
         os.makedirs(self.temp_dir, exist_ok=True)
 
     def request(self, method, url, params, ):
-        """Request function to construct and send a request
+        """Request function to construct and send a request. Uses the Requests
+        python library
 
         Args:
             method (str): method for the request
@@ -78,7 +91,7 @@ class Client(object):
         return response
 
     def clear_cache(self):
-        """Empty the temp directory"""
+        """Empty the temp directory for a clean working directory"""
 
         if os.path.exists(self.temp_dir):
             for path in os.listdir(self.temp_dir):
@@ -102,11 +115,11 @@ class Client(object):
 
 
 class AppAPI(object):
-    """Object to handle calls to APIRootView
-    """
 
     def __init__(self, client, app_label,):
-        """App obj to create requests to the bulk_importer API apps
+        """App object. Given a app label, this object makes a request — using
+        the Client class — to the Bulk Importer API. If given a app in Bulk
+        Importer, the response cached in app_api_urls dictionary.
 
         Args:
             client (obj): client obj for requests
@@ -129,7 +142,7 @@ class AppAPI(object):
         """Creates a ModelAPI object from a given model name
 
         Args:
-            model_name (str): model name of the desired model of an app
+            model_name (str): model name of the desired model
 
         Returns:
             ModelAPI obj
@@ -139,11 +152,12 @@ class AppAPI(object):
 
 
 class ModelAPI(object):
-    """Object to handle calls to APIAppView
-    """
 
     def __init__(self, app_api, model_name):
-        """Model obj to create requests to the bulk_importer API app models
+        """Model object. Given a model name, this object makes a request — using
+        the Client class — to the Bulk Importer API. If given a model in the
+        previously specified app, the response is cached in model_api_urls
+        dictionary.
 
         Args:
             app_api (obj): AppAPI object
@@ -168,14 +182,16 @@ class ModelAPI(object):
 
     def query(self, fields=None, filter=None, order=None, page=None,
               page_size=None):
-        """Query for bulk_importer PandasView to create a pandas DataFrame
+        """Query to create a Pandas DataFrame for given queryset. The default
+        query may be obtained by calling the function, without passing
+        any parameters.
 
         Args:
             fields (list): list of specified fields for the fields query
             filter (str): filter for the filter query
             order (str): order for the ordering query
-            page (str): page number for the page query
-            page_size (str): page size for the page_size query
+            page (str): page number for the page query; Default: 1
+            page_size (str): page size for the page_size query; Default: 10,000
 
         Returns:
             pandas dataframe
