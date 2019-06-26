@@ -147,6 +147,16 @@ def test_app_api_invalid_app(client):
             AppAPI(client, 'invalid_label')
 
 
+def test_app_api_model_method(app_api):
+    """Test AppAPI class works as intented"""
+
+    test_model_name = 'test_model_name'
+    with mock.patch.object(ModelAPI, '__init__', return_value=None) as fn:
+        test_model_obj = app_api.model(test_model_name)
+        fn.assert_called_with(app_api, test_model_name)
+    assert isinstance(test_model_obj, ModelAPI)
+
+
 def test_model_api(app_api):
     """Test ModelAPI class works as intented"""
     test_model_name = random_string()

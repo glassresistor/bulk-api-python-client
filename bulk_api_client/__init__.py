@@ -5,7 +5,7 @@ import json
 import re
 import shutil
 
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 from tempfile import gettempdir
 
 

@@ -4,6 +4,7 @@ omit =
     .venv
     setup.py
     */conftest.py
+    tests/*
 
 [report]
 # Regexes for lines to exclude from consideration
