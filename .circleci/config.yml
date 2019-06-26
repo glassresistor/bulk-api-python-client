@@ -25,9 +25,23 @@ jobs:
           command: |
             pycodestyle
   deploy_prod:
+    working_directory: ~/bulk-api-python-client
     docker:
       - image: circleci/python:3.7.1
     steps:
+      - checkout
+      - run: sudo chown -R circleci:circleci /usr/local/bin
+      - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+      - restore_cache:
+          key: deps9-{{ checksum "setup.py" }}
+      - run:
+          command: |
+            sudo pip install -e .[dev]
+      - save_cache:
+          key: deps9-{{ checksum "setup.py" }}
+          paths:
+            - "/usr/local/bin"
+            - "/usr/local/lib/python3.7/site-packages"
       - add_ssh_keys:
           fingerprints:
             - "7e:ea:bf:b3:d4:c5:d2:ed:78:40:e1:47:34:58:2a:b9"
