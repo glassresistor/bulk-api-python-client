@@ -11,7 +11,7 @@ from bulk_api_client import Client, AppAPI, ModelAPI
 
 def random_string(stringLength=10):
     """Generate a random string of fixed length """
-    letters = string.ascii_lowercase
+    letters = string.ascii_letters
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
@@ -42,7 +42,7 @@ def app_api(client):
 
 @pytest.fixture
 def model_api(app_api):
-    model_name = random_string()
+    model_name = random_string().lower()
     data = {
         model_name: urljoin(app_api.client.api_url, model_name),
     }

@@ -5,7 +5,6 @@ import string
 import json
 from io import BytesIO
 from unittest import mock
-from datetime import datetime, timedelta
 from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
 from requests.models import Response
@@ -16,7 +15,7 @@ from bulk_api_client import requests, CERT_PATH, BulkAPIError, is_kv
 
 def random_string(stringLength=10):
     """Generate a random string of fixed length """
-    letters = string.ascii_lowercase
+    letters = string.ascii_letters
     return ''.join(random.choice(letters) for i in range(stringLength))
 
 
@@ -168,7 +167,7 @@ def test_model_api(app_api):
         'model_name_1': "rgrg",
         'model_name_2': "rgrg",
         'model_name_3': "rgrg",
-        test_model_name: url,
+        test_model_name.lower(): url,
     }
 
     response = Response()
@@ -178,7 +177,7 @@ def test_model_api(app_api):
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model_obj = ModelAPI(app_api, test_model_name)
     fn.assert_called_with('GET', url, params)
-    assert test_model_obj.model_name == test_model_name
+    assert test_model_obj.model_name == test_model_name.lower()
 
 
 def test_model_api_invalid_model(app_api):
@@ -337,14 +336,6 @@ def test_model_api_query_request_regression(model_api):
     """Test ModelAPI query_request regression that fails when making
     multiple query requests
     """
-    path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, model_api.model_name)
-
-    test_fields = ['id', 'text']
-    test_filter = 'key=value|key=value&key=value'
-    test_order = 'text'
-    test_page = 1
-    test_page_size = 1
 
     response = Response()
     response._content = b'col1,col2\n1,2'
@@ -352,9 +343,9 @@ def test_model_api_query_request_regression(model_api):
     response.headers['page_count'] = '1'
     response.headers['current_page'] = '1'
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=response):
         test_model_data_frame, pages_left = model_api.query_request()
-    with mock.patch.object(Client, 'request', return_value=response) as fn:
+    with mock.patch.object(Client, 'request', return_value=response):
         test_model_data_frame, pages_left = model_api.query_request()
 
 

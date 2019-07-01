@@ -166,7 +166,7 @@ class ModelAPI(object):
         """
 
         self.app = app_api
-        self.model_name = model_name
+        self.model_name = model_name.lower()
 
         url = self.app.client.app_api_urls[self.app.app_label]
         params = {}
