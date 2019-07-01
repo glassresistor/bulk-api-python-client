@@ -5,6 +5,7 @@ import string
 import json
 from io import BytesIO
 from unittest import mock
+from datetime import datetime, timedelta
 from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
 from requests.models import Response
@@ -250,8 +251,8 @@ def test_model_api_query_request(model_api):
     response = Response()
     response._content = b'col1,col2\n1,2'
     response.status_code = 200
-    response.headers['page_count'] = 1
-    response.headers['current_page'] = 1
+    response.headers['page_count'] = '1'
+    response.headers['current_page'] = '1'
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model_data_frame, pages_left = model_api.query_request(
@@ -275,14 +276,14 @@ def test_model_api_query_request_null_params(model_api):
         'fields': None,
         'filter': None,
         'ordering': None,
-        'page': None,
+        'page': 1,
         'page_size': None,
     }
 
     response = Response()
     response.status_code = 200
-    response.headers['page_count'] = 1
-    response.headers['current_page'] = 1
+    response.headers['page_count'] = '1'
+    response.headers['current_page'] = '1'
     response._content = b'col1,col2\n1,2'
     response.raw = BytesIO(b'col1,col2\n1,2')
     with mock.patch.object(Client, 'request',
@@ -330,3 +331,61 @@ def test_model_api_query_request_invalid_params(model_api, kwarg, val, msg):
         with pytest.raises(TypeError) as err:
             model_api.query_request(**params)
     assert str(err.value) == str(msg)
+
+
+def test_model_api_query_request_regression(model_api):
+    """Test ModelAPI query_request regression that fails when making
+    multiple query requests
+    """
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, model_api.model_name)
+
+    test_fields = ['id', 'text']
+    test_filter = 'key=value|key=value&key=value'
+    test_order = 'text'
+    test_page = 1
+    test_page_size = 1
+
+    response = Response()
+    response._content = b'col1,col2\n1,2'
+    response.status_code = 200
+    response.headers['page_count'] = '1'
+    response.headers['current_page'] = '1'
+    response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        test_model_data_frame, pages_left = model_api.query_request()
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        test_model_data_frame, pages_left = model_api.query_request()
+
+
+def test_model_api_query_request_fresh_cache(model_api):
+    """Test ModelAPI query_request caches new file after 2 hours old"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, model_api.model_name)
+    params = {
+        'fields': None,
+        'filter': None,
+        'ordering': None,
+        'page': 1,
+        'page_size': None,
+    }
+    query_hash = "{}.csv".format(hash(json.dumps(params, sort_keys=True)))
+    test_file = os.path.join(model_api.app.client.temp_dir, query_hash)
+    with open(test_file, 'w') as f:
+        f.write('col1,col2\n1,2')
+    response = Response()
+    response.status_code = 200
+    response.headers['page_count'] = '1'
+    response.headers['current_page'] = '1'
+    response._content = b'col1,col2\n3,4'
+    response.raw = BytesIO(b'col1,col2\n3,4')
+    with mock.patch.object(Client, 'request',
+                           return_value=response) as fn:
+        test_model_data_frame, pages_left = model_api.query_request()
+        fn.assert_called_with('GET', url, params=params)
+    assert isinstance(test_model_data_frame, DataFrame)
+    assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
+    assert test_model_data_frame.values.tolist() == [[3, 4]]
+    assert test_model_data_frame.shape == (1, 2)
+    assert pages_left == 0

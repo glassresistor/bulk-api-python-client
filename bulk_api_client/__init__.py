@@ -4,7 +4,7 @@ import requests
 import json
 import re
 import shutil
-
+from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from tempfile import gettempdir
 
@@ -245,6 +245,8 @@ class ModelAPI(object):
         if page is not None and (
                 not isinstance(page, int) or page <= 0):
             raise TypeError({'detail': "page must be a positive integer"})
+        if page is None:
+            page = 1
         if page_size is not None and (
                 not isinstance(page_size, int) or page_size <= 0):
             raise TypeError({'detail': "page size must be a positive integer"})
@@ -257,13 +259,24 @@ class ModelAPI(object):
         path = os.path.join(self.app.client.temp_dir, path)
         os.makedirs(path, exist_ok=True)
         query_hash = "{}.csv".format(hash(json.dumps(params, sort_keys=True)))
+        pageless_params = {'fields': fields, 'filter': filter,
+                           'ordering': order, 'page_size': page_size}
+        page_hash = "{}.count".format(
+            hash(json.dumps(pageless_params, sort_keys=True)))
         csv_path = os.path.join(path, query_hash)
-        if not os.path.exists(csv_path):
+        page_path = os.path.join(path, page_hash)
+        expiration_time = (datetime.now() - timedelta(hours=2)).timestamp()
+        if not os.path.exists(csv_path) or (
+                os.path.getmtime(csv_path) < expiration_time):
             with self.app.client.request('GET', url, params=params) as response:
-                pages_left = response.headers['page_count'] - response.headers[
-                    'current_page']
+                pages_left = int(response.headers['page_count']) - page
                 with open(csv_path, 'wb') as f:
                     shutil.copyfileobj(response.raw, f)
+                with open(page_path, 'w') as f:
+                    f.write(str(response.headers['page_count']))
+        else:
+            with open(page_path, 'rb') as f:
+                pages_left = int(f.readline()) - page
 
         df = pandas.concat(
             pandas.read_csv(
