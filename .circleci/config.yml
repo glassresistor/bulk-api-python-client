@@ -55,8 +55,8 @@ jobs:
             cd docs
             git config user.email "ci-build@pivotbio.com"
             git config user.name "ci-build"
-            git add .
-            git commit -m "[skip ci] update docs after build"
+            git add -A
+            git diff-index --quiet HEAD || git commit -m "[skip ci] update docs after build"
             git push origin gh-pages
 
 workflows:
@@ -70,5 +70,3 @@ workflows:
           filters:
             branches:
               only: release
-              ignore:
-                - gh-pages
