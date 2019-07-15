@@ -47,7 +47,7 @@ class Client(object):
 
     def __init__(self,
                  token,
-                 api_url='https://data-warehouse.pivot/bulk/pandas_views/'):
+                 api_url='https://data-warehouse.pivot/bulk/api/'):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
 
