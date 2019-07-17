@@ -34,7 +34,7 @@ def is_kv(kv_str):
     Returns:
         Bool
     """
-    return bool(re.fullmatch(r'(^\w+=\w+$)', kv_str))
+    return '=' in kv_str
 
 
 class Client(object):
