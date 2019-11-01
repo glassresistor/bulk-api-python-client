@@ -231,7 +231,7 @@ def test_model_api_query(model_api):
 def test_model_api_query_request(model_api):
     """Test ModelAPI query_request method works as intented"""
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, model_api.model_name)
+    url = urljoin(path, os.path.join(model_api.model_name, 'query'))
 
     test_fields = ['id', 'text']
     test_filter = 'key=value|key=value&key=value'
@@ -269,7 +269,7 @@ def test_model_api_query_request_null_params(model_api):
     """Test ModelAPI query_request method with null parameters works as intented
     """
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, model_api.model_name)
+    url = urljoin(path, os.path.join(model_api.model_name, 'query'))
 
     params = {
         'fields': None,
@@ -353,7 +353,7 @@ def test_model_api_query_request_fresh_cache(model_api):
     """Test ModelAPI query_request caches new file after 2 hours old"""
 
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, model_api.model_name)
+    url = urljoin(path, os.path.join(model_api.model_name, 'query'))
     params = {
         'fields': None,
         'filter': None,
