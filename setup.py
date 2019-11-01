@@ -10,7 +10,8 @@ setup(
     author_email='infra@pivotbio.com',
     url='https://github.com/pivotbio/bulk-api-python-client',
     packages=['bulk_api_client'],
-    package_data={'bulk_api_client': ['data_warehouse.pem']},
+    package_data={'bulk_api_client': ['data-warehouse.pem']},
+    include_package_data=True,
     install_requires=[
         'pandas>=0.25.2',
         'requests~=2.22.0',
