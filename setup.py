@@ -9,8 +9,10 @@ setup(
     author='Mikela Clemmons & Donnell Muse',
     author_email='infra@pivotbio.com',
     url='https://github.com/pivotbio/bulk-api-python-client',
+    packages=['bulk_api_client'],
+    package_data={'bulk_api_client': ['data_warehouse.pem']},
     install_requires=[
-        'pandas~=0.24.2',
+        'pandas>=0.25.2',
         'requests~=2.22.0',
     ],
     extras_require={
