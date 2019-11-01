@@ -1,1 +1,1 @@
-include bulk_api_client/data-warehouse.pem
+include bulk_api_client/data-warehouse.pivot.pem
