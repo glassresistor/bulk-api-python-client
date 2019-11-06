@@ -6,7 +6,7 @@ import re
 import shutil
 import sys
 from datetime import datetime, timedelta
-from urllib.parse import urlparse, urljoin
+from urllib.parse import urljoin
 from tempfile import gettempdir
 
 
@@ -63,7 +63,7 @@ class Client(object):
         """Temp directory to host files created by the client"""
         os.makedirs(self.temp_dir, exist_ok=True)
 
-    def request(self, method, url, params, ):
+    def request(self, method, url, params, *args, **kwargs):
         """Request function to construct and send a request. Uses the Requests
         python library
 
@@ -77,17 +77,23 @@ class Client(object):
             response obj
 
         """
-        headers = {'Authorization': 'Token {}'.format(self.token)}
+        headers = {
+            'Authorization': 'Token {}'.format(self.token),
+        }
+        if kwargs.get('headers'):
+            kwargs['headers'] = {**headers, **kwargs['headers']}
+        else:
+            kwargs['headers'] = headers
         response = requests.request(
-            method,
-            url,
+            method=method,
+            url=url,
             params=params,
-            headers=headers,
             verify=CERT_PATH,
-            stream=True
+            stream=True,
+            **kwargs
         )
 
-        if response.status_code != 200:
+        if response.status_code not in [200, 201, 204]:
             raise BulkAPIError(json.loads(response.content))
         return response
 
@@ -295,3 +301,131 @@ class ModelAPI(object):
             ignore_index=True)
 
         return df, pages_left
+
+    def list(self):
+        """Lists all model object of a given model; Makes a 'GET' method request
+        to the Bulk API
+
+        Args:
+
+        Returns:
+            list of dictionary objects of the model data
+
+        """
+        path = self.app.client.model_api_urls[self.app.app_label][
+            self.model_name]
+        url = urljoin(self.app.client.api_url, path)
+        response = self.app.client.request(
+            'GET',
+            url,
+            params={}
+        )
+        return json.loads(response.content)
+
+    def create(self, obj_data):
+        """Creates a model object given it's primary key and new object data;
+        Makes a 'POST' method request to the Bulk API
+
+        Args:
+            pk (str): primary key of object
+            obj_data (dict): new data to create the object with
+
+        Returns:
+            dictionary object of the model data
+
+        """
+        path = self.app.client.model_api_urls[self.app.app_label][
+            self.model_name]
+        url = urljoin(self.app.client.api_url, path)
+        data = json.dumps(obj_data)
+        kwargs = {
+            'data': data,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        }
+        response = self.app.client.request(
+            'POST',
+            url,
+            params={},
+            **kwargs
+        )
+        return json.loads(response.content)
+
+    def get(self, pk):
+        """Gets a model object given it's primary key; Makes a 'GET' method
+        request to the Bulk API
+
+        Args:
+            pk (str): primary key of object
+
+        Returns:
+            dictionary object of the model data
+
+        """
+        path = self.app.client.model_api_urls[self.app.app_label][
+            self.model_name]
+        url = urljoin(self.app.client.api_url, os.path.join(path, pk))
+        response = self.app.client.request(
+            'GET',
+            url,
+            params={}
+        )
+        return json.loads(response.content)
+
+    def update(self, pk, obj_data, patch=True):
+        """Updates a model object given it's primary key and new object data;
+        Makes a 'PATCH' method request to the Bulk API
+
+        Args:
+            pk (str): primary key of object
+            obj_data (dict): new data to update the object with
+            patch(bool): partial update (default: True)
+
+        Returns:
+            success status code (200)
+
+        """
+        path = self.app.client.model_api_urls[self.app.app_label][
+            self.model_name]
+        url = urljoin(self.app.client.api_url, os.path.join(path, pk))
+        data = json.dumps(obj_data)
+        kwargs = {
+            'data': data,
+            'headers': {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            }
+        }
+        method = 'PATCH'
+        if not patch:
+            method = 'PUT'
+        response = self.app.client.request(
+            method,
+            url,
+            params={},
+            **kwargs
+        )
+        return response.status_code
+
+    def delete(self, pk):
+        """Deletes a model object given it's primary key; Makes a 'DELETE'
+        method request to the Bulk API
+
+        Args:
+            pk (str): primary key of object
+
+        Returns:
+            success status code (204)
+
+        """
+        path = self.app.client.model_api_urls[self.app.app_label][
+            self.model_name]
+        url = urljoin(self.app.client.api_url, os.path.join(path, pk))
+        response = self.app.client.request(
+            'DELETE',
+            url,
+            params={}
+        )
+        return response.status_code

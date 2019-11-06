@@ -46,19 +46,19 @@ def test_client_request(client):
     path = random_string()
     full_path = urljoin(client.api_url, path)
     params = {'teset_param': 1}
-    headers = {'Authorization': 'Token {}'.format(client.token)}
+    kwargs = {'headers': {'Authorization': 'Token {}'.format(client.token)}}
     response = Response()
     response._content = b''
     response.status_code = 200
     with mock.patch.object(requests, 'request', return_value=response) as fn:
         client.request(method, full_path, params)
         fn.assert_called_with(
-            method,
-            full_path,
+            method=method,
+            url=full_path,
             params=params,
-            headers=headers,
             verify=CERT_PATH,
-            stream=True
+            stream=True,
+            **kwargs
         )
 
 
@@ -75,7 +75,7 @@ def test_client_request_errors(client, status_code, err_msg):
     path = random_string()
     full_path = urljoin(client.api_url, path)
     params = {'teset_param': 1}
-    headers = {'Authorization': 'Token {}'.format(client.token)}
+    kwargs = {'headers': {'Authorization': 'Token {}'.format(client.token)}}
     response = Response()
     response._content = json.dumps(err_msg)
     response.status_code = status_code
@@ -83,12 +83,12 @@ def test_client_request_errors(client, status_code, err_msg):
         with pytest.raises(BulkAPIError) as err:
             client.request(method, full_path, params)
         fn.assert_called_with(
-            method,
-            full_path,
+            method=method,
+            url=full_path,
             params=params,
-            headers=headers,
             verify=CERT_PATH,
-            stream=True
+            stream=True,
+            **kwargs
         )
     assert str(err.value) == str(err_msg)
 
@@ -380,3 +380,138 @@ def test_model_api_query_request_fresh_cache(model_api):
     assert test_model_data_frame.values.tolist() == [[3, 4]]
     assert test_model_data_frame.shape == (1, 2)
     assert pages_left == 0
+
+
+def test_model_api_list(model_api):
+    """Test ModelAPI list method works as intented"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, model_api.model_name)
+    content = b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'\
+        b'"updated_at": "2019-11-01T19:17:50.416090Z", "text":'\
+        b'"EYdVWVxempVwBpqMENtuYmGZJskLE", "date_time":'\
+        b'"2019-11-10T07:28:34.088291Z",'\
+        b'"integer": 5, "imported_from": null}]'
+    response = Response()
+    response.status_code = 200
+    response._content = content
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        obj = model_api.list()
+        fn.assert_called_with('GET', url, params={})
+    assert obj == json.loads(content)
+
+
+def test_model_api_create(model_api):
+    """Test ModelAPI list method works as intented"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, model_api.model_name)
+    content = b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'\
+        b'"updated_at": "2019-11-01T19:17:50.416090Z", "text":'\
+        b'"EYdVWVxempVwBpqMENtuYmGZJskLE", "date_time":'\
+        b'"2019-11-10T07:28:34.088291Z",'\
+        b'"integer": 5, "imported_from": null}]'
+    obj_data = {
+        'text': 'EYdVWVxempVwBpqMENtuYmGZJskLE',
+        'date_time': '2019-11-01T19:17:50.416090Z',
+        'integer': 5
+    }
+    data = json.dumps(obj_data)
+    kwargs = {
+        'data': data,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }
+    response = Response()
+    response.status_code = 200
+    response._content = content
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        obj = model_api.create(obj_data)
+        fn.assert_called_with('POST', url, params={}, **kwargs)
+    assert obj == json.loads(content)
+
+
+def test_model_api_get(model_api):
+    """Test ModelAPI list method works as intented"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    content = b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'\
+        b'"updated_at": "2019-11-01T19:17:50.416090Z", "text":'\
+        b'"EYdVWVxempVwBpqMENtuYmGZJskLE", "date_time":'\
+        b'"2019-11-10T07:28:34.088291Z",'\
+        b'"integer": 5, "imported_from": null}]'
+    response = Response()
+    response.status_code = 200
+    response._content = content
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        obj = model_api.get('1016')
+        fn.assert_called_with('GET', url, params={})
+    assert obj == json.loads(content)
+
+
+def test_model_api_update(model_api):
+    """Test ModelAPI list method works as intented"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    obj_data = {
+        'text': 'EYdVWVxempVwBpqMENtuYmGZJskLE',
+        'date_time': '2019-11-01T19:17:50.416090Z',
+        'integer': 5
+    }
+    data = json.dumps(obj_data)
+    kwargs = {
+        'data': data,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }
+    response = Response()
+    response.status_code = 200
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        obj = model_api.update('1016', obj_data, patch=False)
+        fn.assert_called_with('PUT', url, params={}, **kwargs)
+    assert obj == response.status_code
+
+
+def test_model_api_partial_update(model_api):
+    """Test ModelAPI list method works as intented"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    obj_data = {
+        'text': 'EYdVWVxempVwBpqMENtuYmGZJskLE',
+        'date_time': '2019-11-01T19:17:50.416090Z',
+        'integer': 5
+    }
+    data = json.dumps(obj_data)
+    kwargs = {
+        'data': data,
+        'headers': {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        }
+    }
+    response = Response()
+    response.status_code = 200
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        obj = model_api.update('1016', obj_data)
+        fn.assert_called_with('PATCH', url, params={}, **kwargs)
+    assert obj == response.status_code
+
+
+def test_model_api_delete(model_api):
+    """Test ModelAPI list method works as intented"""
+
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    response = Response()
+    response.status_code = 200
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        obj = model_api.delete('1016')
+        fn.assert_called_with('DELETE', url, params={})
+    assert obj == response.status_code
