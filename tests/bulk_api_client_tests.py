@@ -395,9 +395,10 @@ def test_model_api_list(model_api):
     response = Response()
     response.status_code = 200
     response._content = content
+    response.headers['page'] = '1'
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.list()
-        fn.assert_called_with('GET', url, params={})
+        obj = model_api.list(page=1)
+        fn.assert_called_with('GET', url, params={'page': 1})
     assert obj == json.loads(content)
 
 

@@ -302,7 +302,7 @@ class ModelAPI(object):
 
         return df, pages_left
 
-    def list(self):
+    def list(self, page=None):
         """Lists all model object of a given model; Makes a 'GET' method request
         to the Bulk API
 
@@ -318,7 +318,7 @@ class ModelAPI(object):
         response = self.app.client.request(
             'GET',
             url,
-            params={}
+            params={'page': page}
         )
         return json.loads(response.content)
 
