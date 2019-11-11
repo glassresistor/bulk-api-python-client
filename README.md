@@ -19,7 +19,41 @@ To install the project
     from bulk_api_client import Client
 
     client = Client(token)
-    client.app('app_label').model('model_name').query(filter=...,order=...,page=,page_size=,fields=[...])
+    client.app('app_label').model('model_name')
+
+#### List
+
+List all objects on a model. Only 100 objects can be returned at a time. Use the page option to query for different pages
+
+    .list(page=1)
+
+#### Get
+
+Get a model object using it's primary key
+
+    .get(pk=1)
+
+#### Create
+
+Create an object on a model using a dictionary of data on the object
+
+    .create(obj_data={})
+
+#### Update
+
+Update an existing object with a dictionary of data using it's primary key
+
+    .update(pk=1, obj_data={})
+
+#### Delete
+
+Delete a model object given it's primary key
+
+    .list(pk=1)
+
+#### Query
+
+    .query(filter=...,order=...,page=,page_size=,fields=[...])
 
 | Query     | Description                                                         | Example                                   |
 | --------- | ------------------------------------------------------------------- | ----------------------------------------- |
@@ -29,7 +63,7 @@ To install the project
 | page      | Returns a data set of a specified page number                       | query(page=1)                             |
 | page size | Limits the data set to specified number of data points              | query(page_size=10)                       |
 
-##### Example Queries
+###### Example Queries
 
     query(filter='field_name1=value1|field_name2=vaue2', order='field', fields=['field1','field2','field3'])
 
