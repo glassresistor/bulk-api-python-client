@@ -206,7 +206,7 @@ class ModelAPI(object):
         current_page = 1
         pages_left = 1
         while pages_left > 0:
-            df, pages_left = self.query_request(
+            df, pages_left = self._query(
                 fields=fields,
                 filter=filter,
                 order=order,
@@ -217,8 +217,8 @@ class ModelAPI(object):
             dataframes.append(df)
         return pandas.concat(dataframes)
 
-    def query_request(self, fields=None, filter=None, order=None, page=None,
-                      page_size=None):
+    def _query(self, fields=None, filter=None, order=None, page=None,
+               page_size=None):
         """Queries to create a Pandas DataFrame for given queryset. The default
         query may be obtained by calling the function, without passing
         any parameters.
@@ -302,7 +302,7 @@ class ModelAPI(object):
 
         return df, pages_left
 
-    def list(self, page=None):
+    def _list(self, page=None):
         """Lists all model object of a given model; Makes a 'GET' method request
         to the Bulk API
 
@@ -322,7 +322,7 @@ class ModelAPI(object):
         )
         return json.loads(response.content)
 
-    def create(self, obj_data):
+    def _create(self, obj_data):
         """Creates a model object given it's primary key and new object data;
         Makes a 'POST' method request to the Bulk API
 
@@ -353,7 +353,7 @@ class ModelAPI(object):
         )
         return json.loads(response.content)
 
-    def get(self, pk):
+    def _get(self, pk):
         """Gets a model object given it's primary key; Makes a 'GET' method
         request to the Bulk API
 
@@ -374,7 +374,7 @@ class ModelAPI(object):
         )
         return json.loads(response.content)
 
-    def update(self, pk, obj_data, patch=True):
+    def _update(self, pk, obj_data, patch=True):
         """Updates a model object given it's primary key and new object data;
         Makes a 'PATCH' method request to the Bulk API
 
@@ -409,7 +409,7 @@ class ModelAPI(object):
         )
         return response.status_code
 
-    def delete(self, pk):
+    def _delete(self, pk):
         """Deletes a model object given it's primary key; Makes a 'DELETE'
         method request to the Bulk API
 

@@ -207,7 +207,7 @@ def test_model_api_query(model_api):
     dataframes = [read_csv(BytesIO(b'col1,col2\n1,2')),
                   read_csv(BytesIO(b'col1,col2\n3,4'))]
 
-    with mock.patch.object(ModelAPI, 'query_request',) as fn:
+    with mock.patch.object(ModelAPI, '_query',) as fn:
         fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
         test_model_data_frame = model_api.query(
             fields=test_fields,
@@ -254,7 +254,7 @@ def test_model_api_query_request(model_api):
     response.headers['current_page'] = '1'
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api.query_request(
+        test_model_data_frame, pages_left = model_api._query(
             fields=test_fields, filter=test_filter, order=test_order,
             page=test_page, page_size=test_page_size)
         fn.assert_called_with('GET', url, params=params)
@@ -287,7 +287,7 @@ def test_model_api_query_request_null_params(model_api):
     response.raw = BytesIO(b'col1,col2\n1,2')
     with mock.patch.object(Client, 'request',
                            return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api.query_request()
+        test_model_data_frame, pages_left = model_api._query()
         fn.assert_called_with('GET', url, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
@@ -328,7 +328,7 @@ def test_model_api_query_request_invalid_params(model_api, kwarg, val, msg):
     response._content = b'col1,col2\n1,2'
     with mock.patch.object(Client, 'request', return_value=response):
         with pytest.raises(TypeError) as err:
-            model_api.query_request(**params)
+            model_api._query(**params)
     assert str(err.value) == str(msg)
 
 
@@ -344,9 +344,9 @@ def test_model_api_query_request_regression(model_api):
     response.headers['current_page'] = '1'
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response):
-        test_model_data_frame, pages_left = model_api.query_request()
+        test_model_data_frame, pages_left = model_api._query()
     with mock.patch.object(Client, 'request', return_value=response):
-        test_model_data_frame, pages_left = model_api.query_request()
+        test_model_data_frame, pages_left = model_api._query()
 
 
 def test_model_api_query_request_fresh_cache(model_api):
@@ -373,7 +373,7 @@ def test_model_api_query_request_fresh_cache(model_api):
     response.raw = BytesIO(b'col1,col2\n3,4')
     with mock.patch.object(Client, 'request',
                            return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api.query_request()
+        test_model_data_frame, pages_left = model_api._query()
         fn.assert_called_with('GET', url, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
@@ -397,7 +397,7 @@ def test_model_api_list(model_api):
     response._content = content
     response.headers['page'] = '1'
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.list(page=1)
+        obj = model_api._list(page=1)
         fn.assert_called_with('GET', url, params={'page': 1})
     assert obj == json.loads(content)
 
@@ -429,7 +429,7 @@ def test_model_api_create(model_api):
     response.status_code = 200
     response._content = content
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.create(obj_data)
+        obj = model_api._create(obj_data)
         fn.assert_called_with('POST', url, params={}, **kwargs)
     assert obj == json.loads(content)
 
@@ -448,7 +448,7 @@ def test_model_api_get(model_api):
     response.status_code = 200
     response._content = content
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.get('1016')
+        obj = model_api._get('1016')
         fn.assert_called_with('GET', url, params={})
     assert obj == json.loads(content)
 
@@ -474,7 +474,7 @@ def test_model_api_update(model_api):
     response = Response()
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.update('1016', obj_data, patch=False)
+        obj = model_api._update('1016', obj_data, patch=False)
         fn.assert_called_with('PUT', url, params={}, **kwargs)
     assert obj == response.status_code
 
@@ -500,7 +500,7 @@ def test_model_api_partial_update(model_api):
     response = Response()
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.update('1016', obj_data)
+        obj = model_api._update('1016', obj_data)
         fn.assert_called_with('PATCH', url, params={}, **kwargs)
     assert obj == response.status_code
 
@@ -513,6 +513,6 @@ def test_model_api_delete(model_api):
     response = Response()
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api.delete('1016')
+        obj = model_api._delete('1016')
         fn.assert_called_with('DELETE', url, params={})
     assert obj == response.status_code
