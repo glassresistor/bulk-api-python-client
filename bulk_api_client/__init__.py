@@ -4,6 +4,9 @@ import requests
 import requests_cache
 import json
 import re
+import shutil
+import sys
+import yaml
 from io import BytesIO
 from urllib.parse import urljoin
 from tempfile import gettempdir
@@ -60,6 +63,14 @@ class Client(object):
         """
         self.token = token
         self.api_url = api_url
+        yaml_res = self.request(
+            method='GET',
+            url=urljoin(self.api_url, 'swagger.yaml'),
+            params={},
+        )
+        yaml_data = yaml.safe_load(yaml_res.raw)
+        self.definitions = yaml_data['definitions']
+        self.paths = yaml_data['paths']
         requests_cache.install_cache(
             'bulk-api-cache',
             backend=requests_cache.backends.sqlite.DbCache(

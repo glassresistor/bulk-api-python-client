@@ -2,11 +2,14 @@ import pytest
 import random
 import string
 import json
+import yaml
+from io import BytesIO
 from unittest import mock
 from urllib.parse import urljoin
 from requests.models import Response
 
 from bulk_api_client import Client, AppAPI, ModelAPI
+from bulk_api_client import requests
 
 
 def random_string(stringLength=10):
@@ -21,7 +24,15 @@ def client():
     url = "http://test"
     Client.app_api_urls = None
     Client.model_api_urls = {}
-    client = Client(token, api_url=url)
+    yaml_data = {'definitions': ['some_definitions'],
+                 'paths': ['some_paths']}
+    data = BytesIO(yaml.dump(yaml_data).encode())
+    response = Response()
+    response._content = b''
+    response.status_code = 200
+    response.raw = data
+    with mock.patch.object(requests, 'request', return_value=response):
+        client = Client(token, api_url=url)
     client.clear_cache()
     return client
 

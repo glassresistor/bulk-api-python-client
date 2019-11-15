@@ -3,6 +3,7 @@ import pytest
 import random
 import string
 import json
+import yaml
 from io import BytesIO
 from unittest import mock
 from pandas import DataFrame, read_csv
@@ -36,7 +37,15 @@ def test_client():
     """Test Client class works as intented"""
     token = random_string()
     url = random_string()
-    test_client = Client(token, api_url=url)
+    yaml_data = {'definitions': ['some_definitions'],
+                 'paths': ['some_paths']}
+    data = BytesIO(yaml.dump(yaml_data).encode())
+    response = Response()
+    response._content = b''
+    response.status_code = 200
+    response.raw = data
+    with mock.patch.object(requests, 'request', return_value=response):
+        test_client = Client(token, api_url=url)
     assert test_client.token == token
     assert test_client.api_url == url
 
@@ -92,6 +101,34 @@ def test_client_request_errors(client, status_code, err_msg):
             **kwargs
         )
     assert str(err.value) == str(err_msg)
+
+
+def test_download_swagger_yaml():
+    token = random_string()
+    url = random_string()
+    yaml_data = {'definitions': ['some_definitions'],
+                 'paths': ['some_paths']}
+    data = BytesIO(yaml.dump(yaml_data).encode())
+    method = 'GET'
+    url = 'http://localhost:8000/bulk/api/swagger.yaml'
+    params = {}
+    kwargs = {'headers': {'Authorization': 'Token {}'.format(token)}}
+    response = Response()
+    response._content = b''
+    response.status_code = 200
+    response.raw = data
+    with mock.patch.object(requests, 'request', return_value=response) as fn:
+        client = Client(token, api_url=url)
+        fn.assert_called_with(
+            method=method,
+            url=url,
+            params=params,
+            verify=CERT_PATH,
+            stream=True,
+            **kwargs
+        )
+    assert client.definitions == yaml_data['definitions']
+    assert client.paths == yaml_data['paths']
 
 
 def test_request_caching(client):
