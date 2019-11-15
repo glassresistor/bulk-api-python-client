@@ -18,7 +18,7 @@ To install the project
 
     from bulk_api_client import Client
 
-    client = Client(token)
+    client = Client(token, api_url='https://data-warehouse.pivot/bulk/api/', expiration_time=7200)
     client.app('app_label').model('model_name')
 
 #### List

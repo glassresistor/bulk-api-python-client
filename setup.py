@@ -14,6 +14,7 @@ setup(
     install_requires=[
         'pandas>=0.25.2',
         'requests~=2.22.0',
+        'requests-cache~=0.5.0',
     ],
     extras_require={
         'dev': [

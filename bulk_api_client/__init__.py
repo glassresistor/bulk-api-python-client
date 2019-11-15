@@ -1,11 +1,10 @@
 import os
 import pandas
 import requests
+import requests_cache
 import json
 import re
-import shutil
-import sys
-from datetime import datetime, timedelta
+from io import BytesIO
 from urllib.parse import urljoin
 from tempfile import gettempdir
 
@@ -48,20 +47,26 @@ class Client(object):
 
     def __init__(self,
                  token,
-                 api_url='https://data-warehouse.pivot/bulk/api/'):
+                 api_url='https://data-warehouse.pivot/bulk/api/',
+                 expiration_time=7200):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
 
         Args:
             token (str): user token with permissions to access the API
             api_url (str): base url for api request; defaults to data_warehouse
+            expiration_time (int): denote time requests expire from cache
 
         """
         self.token = token
         self.api_url = api_url
-        self.temp_dir = os.path.join(gettempdir(), 'bulk-api-cache')
-        """Temp directory to host files created by the client"""
-        os.makedirs(self.temp_dir, exist_ok=True)
+        requests_cache.install_cache(
+            'bulk-api-cache',
+            backend=requests_cache.backends.sqlite.DbCache(
+                location=os.path.join(gettempdir(), 'bulk-api-cache')
+            ),
+            expire_after=expiration_time
+        )
 
     def request(self, method, url, params, *args, **kwargs):
         """Request function to construct and send a request. Uses the Requests
@@ -98,15 +103,9 @@ class Client(object):
         return response
 
     def clear_cache(self):
-        """Empty the temp directory for a clean working directory"""
+        """Empty requests cache"""
 
-        if os.path.exists(self.temp_dir):
-            for path in os.listdir(self.temp_dir):
-                path = os.path.join(self.temp_dir, path)
-                if os.path.isdir(path):
-                    shutil.rmtree(path)
-                if os.path.isfile(path):
-                    os.unlink(path)
+        requests_cache.clear()
 
     def app(self, app_label):
         """Creates AppAPI object from a given app label
@@ -263,42 +262,17 @@ class ModelAPI(object):
         url = urljoin(self.app.client.api_url, os.path.join(url_path, 'query'))
         params = {'fields': fields, 'filter': filter,
                   'ordering': order, 'page': page, 'page_size': page_size}
-        url_hash = str(hash(url_path) + sys.maxsize + 1)
-        path = os.path.join(self.app.client.temp_dir, url_hash)
-        os.makedirs(path, exist_ok=True)
-        query_hash = "{}.csv".format(
-            hash(json.dumps(params, sort_keys=True))
-            + sys.maxsize
-            + 1
-        )
-        pageless_params = {'fields': fields, 'filter': filter,
-                           'ordering': order, 'page_size': page_size}
-        page_hash = "{}.count".format(
-            hash(json.dumps(pageless_params, sort_keys=True))
-            + sys.maxsize
-            + 1
-        )
-        csv_path = os.path.join(path, query_hash)
-        page_path = os.path.join(path, page_hash)
-        expiration_time = (datetime.now() - timedelta(hours=2)).timestamp()
-        if not os.path.exists(csv_path) or (
-                os.path.getmtime(csv_path) < expiration_time):
-            with self.app.client.request('GET', url, params=params) as response:
-                pages_left = int(response.headers['page_count']) - page
-                with open(csv_path, 'wb') as f:
-                    shutil.copyfileobj(response.raw, f)
-                with open(page_path, 'w') as f:
-                    f.write(str(response.headers['page_count']))
-        else:
-            with open(page_path, 'rb') as f:
-                pages_left = int(f.readline()) - page
 
-        df = pandas.concat(
-            pandas.read_csv(
-                csv_path,
-                chunksize=CSV_CHUNKSIZE
-            ),
-            ignore_index=True)
+        with self.app.client.request('GET', url, params=params) as response:
+            pages_left = int(response.headers['page_count']) - page
+
+            df = pandas.concat(
+                pandas.read_csv(
+                    BytesIO(response.content),
+                    chunksize=CSV_CHUNKSIZE
+                ),
+                ignore_index=True
+            )
 
         return df, pages_left
 

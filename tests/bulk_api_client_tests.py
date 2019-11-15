@@ -10,7 +10,8 @@ from urllib.parse import urljoin
 from requests.models import Response
 
 from bulk_api_client import Client, AppAPI, ModelAPI
-from bulk_api_client import requests, CERT_PATH, BulkAPIError, is_kv
+from bulk_api_client import (requests, CERT_PATH, BulkAPIError, is_kv,
+                             requests_cache)
 
 
 def random_string(stringLength=10):
@@ -93,6 +94,18 @@ def test_client_request_errors(client, status_code, err_msg):
     assert str(err.value) == str(err_msg)
 
 
+def test_request_caching(client):
+    method = 'GET'
+    path = random_string()
+    full_path = urljoin(client.api_url, path)
+    response = Response()
+    response.status_code = 200
+    response.from_cache = True
+    with mock.patch.object(requests, 'request', return_value=response):
+        res = client.request(method, full_path, {})
+    res.from_cache = True
+
+
 def test_client_app_method(client):
     """Test Client class works as intented"""
     test_app_name = random_string()
@@ -103,12 +116,10 @@ def test_client_app_method(client):
 
 
 def test_client_clear_cache(client):
-    """Test cache clearing method empties the temp dir"""
-    with open(os.path.join(client.temp_dir, "test.txt"), 'wb') as f:
-        f.write(b'test')
-    client.clear_cache()
-
-    assert not os.listdir(client.temp_dir)
+    """Test cache clearing method clears request cache"""
+    with mock.patch.object(requests_cache, 'clear') as fn:
+        client.clear_cache()
+        fn.called = True
 
 
 def test_app_api(client):
@@ -248,7 +259,7 @@ def test_model_api_query_request(model_api):
     }
 
     response = Response()
-    response._content = b'col1,col2\n1,2'
+    response._content = b'col1,col2\n1,2\n3,4'
     response.status_code = 200
     response.headers['page_count'] = '1'
     response.headers['current_page'] = '1'
@@ -338,13 +349,14 @@ def test_model_api_query_request_regression(model_api):
     """
 
     response = Response()
-    response._content = b'col1,col2\n1,2'
+    response._content = b'col1,col2\n1,2\n3,4'
     response.status_code = 200
     response.headers['page_count'] = '1'
     response.headers['current_page'] = '1'
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response):
         test_model_data_frame, pages_left = model_api._query()
+    model_api.app.client.clear_cache()
     with mock.patch.object(Client, 'request', return_value=response):
         test_model_data_frame, pages_left = model_api._query()
 
@@ -361,10 +373,7 @@ def test_model_api_query_request_fresh_cache(model_api):
         'page': 1,
         'page_size': None,
     }
-    query_hash = "{}.csv".format(hash(json.dumps(params, sort_keys=True)))
-    test_file = os.path.join(model_api.app.client.temp_dir, query_hash)
-    with open(test_file, 'w') as f:
-        f.write('col1,col2\n1,2')
+    model_api.app.client.clear_cache()
     response = Response()
     response.status_code = 200
     response.headers['page_count'] = '1'
