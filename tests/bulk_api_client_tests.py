@@ -10,7 +10,7 @@ from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
 from requests.models import Response
 
-from bulk_api_client import Client, AppAPI, ModelAPI
+from bulk_api_client import Client, AppAPI, ModelAPI, ModelObj
 from bulk_api_client import (requests, CERT_PATH, BulkAPIError, is_kv,
                              requests_cache)
 
@@ -484,7 +484,8 @@ def test_model_api_get(model_api):
     """Test ModelAPI list method works as intented"""
 
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    uri = '/api/bulk_importer/examplefortesting/1016'
+    url = urljoin(path, os.path.join(model_api.model_name, uri))
     content = b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'\
         b'"updated_at": "2019-11-01T19:17:50.416090Z", "text":'\
         b'"EYdVWVxempVwBpqMENtuYmGZJskLE", "date_time":'\
@@ -494,7 +495,7 @@ def test_model_api_get(model_api):
     response.status_code = 200
     response._content = content
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api._get('1016')
+        obj = model_api._get(uri)
         fn.assert_called_with('GET', url, params={})
     assert obj == json.loads(content)
 
@@ -503,7 +504,8 @@ def test_model_api_update(model_api):
     """Test ModelAPI list method works as intented"""
 
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    uri = uri = '/api/bulk_importer/examplefortesting/1016'
+    url = urljoin(path, os.path.join(model_api.model_name, uri))
     obj_data = {
         'text': 'EYdVWVxempVwBpqMENtuYmGZJskLE',
         'date_time': '2019-11-01T19:17:50.416090Z',
@@ -520,16 +522,16 @@ def test_model_api_update(model_api):
     response = Response()
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api._update('1016', obj_data, patch=False)
+        model_api._update(uri, obj_data, patch=False)
         fn.assert_called_with('PUT', url, params={}, **kwargs)
-    assert obj == response.status_code
 
 
 def test_model_api_partial_update(model_api):
     """Test ModelAPI list method works as intented"""
 
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    uri = '/api/bulk_importer/examplefortesting/1016'
+    url = urljoin(path, os.path.join(model_api.model_name, uri))
     obj_data = {
         'text': 'EYdVWVxempVwBpqMENtuYmGZJskLE',
         'date_time': '2019-11-01T19:17:50.416090Z',
@@ -546,19 +548,139 @@ def test_model_api_partial_update(model_api):
     response = Response()
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api._update('1016', obj_data)
+        model_api._update(
+            uri,
+            obj_data
+        )
         fn.assert_called_with('PATCH', url, params={}, **kwargs)
-    assert obj == response.status_code
 
 
 def test_model_api_delete(model_api):
     """Test ModelAPI list method works as intented"""
 
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
-    url = urljoin(path, os.path.join(model_api.model_name, '1016'))
+    uri = '/api/bulk_importer/examplefortesting/1016'
+    url = urljoin(path, os.path.join(model_api.model_name, uri))
     response = Response()
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response) as fn:
-        obj = model_api._delete('1016')
+        model_api._delete(uri)
         fn.assert_called_with('DELETE', url, params={})
-    assert obj == response.status_code
+
+
+@pytest.mark.parametrize("uri,data", [
+    ('/api/bulk_importer/examplefortesting/1', None),
+    ('/api/bulk_importer/examplefortesting/1',
+     {'text': random_string()}),
+])
+def test_model_obj(model_api, uri, data):
+    """Test ModelObj properties are as set when creating an instance"""
+    model_obj = ModelObj(model_api, uri, data)
+    assert model_obj.model_api == model_api
+    assert model_obj.uri == uri
+    assert model_obj._data == data
+
+
+def test_model_obj_get_data(model_api):
+    """Tests the get_data method of the ModelObj class sets the _data property
+    when data isn't set on instance creation
+    """
+    model_data = {'pk': 1}
+    uri = '/api/bulk_importer/examplefortesting/1'
+    with mock.patch.object(ModelObj, 'set_data') as fn_set:
+        model_obj = ModelObj(model_api, uri)
+        not fn_set.called
+
+    with mock.patch.object(ModelAPI, '_get',
+                           return_value=model_data) as fn_get:
+        model_obj.get_data()
+        fn_get.assert_called_with(model_obj.uri)
+    assert model_obj.model_api == model_api
+    assert model_obj.uri == uri
+    assert model_obj.data == model_data
+
+
+def test_model_obj_invalid_model(app_api):
+    """Test that giving an invalid model as the model_api property of a ModelObj
+    instance throws a BulkAPIError
+    """
+    with pytest.raises(BulkAPIError):
+        ModelObj(app_api, '/api/bulk_importer/examplefortesting/1')
+
+
+def test_model_obj_save(model_api):
+    """Tests that calling the save method on the ModelObj class calls the
+    _update method on its model_api property with the correct variables (PATCH)
+    """
+    model_data = {'pk': 1}
+    model_obj = ModelObj(model_api, uri=random_string(), data=model_data)
+    with mock.patch.object(ModelAPI, '_update', return_value=200) as fn:
+        model_obj.save()
+        fn.assert_called_with(model_obj.uri, model_obj.data, patch=False)
+
+
+def test_model_obj_invalid_save(model_api):
+    """Tests that calling the save method on the ModelObj class calls the
+    _update method on its model_api property with a returned status code that is
+    not 200 raises a BulkAPIError
+    """
+
+    model_data = {'pk': 1}
+    model_obj = ModelObj(model_api, uri=random_string(), data=model_data)
+    response = Response()
+    response.status_code = 404
+    with mock.patch.object(Client, 'request', return_value=response):
+        with pytest.raises(BulkAPIError):
+            model_obj.save()
+
+
+def test_model_obj_update(model_api):
+    """Tests that calling the update method on the ModelObj class calls the
+    _update method on its model_api property with the correct variables (PUT)
+    """
+    model_data = {'pk': 1, 'text': random_string()}
+    model_obj = ModelObj(model_api, uri=random_string(), data=model_data)
+    update_data = {'text': random_string()}
+    with mock.patch.object(ModelAPI, '_update', return_value=200) as fn:
+        model_obj.update(update_data)
+        assert model_obj._data == {'pk': 1, **update_data}
+        fn.assert_called_with(model_obj.uri, model_obj._data)
+
+
+def test_model_obj_invalid_update(model_api):
+    """Tests that calling the update method on the ModelObj class calls the
+    _update method on its model_api property with a returned status code that is
+    not 200 raises a BulkAPIError
+    """
+    model_data = {'pk': 1}
+    model_obj = ModelObj(model_api, uri=random_string(), data=model_data)
+    response = Response()
+    response.status_code = 404
+    with mock.patch.object(Client, 'request', return_value=response):
+        with pytest.raises(BulkAPIError):
+            model_obj.update(model_data)
+
+
+def test_model_obj_delete(model_api):
+    """Tests that calling the delete method on the ModelObj class calls the
+    _delete method on its model_api property with the correct variables
+    """
+    model_data = {'pk': 1}
+    model_obj = ModelObj(model_api, uri=random_string(), data=model_data)
+    with mock.patch.object(ModelAPI, '_delete', return_value=200) as fn:
+        model_obj.delete()
+        fn.assert_called_with(model_obj.uri)
+
+
+def test_model_obj_invalid_delete(model_api):
+    """Tests that calling the delete method on the ModelObj class calls the
+    _delete method on its model_api property with a returned status code that is
+    not 200 raises a BulkAPIError
+    """
+    model_data = {'pk': 1}
+    model_obj = ModelObj(model_api, uri=random_string(), data=model_data)
+    response = Response()
+    response.status_code = 404
+    with mock.patch.object(Client, 'request', return_value=response):
+        with pytest.raises(BulkAPIError):
+            model_obj.delete()

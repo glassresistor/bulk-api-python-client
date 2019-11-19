@@ -8,7 +8,7 @@ from unittest import mock
 from urllib.parse import urljoin
 from requests.models import Response
 
-from bulk_api_client import Client, AppAPI, ModelAPI
+from bulk_api_client import Client, AppAPI, ModelAPI, ModelObj
 from bulk_api_client import requests
 
 
