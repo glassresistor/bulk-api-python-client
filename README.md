@@ -21,11 +21,15 @@ To install the project
     client = Client(token, api_url='https://data-warehouse.pivot/bulk/api/', expiration_time=7200)
     client.app('app_label').model('model_name')
 
+## ModelAPI
+
 #### List
 
 List all objects on a model. Only 100 objects can be returned at a time. Use the page option to query for different pages
 
     .list(page=1)
+
+Returns a list of ModelObj objects
 
 #### Get
 
@@ -33,27 +37,21 @@ Get a model object using it's primary key
 
     .get(pk=1)
 
+Returns a ModelObj object
+
 #### Create
 
 Create an object on a model using a dictionary of data on the object
 
     .create(obj_data={})
 
-#### Update
-
-Update an existing object with a dictionary of data using it's primary key
-
-    .update(pk=1, obj_data={})
-
-#### Delete
-
-Delete a model object given it's primary key
-
-    .list(pk=1)
+Returns a ModelObj object
 
 #### Query
 
     .query(filter=...,order=...,page=,page_size=,fields=[...])
+
+Returns a Pandas dataframe object
 
 | Query     | Description                                                         | Example                                   |
 | --------- | ------------------------------------------------------------------- | ----------------------------------------- |
@@ -78,6 +76,22 @@ field starts with
 Complex filter query
 
     query(filter='question__startswith=Who|question__startswith=What&integer__gte=1')
+
+## ModelObj
+
+Object returned by the create/get/list functions of the ModelAPI
+
+#### Update
+
+Update an existing object with a dictionary of data
+
+    .update({...})
+
+#### Delete
+
+Removes the model instance
+
+    .delete()
 
 Useful Link
 
