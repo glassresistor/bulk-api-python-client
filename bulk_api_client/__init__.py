@@ -4,9 +4,8 @@ import requests
 import requests_cache
 import json
 import re
-import shutil
-import sys
 import yaml
+
 from io import BytesIO
 from urllib.parse import urljoin
 from tempfile import gettempdir
@@ -324,7 +323,7 @@ class ModelAPI(object):
         objs = []
         for obj_data in data:
             uri = os.path.join(path, str(obj_data['id']))
-            objs.append(ModelObj(self, uri, data=obj_data))
+            objs.append(ModelObj.with_properties(self, uri, data=obj_data))
         return objs
 
     def _create(self, obj_data):
@@ -371,7 +370,7 @@ class ModelAPI(object):
         path = self.app.client.model_api_urls[self.app.app_label][
             self.model_name]
         uri = os.path.join(path, str(data['id']))
-        return ModelObj(self, uri=uri, data=data)
+        return ModelObj.with_properties(self, uri=uri, data=data)
 
     def _get(self, uri):
         """Gets a model object given it's primary key; Makes a 'GET' method
@@ -408,7 +407,7 @@ class ModelAPI(object):
             self.model_name]
         uri = os.path.join(path, str(pk))
         data = self._get(uri)
-        return ModelObj(self, uri, data=data)
+        return ModelObj.with_properties(self, uri, data=data)
 
     def _update(self, uri, obj_data, patch=True):
         """Updates a model object given it's primary key and new object data;
@@ -471,8 +470,66 @@ class ModelAPI(object):
                      response.status_code, response.content)})
 
 
-class ModelObj(object):
+def _get_f(field, properties):
+    """Dynamically builds a getter method using a string represnting the name of
+     the property and properties of the attribute. Internal getter method used
+     by ModelObj with_properties class method.
+
+    Args:
+        field (str): ModelAPI its related to
+        properties (dict): uri of the resource
+
+    Returns:
+
+
     """
+    def get_f(cls):
+        field_val = cls.data.get(field)
+        if properties[field].get('format') == 'uri':
+            if hasattr(cls, "_%s" % field):
+                return getattr(cls, "_%s" % field)
+            app_label, model_name, id = field_val.split('/')[3:]
+            model = cls.model_api.app.client.app(app_label).model(model_name)
+            related_obj = ModelObj.with_properties(
+                model,
+                field_val
+            )
+            return related_obj
+        return field_val
+    return get_f
+
+
+def _set_f(field, properties):
+    """Dynamically builds a setter method using a string represnting the name of
+     the property and properties of the attribute. Internal getter method used
+     by ModelObj with_properties class method.
+
+    Args:
+        field (str): ModelAPI its related to
+        properties (dict): uri of the resource
+
+    Returns:
+
+    """
+    def set_f(cls, val):
+        if properties[field].get('readOnly', False):
+            raise BulkAPIError({'ModelObj':
+                                "Cannot set a read only property"})
+        if properties[field].get('format') == 'uri':
+            if not isinstance(val, ModelObj):
+                raise BulkAPIError({'ModelObj':
+                                    "New related model must be a _ModelObj"})
+            setattr(cls, "_%s" % field, val)
+            val = val.uri
+        cls.data[field] = val
+    return set_f
+
+
+class ModelObj:
+    """
+    **DO NOT CALL DIRECTLY**
+    Base object which handles mapping local data to api actions. Must call the
+    with_properties class method funnction to get properties
 
     Args:
         model_api (obj): ModelAPI its related to
@@ -488,9 +545,6 @@ class ModelObj(object):
         self.model_api = model_api
         self.uri = uri
         self.data = data
-        if not isinstance(model_api, ModelAPI):
-            raise BulkAPIError({'ModelObj':
-                                "Given model is not a ModelAPI object"})
 
     def set_data(self, data):
         self._data = data
@@ -502,6 +556,48 @@ class ModelObj(object):
         return self._data
 
     data = property(get_data, set_data)
+
+    @classmethod
+    def with_properties(cls, model_api, uri, data=None):
+        """
+        Returns an object with proerties of the given model to be modified
+        directly and reflected in the database. Mimics objects used by ORMs
+
+        Args:
+            model_api (obj): ModelAPI its related to
+            uri (str): uri of the resource
+            data (dict): property which memoizes _data
+
+        Returns:
+            ModelObjWithProperties obj
+
+        """
+        if not isinstance(model_api, ModelAPI):
+            raise BulkAPIError({'ModelObj':
+                                "Given model is not a ModelAPI object"})
+
+        class ModelObjWithProperties(cls):
+            pass
+        model = '.'.join(
+            [model_api.app.app_label, model_api.model_name])
+        model_properties = model_api.app.client.definitions[model][
+            'properties']
+        for field, property_dict in model_properties.items():
+            get_f = _get_f(field, model_properties)
+            setattr(ModelObjWithProperties, "get_%s" % field, get_f)
+
+            set_f = _set_f(field, model_properties)
+            setattr(ModelObjWithProperties, "set_%s" % field, set_f)
+
+            setattr(
+                ModelObjWithProperties,
+                field,
+                property(
+                    getattr(ModelObjWithProperties, 'get_%s' % field),
+                    getattr(ModelObjWithProperties, 'set_%s' % field)
+                )
+            )
+        return ModelObjWithProperties(model_api, uri, data)
 
     def save(self):
         """Makes a call to the put update method of the model_api object
