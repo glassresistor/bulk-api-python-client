@@ -1014,3 +1014,18 @@ def test_model_obj_fk_property(app_api):
         assert model_obj.parent.id == updated_data['id']
         assert model_obj.parent.integer == updated_data['integer']
         assert not hasattr(model_obj.parent, 'parent')
+
+
+def test_app_api_str_method(app_api):
+    assert str(app_api) == "AppAPI: {}".format(app_api.app_label)
+
+
+def test_model_api_str_method(model_api):
+    assert str(model_api) == "ModelAPI: {}.{}".format(
+        model_api.app.app_label,
+        model_api.model_name
+    )
+
+
+def test_model_obj_str_method(model_obj):
+    assert str(model_obj) == "ModelObj: {}".format(model_obj.uri)
