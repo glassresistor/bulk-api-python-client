@@ -8,8 +8,9 @@ from unittest import mock
 from urllib.parse import urljoin
 from requests.models import Response
 
-from bulk_api_client import Client, AppAPI, ModelAPI, ModelObj
-from bulk_api_client import requests
+from bulk_api_client import Client, requests
+from bulk_api_client.app import AppAPI
+from bulk_api_client.model import ModelAPI, ModelObj
 
 
 def random_string(stringLength=10):

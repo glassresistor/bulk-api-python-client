@@ -1,0 +1,2 @@
+class BulkAPIError(Exception):
+    pass

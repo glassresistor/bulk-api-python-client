@@ -10,9 +10,10 @@ from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
 from requests.models import Response
 
-from bulk_api_client import Client, AppAPI, ModelAPI, ModelObj
-from bulk_api_client import (requests, CERT_PATH, BulkAPIError, is_kv,
-                             requests_cache)
+from bulk_api_client import (Client, requests, CERT_PATH, requests_cache)
+from bulk_api_client.app import AppAPI
+from bulk_api_client.model import ModelAPI, ModelObj, is_kv
+from bulk_api_client.exceptions import BulkAPIError
 
 
 def random_string(stringLength=10):
