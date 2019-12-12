@@ -248,8 +248,8 @@ def test_model_api_query(model_api):
     """Test ModelAPI query_request method works as intented"""
 
     test_fields = ['id', 'text']
-    test_filter = 'key=value|key=value&key=value'
     test_order = 'text'
+    test_filter = "key:value"
     test_page = [1, 2]
     test_page_size = 1
 
@@ -277,20 +277,23 @@ def test_model_api_query(model_api):
     assert test_model_data_frame.shape == (2, 2)
 
 
-def test_model_api_query_request(model_api):
-    """Test ModelAPI query_request method works as intented"""
+@pytest.mark.parametrize("filter", [
+    ("key: value"),
+    ({'key': 'value'}),
+])
+def test_model_api_private_query(model_api, filter):
+    """Test ModelAPI private query method works as intented"""
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
     url = urljoin(path, os.path.join(model_api.model_name, 'query'))
 
     test_fields = ['id', 'text']
-    test_filter = 'key=value|key=value&key=value'
     test_order = 'text'
     test_page = 1
     test_page_size = 1
 
     params = {
         'fields': ','.join(test_fields),
-        'filter': test_filter,
+        'filter': "key: value\n",
         'ordering': test_order,
         'page': test_page,
         'page_size': test_page_size
@@ -304,8 +307,12 @@ def test_model_api_query_request(model_api):
     response.raw = BytesIO(b'col1,col2\n1,2\n3,4')
     with mock.patch.object(Client, 'request', return_value=response) as fn:
         test_model_data_frame, pages_left = model_api._query(
-            fields=test_fields, filter=test_filter, order=test_order,
-            page=test_page, page_size=test_page_size)
+            fields=test_fields,
+            filter=filter,
+            order=test_order,
+            page=test_page,
+            page_size=test_page_size
+        )
         fn.assert_called_with('GET', url, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
@@ -349,9 +356,9 @@ def test_model_api_query_request_null_params(model_api):
     ("fields", "invalid_field", {
         'detail': "fields arguement must be list"}),
     ("filter", 1, {
-        'detail': "filter must be a string of form field_name=value"}),
+        'detail': "filter must be a dict or yaml string containing a dict"}),
     ("filter", "invalid", {
-        'detail': "filter must be a string of form field_name=value"}),
+        'detail': "filter must be a dict or yaml string containing a dict"}),
     ("order", 1, {
         'detail': "order must be a string"}),
     ("page", "invalid_page", {
@@ -365,7 +372,8 @@ def test_model_api_query_request_null_params(model_api):
     ("page_size", 0, {
         'detail': "page size must be a positive integer"}),
     ("page_size", -1, {
-        'detail': "page size must be a positive integer"})])
+        'detail': "page size must be a positive integer"})
+])
 def test_model_api_query_request_invalid_params(model_api, kwarg, val, msg):
     """Test ModelAPI class errors works as intented"""
 

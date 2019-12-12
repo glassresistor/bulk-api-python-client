@@ -1,6 +1,6 @@
 import os
 import json
-import re
+import yaml
 import pandas
 import requests_cache
 
@@ -13,7 +13,7 @@ from bulk_api_client.exceptions import BulkAPIError
 CSV_CHUNKSIZE = 10 ** 6
 
 filter_error = TypeError({
-    'detail': "filter must be a string of form field_name=value"})
+    'detail': "filter must be a dict or yaml string containing a dict"})
 
 
 def is_kv(kv_str):
@@ -110,12 +110,11 @@ class ModelAPI(object):
                 raise TypeError({'detail': "fields arguement must be list"})
             fields = ','.join(fields)
         if filter is not None:
-            if not isinstance(filter, str):
+            if isinstance(filter, str):
+                filter = yaml.safe_load(filter)
+            if not isinstance(filter, dict):
                 raise filter_error
-            q_list = re.split(r"(\||\&)", filter)
-            for q_val in q_list:
-                if not is_kv(q_val) and not re.fullmatch(r'(^[\||\&]$)', q_val):
-                    raise filter_error
+            filter = yaml.safe_dump(filter)
         if order is not None:
             if not isinstance(order, str):
                 raise TypeError({'detail': "order must be a string"})
