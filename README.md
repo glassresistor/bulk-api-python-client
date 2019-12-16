@@ -53,29 +53,29 @@ Returns a ModelObj object
 
 Returns a Pandas dataframe object
 
-| Query     | Description                                                         | Example                                   |
-| --------- | ------------------------------------------------------------------- | ----------------------------------------- |
-| fields    | Returns a data set of columns containing the specified field(s)     | query(fields=['field1','field2','field3'] |
-| filter    | Returns a data set containing objects that match the given field(s) | query(filter='field_name1=value1')        |
-| order     | Returns a data set ordered by the given field(s)                    | query(order='field')                      |
-| page      | Returns a data set of a specified page number                       | query(page=1)                             |
-| page size | Limits the data set to specified number of data points              | query(page_size=10)                       |
+| Query     | Description                                                         | Example                                    |
+| --------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| fields    | Returns a data set of columns containing the specified field(s)     | query(fields=['field1','field2','field3']) |
+| filter    | Returns a data set containing objects that match the given field(s) | query(filter={'field_name1': 'value1'})    |
+| order     | Returns a data set ordered by the given field(s)                    | query(order='field')                       |
+| page      | Returns a data set of a specified page number                       | query(page=1)                              |
+| page size | Limits the data set to specified number of data points              | query(page_size=10)                        |
 
 ###### Example Queries
 
-    query(filter='field_name1=value1|field_name2=vaue2', order='field', fields=['field1','field2','field3'])
+    query(filter={'or': [{'field_name1': 'value1'}, {'field_name2': 'value2'}]}, order='field', fields=['field1','field2','field3'])
 
 joins (on foreign key models use double underscore)
 
-    query(filter='field__field_on_related_model')
+    query(filter={'field__field_on_related_model': 'value'})
 
 field starts with
 
-    query(filter='id__startswith=110')
+    query(filter={'id__startswith': 110})
 
 Complex filter query
 
-    query(filter='question__startswith=Who|question__startswith=What&integer__gte=1')
+    query(filter={'or': [{'question__startswith': 'Who'}, {'and': [{'question__startswith': 'What'}, {'integer__gte': 1'}]}])
 
 ## ModelObj
 

@@ -64,7 +64,8 @@ class ModelAPI(object):
 
         Args:
             fields (list): list of specified fields for the fields query
-            filter (str): filter for the filter query
+            filter (str or dict): filter for the filter query; must be a dict
+                or a yaml string representation of a dict
             order (str): order for the ordering query
             page_size (str): page size for the page_size query; Default: 10,000
 
@@ -95,7 +96,8 @@ class ModelAPI(object):
 
         Args:
             fields (list): list of specified fields for the fields query
-            filter (str): filter for the filter query
+            filter (str or dict): filter for the filter query; must be a dict
+                or a yaml string representation of a dict
             order (str): order for the ordering query
             page (str): page number for the page query; Default: 1
             page_size (str): page size for the page_size query; Default: 10,000
@@ -107,13 +109,16 @@ class ModelAPI(object):
 
         if fields is not None:
             if not isinstance(fields, list):
-                raise TypeError({'detail': "fields arguement must be list"})
+                raise TypeError({'detail': "fields argument must be list"})
             fields = ','.join(fields)
         if filter is not None:
+            # If filter is a string, validate it is correct YAML for a dict
             if isinstance(filter, str):
                 filter = yaml.safe_load(filter)
             if not isinstance(filter, dict):
                 raise filter_error
+            # Whether it was a dict or string initially, convert to YAML
+            # for sending over the wire.
             filter = yaml.safe_dump(filter)
         if order is not None:
             if not isinstance(order, str):

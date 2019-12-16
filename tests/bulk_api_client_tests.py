@@ -354,7 +354,7 @@ def test_model_api_query_request_null_params(model_api):
 
 @pytest.mark.parametrize("kwarg,val,msg", [
     ("fields", "invalid_field", {
-        'detail': "fields arguement must be list"}),
+        'detail': "fields argument must be list"}),
     ("filter", 1, {
         'detail': "filter must be a dict or yaml string containing a dict"}),
     ("filter", "invalid", {
