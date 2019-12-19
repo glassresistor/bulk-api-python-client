@@ -25,14 +25,33 @@ def client():
     url = "http://test"
     Client.app_api_urls = None
     Client.model_api_urls = {}
+    Client.app_api_cache = {}
     yaml_data = {
         'definitions': {
             'bulk_importer.examplefortesting': {
+                'required': ['text', 'date_time'],
+                'type': 'object',
                 'properties': {
                     'text': {
                         'title': 'Text',
                         'type': 'string',
                         'minLength': 1
+                    },
+                }
+            },
+            'bulk_importer.relatedexamplefortesting': {
+                'required': ['text', 'parent'],
+                'type': 'object',
+                'properties': {
+                    'text': {
+                        'title': 'Text',
+                        'type': 'string',
+                        'minLength': 1
+                    },
+                    'parent': {
+                        'title': 'Parent',
+                        'type': 'string',
+                        'format': 'uri'
                     },
                 }
             }
@@ -52,7 +71,7 @@ def client():
 
 @pytest.fixture
 def app_api(client):
-    app_label = random_string()
+    app_label = 'bulk_importer'
     data = {
         app_label: urljoin(client.api_url, app_label),
     }
@@ -61,6 +80,7 @@ def app_api(client):
     response.status_code = 200
     with mock.patch.object(Client, 'request', return_value=response):
         app_api = AppAPI(client, app_label)
+
     return app_api
 
 

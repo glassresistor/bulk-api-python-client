@@ -24,6 +24,10 @@ class Client(object):
     model_api_urls = {}
     """Dict of Bulk Importer model urls. Updated with the initialization of a
     ModelAPI object"""
+    app_api_cache = {}
+    """
+    Dict of AppAPI objects, created via app(), key of app_label
+    """
 
     def __init__(self,
                  token,
@@ -105,4 +109,6 @@ class Client(object):
             AppAPI obj
 
         """
-        return AppAPI(self, app_label)
+        if app_label not in self.app_api_cache:
+            self.app_api_cache[app_label] = AppAPI(self, app_label)
+        return self.app_api_cache[app_label]

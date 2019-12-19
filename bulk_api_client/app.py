@@ -5,6 +5,10 @@ from .model import ModelAPI
 
 
 class AppAPI(object):
+    model_api_cache = {}
+    """
+    Cache of ModelAPI objects, keyed by model_name.
+    """
 
     def __init__(self, client, app_label,):
         """App object. Given a app label, this object makes a request — using
@@ -38,7 +42,9 @@ class AppAPI(object):
             ModelAPI obj
 
         """
-        return ModelAPI(self, model_name)
+        if model_name not in self.model_api_cache:
+            self.model_api_cache[model_name] = ModelAPI(self, model_name)
+        return self.model_api_cache[model_name]
 
     def __str__(self):
         return "AppAPI: {}".format(self.app_label)

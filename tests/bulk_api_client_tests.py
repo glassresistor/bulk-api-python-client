@@ -548,6 +548,79 @@ def test_model_api_create(model_api):
     assert obj.data == data
 
 
+def test_model_api_create_with_related(client):
+    """Test ModelAPI create method with POST request calls the private create
+    method correct parameters, and that the data returned is consistent
+    """
+    # Create app
+    app_data = {
+        'bulk_importer': urljoin(client.api_url, 'bulk_importer'),
+    }
+    response = Response()
+    response._content = json.dumps(app_data)
+    response.status_code = 200
+    with mock.patch.object(client, 'request', return_value=response):
+        app_api = client.app('bulk_importer')
+
+    # create parent and child model apis
+
+    data = {}
+    for default_model in ('examplefortesting', 'relatedexamplefortesting'):
+        data[default_model] = "{}/{}".format(
+            urljoin(client.api_url, 'bulk_importer'),
+            default_model
+        )
+
+    response = Response()
+    response._content = json.dumps(data)
+    response.status_code = 200
+    with mock.patch.object(Client, 'request') as fn:
+        fn.return_value = response
+        parent_model_api = app_api.model('examplefortesting')
+        child_model_api = app_api.model('relatedexamplefortesting')
+
+    # Create parent object
+    parent_obj_data = {
+        'text': 'parent_text',
+        'date_time': '2019-11-10T07:28:34.088291Z',
+        'integer': 5,
+    }
+    parent_response_data = {
+        'id': 1016,
+        'created_at': '2019-11-01T19:17:50.415922Z',
+        'updated_at': '2019-11-01T19:17:50.416090Z',
+        'text': 'parent_text',
+        'date_time': '2019-11-10T07:28:34.088291Z',
+        'integer': 5,
+        'imported_from': None
+    }
+
+    with mock.patch.object(parent_model_api, '_create',
+                           return_value=parent_response_data):
+        parent_obj = parent_model_api.create(parent_obj_data)
+
+    child_data = {
+        'id': 111,
+        'text': "child_model_text",
+        'parent': parent_obj,
+    }
+    child_response_data = {
+        'id': 111,
+        'created_at': "2019-11-01T19:17:50.415922Z",
+        'updated_at': "2019-11-01T19:17:50.416090Z",
+        'text': "child_model_text",
+        'parent': parent_obj.uri,
+        'imported_from': None
+    }
+    response = Response()
+    response.status_code = 200
+    response._content = json.dumps(child_response_data).encode()
+    with mock.patch.object(Client, 'request', return_value=response) as fn:
+        child_obj = child_model_api.create(child_data)
+
+    assert child_obj.parent.uri == parent_obj.uri
+
+
 def test_model_api_private_get(model_api):
     """Test ModelAPI private get method with GET request makes a request with
     the correct parameters, and that the data returned is consistent"""

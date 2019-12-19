@@ -28,6 +28,14 @@ def is_kv(kv_str):
     return '=' in kv_str
 
 
+class ModelObjJSONEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, ModelObj):
+            return obj.uri
+        # Let the base class default method raise the TypeError
+        return json.JSONEncoder.default(self, obj)
+
+
 class ModelAPI(object):
 
     def __init__(self, app_api, model_name):
@@ -54,8 +62,10 @@ class ModelAPI(object):
                 response.content)
         if self.model_name not in self.app.client.model_api_urls[
                 self.app.app_label]:
-            raise BulkAPIError({'model_api':
-                                "Model does not exist in bulk api"})
+            raise BulkAPIError(
+                {'model_api':
+                 "Model {} does not exist in bulk api".format(self.model_name)
+                 })
 
     def query(self, fields=None, filter=None, order=None, page_size=None):
         """Queries to create a Pandas DataFrame for given queryset. The default
@@ -205,7 +215,7 @@ class ModelAPI(object):
         path = self.app.client.model_api_urls[self.app.app_label][
             self.model_name]
         url = urljoin(self.app.client.api_url, path)
-        data = json.dumps(obj_data)
+        data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
         kwargs = {
             'data': data,
             'headers': {
