@@ -20,7 +20,7 @@ setup(
     extras_require={
         'dev': [
             'pytest==4.0.0',
-            'pytest-cov==2.7.1',
+            'pytest-cov==2.8.1',
             'flake8==3.7.7',
             'pytest-randomly==3.0.0',
             'pytest-repeat==0.8.0',
