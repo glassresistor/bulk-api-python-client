@@ -14,6 +14,8 @@ CSV_CHUNKSIZE = 10 ** 6
 
 filter_error = TypeError({
     'detail': "filter must be a dict or yaml string containing a dict"})
+field_error = TypeError({
+    'detail': "fields must be a list or yaml string containing a list"})
 
 
 def is_kv(kv_str):
@@ -118,9 +120,12 @@ class ModelAPI(object):
         """
 
         if fields is not None:
+            # If fields is a string, validate it is correct YAML for a list
+            if isinstance(fields, str):
+                fields = yaml.safe_load(fields)
             if not isinstance(fields, list):
-                raise TypeError({'detail': "fields argument must be list"})
-            fields = ','.join(fields)
+                raise field_error
+            fields = yaml.safe_dump(fields)
         if filter is not None:
             # If filter is a string, validate it is correct YAML for a dict
             if isinstance(filter, str):

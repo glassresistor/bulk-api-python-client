@@ -247,14 +247,14 @@ def test_model_api_invalid_model(app_api):
 def test_model_api_query(model_api):
     """Test ModelAPI query_request method works as intented"""
 
-    test_fields = ['id', 'text']
+    test_fields = "- id\n- text"
     test_order = 'text'
     test_filter = "key:value"
     test_page = [1, 2]
     test_page_size = 1
 
-    dataframes = [read_csv(BytesIO(b'col1,col2\n1,2')),
-                  read_csv(BytesIO(b'col1,col2\n3,4'))]
+    dataframes = [read_csv(BytesIO(b'id,text\n1,text1')),
+                  read_csv(BytesIO(b'id,text\n2,text2'))]
 
     with mock.patch.object(ModelAPI, '_query',) as fn:
         fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
@@ -272,27 +272,28 @@ def test_model_api_query(model_api):
             page_size=test_page_size
         )
     assert isinstance(test_model_data_frame, DataFrame)
-    assert test_model_data_frame.columns.to_list() == ['col1', 'col2']
-    assert test_model_data_frame.values.tolist() == [[1, 2], [3, 4]]
+    assert test_model_data_frame.columns.to_list() == ['id', 'text']
+    assert test_model_data_frame.values.tolist() == [
+        [1, 'text1'], [2, 'text2']]
     assert test_model_data_frame.shape == (2, 2)
 
 
-@pytest.mark.parametrize("filter", [
-    ("key: value"),
-    ({'key': 'value'}),
+@pytest.mark.parametrize("filter,fields", [
+    ("key: value", "- id\n- text"),
+    ({'key': 'value'}, ['id', 'text']),
 ])
-def test_model_api_private_query(model_api, filter):
+def test_model_api_private_query(model_api, filter, fields):
     """Test ModelAPI private query method works as intented"""
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
     url = urljoin(path, os.path.join(model_api.model_name, 'query'))
 
-    test_fields = ['id', 'text']
+    test_fields = fields
     test_order = 'text'
     test_page = 1
     test_page_size = 1
 
     params = {
-        'fields': ','.join(test_fields),
+        'fields': '- id\n- text\n',
         'filter': "key: value\n",
         'ordering': test_order,
         'page': test_page,
@@ -354,7 +355,8 @@ def test_model_api_query_request_null_params(model_api):
 
 @pytest.mark.parametrize("kwarg,val,msg", [
     ("fields", "invalid_field", {
-        'detail': "fields argument must be list"}),
+        'detail':
+        "fields must be a list or yaml string containing a list"}),
     ("filter", 1, {
         'detail': "filter must be a dict or yaml string containing a dict"}),
     ("filter", "invalid", {
