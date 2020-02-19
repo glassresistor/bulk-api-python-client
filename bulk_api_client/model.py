@@ -78,7 +78,7 @@ class ModelAPI(object):
             fields (list): list of specified fields for the fields query
             filter (str or dict): filter for the filter query; must be a dict
                 or a yaml string representation of a dict
-            order (str): order for the ordering query
+            order (str): order for the order query
             page_size (str): page size for the page_size query; Default: 10,000
 
         Returns:
@@ -110,7 +110,7 @@ class ModelAPI(object):
             fields (list): list of specified fields for the fields query
             filter (str or dict): filter for the filter query; must be a dict
                 or a yaml string representation of a dict
-            order (str): order for the ordering query
+            order (str): order for the order query
             page (str): page number for the page query; Default: 1
             page_size (str): page size for the page_size query; Default: 10,000
 
@@ -151,7 +151,7 @@ class ModelAPI(object):
             self.model_name]
         url = urljoin(self.app.client.api_url, os.path.join(url_path, 'query'))
         params = {'fields': fields, 'filter': filter,
-                  'ordering': order, 'page': page, 'page_size': page_size}
+                  'order': order, 'page': page, 'page_size': page_size}
 
         with self.app.client.request('GET', url, params=params) as response:
             pages_left = int(response.headers['page_count']) - page

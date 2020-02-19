@@ -295,7 +295,7 @@ def test_model_api_private_query(model_api, filter, fields):
     params = {
         'fields': '- id\n- text\n',
         'filter': "key: value\n",
-        'ordering': test_order,
+        'order': test_order,
         'page': test_page,
         'page_size': test_page_size
     }
@@ -331,7 +331,7 @@ def test_model_api_query_request_null_params(model_api):
     params = {
         'fields': None,
         'filter': None,
-        'ordering': None,
+        'order': None,
         'page': 1,
         'page_size': None,
     }
@@ -417,7 +417,7 @@ def test_model_api_query_request_fresh_cache(model_api):
     params = {
         'fields': None,
         'filter': None,
-        'ordering': None,
+        'order': None,
         'page': 1,
         'page_size': None,
     }
