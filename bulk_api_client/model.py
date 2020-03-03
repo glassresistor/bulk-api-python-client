@@ -4,7 +4,7 @@ import yaml
 import pandas
 import requests_cache
 
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 from io import BytesIO
 
 from bulk_api_client.exceptions import BulkAPIError
@@ -12,10 +12,12 @@ from bulk_api_client.exceptions import BulkAPIError
 
 CSV_CHUNKSIZE = 10 ** 6
 
-filter_error = TypeError({
-    'detail': "filter must be a dict or yaml string containing a dict"})
-field_error = TypeError({
-    'detail': "fields must be a list or yaml string containing a list"})
+filter_error = TypeError(
+    {"detail": "filter must be a dict or yaml string containing a dict"}
+)
+field_error = TypeError(
+    {"detail": "fields must be a list or yaml string containing a list"}
+)
 
 
 def is_kv(kv_str):
@@ -27,7 +29,7 @@ def is_kv(kv_str):
     Returns:
         Bool
     """
-    return '=' in kv_str
+    return "=" in kv_str
 
 
 class ModelObjJSONEncoder(json.JSONEncoder):
@@ -39,7 +41,6 @@ class ModelObjJSONEncoder(json.JSONEncoder):
 
 
 class ModelAPI(object):
-
     def __init__(self, app_api, model_name):
         """Model object. Given a model name, this object makes a request — using
         the Client class — to the Bulk Importer API. If given a model in the
@@ -57,17 +58,23 @@ class ModelAPI(object):
 
         url = self.app.client.app_api_urls[self.app.app_label]
         params = {}
-        response = self.app.client.request('GET', url, params)
+        response = self.app.client.request("GET", url, params)
 
         if self.app.app_label not in self.app.client.model_api_urls:
             self.app.client.model_api_urls[self.app.app_label] = json.loads(
-                response.content)
-        if self.model_name not in self.app.client.model_api_urls[
-                self.app.app_label]:
+                response.content
+            )
+        if (
+            self.model_name
+            not in self.app.client.model_api_urls[self.app.app_label]
+        ):
             raise BulkAPIError(
-                {'model_api':
-                 "Model {} does not exist in bulk api".format(self.model_name)
-                 })
+                {
+                    "model_api": "Model {} does not exist in bulk api".format(
+                        self.model_name
+                    )
+                }
+            )
 
     def query(self, fields=None, filter=None, order=None, page_size=None):
         """Queries to create a Pandas DataFrame for given queryset. The default
@@ -94,14 +101,15 @@ class ModelAPI(object):
                 filter=filter,
                 order=order,
                 page=current_page,
-                page_size=page_size
+                page_size=page_size,
             )
             current_page += 1
             dataframes.append(df)
         return pandas.concat(dataframes)
 
-    def _query(self, fields=None, filter=None, order=None, page=None,
-               page_size=None):
+    def _query(
+        self, fields=None, filter=None, order=None, page=None, page_size=None
+    ):
         """Queries to create a Pandas DataFrame for given queryset. The default
         query may be obtained by calling the function, without passing
         any parameters.
@@ -137,31 +145,36 @@ class ModelAPI(object):
             filter = yaml.safe_dump(filter)
         if order is not None:
             if not isinstance(order, str):
-                raise TypeError({'detail': "order must be a string"})
-        if page is not None and (
-                not isinstance(page, int) or page <= 0):
-            raise TypeError({'detail': "page must be a positive integer"})
+                raise TypeError({"detail": "order must be a string"})
+        if page is not None and (not isinstance(page, int) or page <= 0):
+            raise TypeError({"detail": "page must be a positive integer"})
         if page is None:
             page = 1
         if page_size is not None and (
-                not isinstance(page_size, int) or page_size <= 0):
-            raise TypeError({'detail': "page size must be a positive integer"})
+            not isinstance(page_size, int) or page_size <= 0
+        ):
+            raise TypeError({"detail": "page size must be a positive integer"})
 
         url_path = self.app.client.model_api_urls[self.app.app_label][
-            self.model_name]
-        url = urljoin(self.app.client.api_url, os.path.join(url_path, 'query'))
-        params = {'fields': fields, 'filter': filter,
-                  'order': order, 'page': page, 'page_size': page_size}
+            self.model_name
+        ]
+        url = urljoin(url_path, "query")
+        params = {
+            "fields": fields,
+            "filter": filter,
+            "order": order,
+            "page": page,
+            "page_size": page_size,
+        }
 
-        with self.app.client.request('GET', url, params=params) as response:
-            pages_left = int(response.headers['page_count']) - page
+        with self.app.client.request("GET", url, params=params) as response:
+            pages_left = int(response.headers["page_count"]) - page
 
             df = pandas.concat(
                 pandas.read_csv(
-                    BytesIO(response.content),
-                    chunksize=CSV_CHUNKSIZE
+                    BytesIO(response.content), chunksize=CSV_CHUNKSIZE
                 ),
-                ignore_index=True
+                ignore_index=True,
             )
 
         return df, pages_left
@@ -177,15 +190,14 @@ class ModelAPI(object):
 
         """
         path = self.app.client.model_api_urls[self.app.app_label][
-            self.model_name]
+            self.model_name
+        ]
         url = urljoin(self.app.client.api_url, path)
         with requests_cache.disabled():
             response = self.app.client.request(
-                'GET',
-                url,
-                params={'page': page}
+                "GET", url, params={"page": page}
             )
-        return json.loads(response.content)['results']
+        return json.loads(response.content)["results"]
 
     def list(self, page):
         """Makes call to private list method and creates list of ModelObj
@@ -199,10 +211,11 @@ class ModelAPI(object):
         """
         data = self._list(page=page)
         path = self.app.client.model_api_urls[self.app.app_label][
-            self.model_name]
+            self.model_name
+        ]
         objs = []
         for obj_data in data:
-            uri = os.path.join(path, str(obj_data['id']))
+            uri = os.path.join(path, str(obj_data["id"]))
             objs.append(ModelObj.with_properties(self, uri, data=obj_data))
         return objs
 
@@ -218,22 +231,18 @@ class ModelAPI(object):
 
         """
         path = self.app.client.model_api_urls[self.app.app_label][
-            self.model_name]
+            self.model_name
+        ]
         url = urljoin(self.app.client.api_url, path)
         data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
         kwargs = {
-            'data': data,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
+            "data": data,
+            "headers": {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
         }
-        response = self.app.client.request(
-            'POST',
-            url,
-            params={},
-            **kwargs
-        )
+        response = self.app.client.request("POST", url, params={}, **kwargs)
         return json.loads(response.content)
 
     def create(self, obj_data):
@@ -248,8 +257,9 @@ class ModelAPI(object):
         """
         data = self._create(obj_data)
         path = self.app.client.model_api_urls[self.app.app_label][
-            self.model_name]
-        uri = os.path.join(path, str(data['id']))
+            self.model_name
+        ]
+        uri = os.path.join(path, str(data["id"]))
         return ModelObj.with_properties(self, uri=uri, data=data)
 
     def _get(self, uri):
@@ -266,11 +276,7 @@ class ModelAPI(object):
 
         url = urljoin(self.app.client.api_url, uri)
         with requests_cache.disabled():
-            response = self.app.client.request(
-                'GET',
-                url,
-                params={}
-            )
+            response = self.app.client.request("GET", url, params={})
         return json.loads(response.content)
 
     def get(self, pk):
@@ -284,7 +290,8 @@ class ModelAPI(object):
 
         """
         path = self.app.client.model_api_urls[self.app.app_label][
-            self.model_name]
+            self.model_name
+        ]
         uri = os.path.join(path, str(pk))
         data = self._get(uri)
         return ModelObj.with_properties(self, uri, data=data)
@@ -305,27 +312,25 @@ class ModelAPI(object):
         url = urljoin(self.app.client.api_url, uri)
         data = json.dumps(obj_data)
         kwargs = {
-            'data': data,
-            'headers': {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            }
+            "data": data,
+            "headers": {
+                "Content-Type": "application/json",
+                "Accept": "application/json",
+            },
         }
-        method = 'PATCH'
+        method = "PATCH"
         if not patch:
-            method = 'PUT'
-        response = self.app.client.request(
-            method,
-            url,
-            params={},
-            **kwargs
-        )
+            method = "PUT"
+        response = self.app.client.request(method, url, params={}, **kwargs)
         if response.status_code == 200:
             return json.loads(response.content)
         raise BulkAPIError(
-            {'model_api':
-             "update not successful. Status code {}; {}".format(
-                 response.status_code, response.content)})
+            {
+                "model_api": "update not successful. Status code {}; {}".format(
+                    response.status_code, response.content
+                )
+            }
+        )
 
     def _delete(self, uri):
         """Deletes a model object given its primary key; Makes a delete
@@ -338,16 +343,15 @@ class ModelAPI(object):
 
         """
         url = urljoin(self.app.client.api_url, uri)
-        response = self.app.client.request(
-            'DELETE',
-            url,
-            params={}
-        )
+        response = self.app.client.request("DELETE", url, params={})
         if response.status_code != 204:
             raise BulkAPIError(
-                {'model_api':
-                 "delete not successful. Status code {}; {}".format(
-                     response.status_code, response.content)})
+                {
+                    "model_api": "delete not successful. Status code {}; {}".format(
+                        response.status_code, response.content
+                    )
+                }
+            )
 
     def __str__(self):
         return "ModelAPI: {}.{}".format(self.app.app_label, self.model_name)
@@ -366,19 +370,19 @@ def _get_f(field, properties):
 
 
     """
+
     def get_f(cls):
         field_val = cls.data.get(field)
-        if properties[field].get('format') == 'uri':
+        if properties[field].get("format") == "uri":
             if hasattr(cls, "_%s" % field):
                 return getattr(cls, "_%s" % field)
-            app_label, model_name, id = field_val.split('/')[3:]
+            path = field_val.replace(cls.model_api.app.client.api_url, "")
+            app_label, model_name, _id = path.split("/")
             model = cls.model_api.app.client.app(app_label).model(model_name)
-            related_obj = ModelObj.with_properties(
-                model,
-                field_val
-            )
+            related_obj = ModelObj.with_properties(model, field_val)
             return related_obj
         return field_val
+
     return get_f
 
 
@@ -394,17 +398,19 @@ def _set_f(field, properties):
     Returns:
 
     """
+
     def set_f(cls, val):
-        if properties[field].get('readOnly', False):
-            raise BulkAPIError({'ModelObj':
-                                "Cannot set a read only property"})
-        if properties[field].get('format') == 'uri':
+        if properties[field].get("readOnly", False):
+            raise BulkAPIError({"ModelObj": "Cannot set a read only property"})
+        if properties[field].get("format") == "uri":
             if not isinstance(val, ModelObj):
-                raise BulkAPIError({'ModelObj':
-                                    "New related model must be a _ModelObj"})
+                raise BulkAPIError(
+                    {"ModelObj": "New related model must be a _ModelObj"}
+                )
             setattr(cls, "_%s" % field, val)
             val = val.uri
         cls.data[field] = val
+
     return set_f
 
 
@@ -456,15 +462,15 @@ class ModelObj:
 
         """
         if not isinstance(model_api, ModelAPI):
-            raise BulkAPIError({'ModelObj':
-                                "Given model is not a ModelAPI object"})
+            raise BulkAPIError(
+                {"ModelObj": "Given model is not a ModelAPI object"}
+            )
 
         class ModelObjWithProperties(cls):
             pass
-        model = '.'.join(
-            [model_api.app.app_label, model_api.model_name])
-        model_properties = model_api.app.client.definitions[model][
-            'properties']
+
+        model = ".".join([model_api.app.app_label, model_api.model_name])
+        model_properties = model_api.app.client.definitions[model]["properties"]
         for field, property_dict in model_properties.items():
             get_f = _get_f(field, model_properties)
             setattr(ModelObjWithProperties, "get_%s" % field, get_f)
@@ -476,9 +482,9 @@ class ModelObj:
                 ModelObjWithProperties,
                 field,
                 property(
-                    getattr(ModelObjWithProperties, 'get_%s' % field),
-                    getattr(ModelObjWithProperties, 'set_%s' % field)
-                )
+                    getattr(ModelObjWithProperties, "get_%s" % field),
+                    getattr(ModelObjWithProperties, "set_%s" % field),
+                ),
             )
         return ModelObjWithProperties(model_api, uri, data)
 

@@ -23,7 +23,7 @@ jobs:
             pytest
       - run:
           command: |
-            pycodestyle
+            black --check .
   deploy_prod:
     working_directory: ~/bulk-api-python-client
     docker:

@@ -16,54 +16,47 @@ from bulk_api_client.model import ModelAPI, ModelObj
 def random_string(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_letters
-    return ''.join(random.choice(letters) for i in range(stringLength))
+    return "".join(random.choice(letters) for i in range(stringLength))
 
 
 @pytest.fixture
 def client():
     token = random_string()
-    url = "http://test"
+    url = "http://test.org/api/"
     Client.app_api_urls = None
     Client.model_api_urls = {}
     Client.app_api_cache = {}
     yaml_data = {
-        'definitions': {
-            'bulk_importer.examplefortesting': {
-                'required': ['text', 'date_time'],
-                'type': 'object',
-                'properties': {
-                    'text': {
-                        'title': 'Text',
-                        'type': 'string',
-                        'minLength': 1
-                    },
-                }
+        "definitions": {
+            "bulk_importer.examplefortesting": {
+                "required": ["text", "date_time"],
+                "type": "object",
+                "properties": {
+                    "text": {"title": "Text", "type": "string", "minLength": 1},
+                },
             },
-            'bulk_importer.relatedexamplefortesting': {
-                'required': ['text', 'parent'],
-                'type': 'object',
-                'properties': {
-                    'text': {
-                        'title': 'Text',
-                        'type': 'string',
-                        'minLength': 1
+            "bulk_importer.relatedexamplefortesting": {
+                "required": ["text", "parent"],
+                "type": "object",
+                "properties": {
+                    "text": {"title": "Text", "type": "string", "minLength": 1},
+                    "parent": {
+                        "title": "Parent",
+                        "type": "string",
+                        "format": "uri",
                     },
-                    'parent': {
-                        'title': 'Parent',
-                        'type': 'string',
-                        'format': 'uri'
-                    },
-                }
-            }
+                },
+            },
         },
-        'paths': ['some_paths']}
+        "paths": ["some_paths"],
+    }
 
     data = BytesIO(yaml.dump(yaml_data).encode())
     response = Response()
-    response._content = b''
+    response._content = b""
     response.status_code = 200
     response.raw = data
-    with mock.patch.object(requests, 'request', return_value=response):
+    with mock.patch.object(requests, "request", return_value=response):
         client = Client(token, api_url=url)
     client.clear_cache()
     return client
@@ -71,14 +64,14 @@ def client():
 
 @pytest.fixture
 def app_api(client):
-    app_label = 'bulk_importer'
+    app_label = "bulk_importer"
     data = {
-        app_label: urljoin(client.api_url, app_label),
+        app_label: urljoin(client.api_url, "{}/".format(app_label)),
     }
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, 'request', return_value=response):
+    with mock.patch.object(Client, "request", return_value=response):
         app_api = AppAPI(client, app_label)
 
     return app_api
@@ -88,45 +81,40 @@ def app_api(client):
 def model_api(app_api):
     model_name = random_string().lower()
     data = {
-        model_name: urljoin(app_api.client.api_url, model_name),
+        model_name: urljoin(
+            app_api.client.api_url, "bulk_importer/{}/".format(model_name)
+        ),
     }
-    model = '.'.join([app_api.app_label, model_name])
-    app_api.client.definitions.pop('bulk_importer.examplefortesting')
+    model = ".".join([app_api.app_label, model_name])
+    app_api.client.definitions.pop("bulk_importer.examplefortesting")
     properties = {
-        'id': {
-            'title': 'ID',
-            'type': 'integer',
-            'readOnly': True
+        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "name": {
+            "title": "Name",
+            "type": "string",
+            "maxLength": 256,
+            "minLength": 1,
         },
-        'name': {
-            'title': 'Name',
-            'type': 'string',
-            'maxLength': 256,
-            'minLength': 1
-        },
-        'text': {
-            'title': 'Text',
-            'type': 'string',
-            'minLength': 1
-        },
-        'integer': {
-            'title': 'Integer',
-            'type': 'integer',
-            'maximum': 2147483647,
-            'minimum': -2147483648,
-            'x-nullable': True
+        "text": {"title": "Text", "type": "string", "minLength": 1},
+        "integer": {
+            "title": "Integer",
+            "type": "integer",
+            "maximum": 2147483647,
+            "minimum": -2147483648,
+            "x-nullable": True,
         },
     }
     app_api.client.definitions[model] = {
-        'properties': dict(random.sample(
-            properties.items(),
-            k=random.randint(1, len(properties))
-        ))
+        "properties": dict(
+            random.sample(
+                properties.items(), k=random.randint(1, len(properties))
+            )
+        )
     }
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, 'request') as fn:
+    with mock.patch.object(Client, "request") as fn:
         fn.return_value = response
         model_api = ModelAPI(app_api, model_name)
     return model_api
@@ -136,14 +124,13 @@ def model_api(app_api):
 def model_obj(model_api):
     uri = random_string()
     options = {
-        'id': random.randint(0, 1000),
-        'text': random_string(),
-        'integer': random.randint(-2147483648, 2147483647),
+        "id": random.randint(0, 1000),
+        "text": random_string(),
+        "integer": random.randint(-2147483648, 2147483647),
     }
-    data = dict(random.sample(
-        options.items(),
-        k=random.randint(1, len(options))
-    ))
-    with mock.patch.object(ModelAPI, '_get', return_value={'id': 1}):
+    data = dict(
+        random.sample(options.items(), k=random.randint(1, len(options)))
+    )
+    with mock.patch.object(ModelAPI, "_get", return_value={"id": 1}):
         model_obj = ModelObj(model_api, uri, data)
     return model_obj

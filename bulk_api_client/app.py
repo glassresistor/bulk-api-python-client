@@ -10,7 +10,9 @@ class AppAPI(object):
     Cache of ModelAPI objects, keyed by model_name.
     """
 
-    def __init__(self, client, app_label,):
+    def __init__(
+        self, client, app_label,
+    ):
         """App object. Given a app label, this object makes a request — using
         the Client class — to the Bulk Importer API. If given a app in Bulk
         Importer, the response cached in app_api_urls dictionary.
@@ -25,12 +27,13 @@ class AppAPI(object):
 
         url = self.client.api_url
         params = {}
-        response = self.client.request('GET', url, params)
+        response = self.client.request("GET", url, params)
         if not self.client.app_api_urls:
             self.client.app_api_urls = json.loads(response.content)
         if self.app_label not in self.client.app_api_urls:
-            raise BulkAPIError({'app_api':
-                                "Application does not exist in bulk api"})
+            raise BulkAPIError(
+                {"app_api": "Application does not exist in bulk api"}
+            )
 
     def model(self, model_name):
         """Creates a ModelAPI object from a given model name

@@ -12,9 +12,8 @@ from bulk_api_client.app import AppAPI
 from bulk_api_client.exceptions import BulkAPIError
 
 CERT_PATH = os.path.join(
-    os.path.dirname(
-        os.path.realpath(__file__)),
-    'data-warehouse.pivot.pem')
+    os.path.dirname(os.path.realpath(__file__)), "data-warehouse.pivot.pem"
+)
 
 
 class Client(object):
@@ -29,10 +28,12 @@ class Client(object):
     Dict of AppAPI objects, created via app(), key of app_label
     """
 
-    def __init__(self,
-                 token,
-                 api_url='https://data-warehouse.pivot/bulk/api/',
-                 expiration_time=7200):
+    def __init__(
+        self,
+        token,
+        api_url="https://data-warehouse.pivot/bulk/api/",
+        expiration_time=7200,
+    ):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
 
@@ -45,20 +46,18 @@ class Client(object):
         self.token = token
         self.api_url = api_url
         requests_cache.install_cache(
-            'bulk-api-cache',
+            "bulk-api-cache",
             backend=requests_cache.backends.sqlite.DbCache(
-                location=os.path.join(gettempdir(), 'bulk-api-cache')
+                location=os.path.join(gettempdir(), "bulk-api-cache")
             ),
-            expire_after=expiration_time
+            expire_after=expiration_time,
         )
         yaml_res = self.request(
-            method='GET',
-            url=urljoin(self.api_url, 'swagger.yaml'),
-            params={},
+            method="GET", url=urljoin(self.api_url, "swagger.yaml"), params={},
         )
         self.yaml_data = yaml.safe_load(yaml_res.raw)
-        self.definitions = self.yaml_data['definitions']
-        self.paths = self.yaml_data['paths']
+        self.definitions = self.yaml_data["definitions"]
+        self.paths = self.yaml_data["paths"]
 
     def request(self, method, url, params, *args, **kwargs):
         """Request function to construct and send a request. Uses the Requests
@@ -75,19 +74,19 @@ class Client(object):
 
         """
         headers = {
-            'Authorization': 'Token {}'.format(self.token),
+            "Authorization": "Token {}".format(self.token),
         }
-        if kwargs.get('headers'):
-            kwargs['headers'] = {**headers, **kwargs['headers']}
+        if kwargs.get("headers"):
+            kwargs["headers"] = {**headers, **kwargs["headers"]}
         else:
-            kwargs['headers'] = headers
+            kwargs["headers"] = headers
         response = requests.request(
             method=method,
             url=url,
             params=params,
             verify=CERT_PATH,
             stream=True,
-            **kwargs
+            **kwargs,
         )
 
         if response.status_code not in [200, 201, 204]:
