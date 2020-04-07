@@ -4,7 +4,7 @@ import yaml
 import pandas
 import requests_cache
 
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin
 from io import BytesIO
 
 from bulk_api_client.exceptions import BulkAPIError
@@ -234,6 +234,14 @@ class ModelAPI(object):
             self.model_name
         ]
         url = urljoin(self.app.client.api_url, path)
+        files = {}
+        for field, val in obj_data.items():
+            if not isinstance(val, str):
+                continue
+            if os.path.exists(val):
+                files[field] = open(val, "rb")
+        obj_data = {k: v for k, v in obj_data.items() if k not in files}
+
         data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
         kwargs = {
             "data": data,
@@ -241,8 +249,10 @@ class ModelAPI(object):
                 "Content-Type": "application/json",
                 "Accept": "application/json",
             },
+            "files": files,
         }
         response = self.app.client.request("POST", url, params={}, **kwargs)
+
         return json.loads(response.content)
 
     def create(self, obj_data):
@@ -294,6 +304,7 @@ class ModelAPI(object):
         ]
         uri = os.path.join(path, str(pk))
         data = self._get(uri)
+
         return ModelObj.with_properties(self, uri, data=data)
 
     def _update(self, uri, obj_data, patch=True):
@@ -310,13 +321,17 @@ class ModelAPI(object):
         """
 
         url = urljoin(self.app.client.api_url, uri)
-        data = json.dumps(obj_data)
+        files = {}
+        for field, val in obj_data.items():
+            if not isinstance(val, str):
+                continue
+            if os.path.exists(val):
+                files[field] = open(val, "rb")
+        obj_data = {k: v for k, v in obj_data.items() if k not in files}
         kwargs = {
-            "data": data,
-            "headers": {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
+            "data": obj_data,
+            "headers": {"Accept": "application/json"},
+            "files": files,
         }
         method = "PATCH"
         if not patch:
@@ -374,7 +389,12 @@ def _get_f(field, properties):
     def get_f(cls):
         field_val = cls.data.get(field)
         if properties[field].get("format") == "uri":
-            if hasattr(cls, "_%s" % field):
+            if "api_download" in field_val:
+                response = cls.model_api.app.client.request(
+                    "GET", field_val, {}
+                )
+                return BytesIO(response.content)
+            elif hasattr(cls, "_%s" % field):
                 return getattr(cls, "_%s" % field)
             path = field_val.replace(cls.model_api.app.client.api_url, "")
             app_label, model_name, _id = path.split("/")
@@ -461,6 +481,7 @@ class ModelObj:
             ModelObjWithProperties obj
 
         """
+
         if not isinstance(model_api, ModelAPI):
             raise BulkAPIError(
                 {"ModelObj": "Given model is not a ModelAPI object"}
