@@ -236,10 +236,9 @@ class ModelAPI(object):
         url = urljoin(self.app.client.api_url, path)
         files = {}
         for field, val in obj_data.items():
-            if not isinstance(val, str):
-                continue
-            if os.path.exists(val):
-                files[field] = open(val, "rb")
+            if hasattr(val, "read"):
+                files[field] = val
+
         obj_data = {k: v for k, v in obj_data.items() if k not in files}
 
         data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
@@ -323,10 +322,8 @@ class ModelAPI(object):
         url = urljoin(self.app.client.api_url, uri)
         files = {}
         for field, val in obj_data.items():
-            if not isinstance(val, str):
-                continue
-            if os.path.exists(val):
-                files[field] = open(val, "rb")
+            if hasattr(val, "read"):
+                files[field] = val
         obj_data = {k: v for k, v in obj_data.items() if k not in files}
         kwargs = {
             "data": obj_data,

@@ -1,6 +1,6 @@
 # Python client for Bulk Importer API
 
-Client for handling app and model requests to the bulk importer API (Docs: <https://pivotbio.github.io/bulk-api-python-client/bulk_api_client/>)
+Client for handling app and model requests to the bulk importer API ([Documentation](https://pivotbio.github.io/bulk-api-python-client/bulk_api_client/))
 
 ## Getting Started
 
@@ -56,6 +56,23 @@ Create an object on a model using a dictionary of data on the object
 ```
 
 Returns a ModelObj object
+
+#### File Field
+
+ModelAPI supports create/update of an instance with a file as a field. This file field accepts an open file/file buffer. This file is stored in the database and retrievable.
+
+```
+with open(file_path, "rb") as file:
+     obj_data = {
+         "text": "model_text",
+         "data_file": file,
+     }
+     obj = model_api.create(obj_data)
+```
+
+With a ModelObj, a file field on the instance downloads the file from the database to be readable by the user. This will be an open python file object ('rb' mode).
+
+This file object cannot be overwritten or changed with a simple set action (i.e. `model_obj.file = new_file`), as it is read-only. Instead, any changes to the file must use the update method, which will change the file saved to the database completely. Reference the [ModelObj update section](#update) on how to us that method.
 
 ### Query
 

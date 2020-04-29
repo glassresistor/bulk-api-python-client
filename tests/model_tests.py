@@ -433,18 +433,19 @@ def test_model_api_create_file(app_api, tmpdir):
 
     with mock.patch.object(Client, "request", return_value=response):
         model_api = ModelAPI(app_api, model_name)
-    obj_data = {
-        "text": "model_text",
-        "data_file": outfile_path,
-    }
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
-    with mock.patch.object(Client, "request", return_value=response) as fn:
-        obj = model_api.create(obj_data)
-        assert fn.called
-        "POST" in fn.call_args[0]
-        "files" in fn.call_args[1]
+    with open(outfile_path, "rb") as outfile:
+        obj_data = {
+            "text": "model_text",
+            "data_file": outfile,
+        }
+        with mock.patch.object(Client, "request", return_value=response) as fn:
+            obj = model_api.create(obj_data)
+            assert fn.called
+            "POST" in fn.call_args[0]
+            "files" in fn.call_args[1]
     assert isinstance(obj, ModelObj)
     assert obj.data == data
 
@@ -621,11 +622,16 @@ def test_model_api_update_file(model_api_file, tmpdir):
     response = Response()
     response.status_code = 200
     response._content = content
-    with mock.patch.object(Client, "request", return_value=response) as fn:
-        model_api_file._update(uri, obj_data)
-        assert fn.called
-        "PUT" in fn.call_args[0]
-        "files" in fn.call_args[1]
+    with open(outfile_path, "rb") as outfile:
+        obj_data = {
+            "text": "model_text",
+            "data_file": outfile,
+        }
+        with mock.patch.object(Client, "request", return_value=response) as fn:
+            model_api_file._update(uri, obj_data)
+            assert fn.called
+            "PUT" in fn.call_args[0]
+            "files" in fn.call_args[1]
 
 
 def test_model_api_partial_update(model_api):
@@ -680,11 +686,16 @@ def test_model_api_partial_update_file(model_api_file, tmpdir):
     response = Response()
     response.status_code = 200
     response._content = content
-    with mock.patch.object(Client, "request", return_value=response) as fn:
-        model_api_file._update(uri, obj_data)
-        assert fn.called
-        "PATCH" in fn.call_args[0]
-        "files" in fn.call_args[1]
+    with open(outfile_path, "rb") as outfile:
+        obj_data = {
+            "text": "model_text",
+            "data_file": outfile,
+        }
+        with mock.patch.object(Client, "request", return_value=response) as fn:
+            model_api_file._update(uri, obj_data)
+            assert fn.called
+            "PATCH" in fn.call_args[0]
+            "files" in fn.call_args[1]
 
 
 def test_model_api_delete(model_api):
