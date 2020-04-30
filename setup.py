@@ -13,7 +13,7 @@ setup(
     include_package_data=True,
     install_requires=[
         "pandas>=0.25.2",
-        "requests~=2.22.0",
+        "requests>=2.22,<2.24",
         "requests-cache~=0.5.0",
         "PyYAML>=5.1.2,<5.4.0",
     ],
