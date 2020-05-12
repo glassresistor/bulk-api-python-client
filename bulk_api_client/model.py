@@ -240,16 +240,22 @@ class ModelAPI(object):
                 files[field] = val
 
         obj_data = {k: v for k, v in obj_data.items() if k not in files}
+        kwargs = {}
+        if files:
+            kwargs = {
+                "data": obj_data,
+                "files": files,
+            }
+        else:
+            data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
+            kwargs = {
+                "data": data,
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+            }
 
-        data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
-        kwargs = {
-            "data": data,
-            "headers": {
-                "Content-Type": "application/json",
-                "Accept": "application/json",
-            },
-            "files": files,
-        }
         response = self.app.client.request("POST", url, params={}, **kwargs)
 
         return json.loads(response.content)
@@ -325,11 +331,21 @@ class ModelAPI(object):
             if hasattr(val, "read"):
                 files[field] = val
         obj_data = {k: v for k, v in obj_data.items() if k not in files}
-        kwargs = {
-            "data": obj_data,
-            "headers": {"Accept": "application/json"},
-            "files": files,
-        }
+        kwargs = {}
+        if files:
+            kwargs = {
+                "data": obj_data,
+                "files": files,
+            }
+        else:
+            data = json.dumps(obj_data, cls=ModelObjJSONEncoder)
+            kwargs = {
+                "data": data,
+                "headers": {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+            }
         method = "PATCH"
         if not patch:
             method = "PUT"

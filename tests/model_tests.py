@@ -357,7 +357,6 @@ def test_model_api_private_create(model_api):
             "Content-Type": "application/json",
             "Accept": "application/json",
         },
-        "files": {},
     }
     response = Response()
     response.status_code = 200
@@ -578,14 +577,16 @@ def test_model_api_update(model_api):
     uri = "/bulk/api/bulk_importer/examplefortesting/1016"
     url = urljoin(path, os.path.join(model_api.model_name, uri))
     obj_data = {
-        "text": "EYdVWVxempVwBpqMENtuYmGZJskLE",
         "date_time": "2019-11-01T19:17:50.416090Z",
         "integer": 5,
+        "text": "EYdVWVxempVwBpqMENtuYmGZJskLE",
     }
     kwargs = {
-        "data": obj_data,
-        "headers": {"Accept": "application/json"},
-        "files": {},
+        "data": json.dumps(obj_data),
+        "headers": {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
     }
     content = (
         b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'
@@ -647,9 +648,11 @@ def test_model_api_partial_update(model_api):
         "integer": 5,
     }
     kwargs = {
-        "data": obj_data,
-        "headers": {"Accept": "application/json"},
-        "files": {},
+        "data": json.dumps(obj_data),
+        "headers": {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
     }
     content = (
         b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'
