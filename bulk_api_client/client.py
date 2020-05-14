@@ -90,7 +90,10 @@ class Client(object):
         )
 
         if response.status_code not in [200, 201, 204]:
-            raise BulkAPIError(json.loads(response.content))
+            try:
+                raise BulkAPIError(json.loads(response.content))
+            except json.JSONDecodeError:
+                raise BulkAPIError(response.content)
         return response
 
     def clear_cache(self):
