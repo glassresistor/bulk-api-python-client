@@ -179,7 +179,7 @@ class ModelAPI(object):
 
         return df, pages_left
 
-    def _list(self, page):
+    def _list(self, page, filter=None, order=None):
         """Lists all model object of a given model; Makes a 'GET' method request
         to the Bulk API
 
@@ -193,13 +193,24 @@ class ModelAPI(object):
             self.model_name
         ]
         url = urljoin(self.app.client.api_url, path)
+        if filter is not None:
+            # If filter is a string, validate it is correct YAML for a dict
+            if isinstance(filter, str):
+                filter = yaml.safe_load(filter)
+            if not isinstance(filter, dict):
+                raise filter_error
+            # Whether it was a dict or string initially, convert to YAML
+            # for sending over the wire.
+            filter = yaml.safe_dump(filter)
+        if order is not None:
+            if not isinstance(order, str):
+                raise TypeError({"detail": "order must be a string"})
+        params = {"page": page, "filter": filter, "order": order}
         with requests_cache.disabled():
-            response = self.app.client.request(
-                "GET", url, params={"page": page}
-            )
+            response = self.app.client.request("GET", url, params=params)
         return json.loads(response.content)["results"]
 
-    def list(self, page):
+    def list(self, page, filter=None, order=None):
         """Makes call to private list method and creates list of ModelObj
         instances from returned model data
 
@@ -209,7 +220,7 @@ class ModelAPI(object):
             list of ModelObjs
 
         """
-        data = self._list(page=page)
+        data = self._list(page=page, filter=filter, order=order)
         path = self.app.client.model_api_urls[self.app.app_label][
             self.model_name
         ]

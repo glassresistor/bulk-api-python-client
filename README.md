@@ -37,6 +37,12 @@ List all objects on a model. Only 100 objects can be returned at a time. Use the
 
 Returns a list of ModelObj objects
 
+List can also take a filter and an order similar to the query function. This is useful because rather than only getting that functionality on a query that returns a dataframe, you can now filter and order for ModelObjs
+
+```
+.list(page=1, filter={'or': [{'field_name1': 'value1'}, {'field_name2': 'value2'}]}, order='field', fields=['field1','field2','field3'])
+```
+
 ### Get
 
 Get a model object using it's primary key

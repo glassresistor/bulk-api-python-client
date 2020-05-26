@@ -297,9 +297,10 @@ def test_model_api_private_list(model_api):
     response.status_code = 200
     response._content = content
     response.headers["page"] = "1"
+    params = {"page": 1, "filter": None, "order": None}
     with mock.patch.object(Client, "request", return_value=response) as fn:
         obj_list = model_api._list(page=1)
-        fn.assert_called_with("GET", url, params={"page": 1})
+        fn.assert_called_with("GET", url, params=params)
     assert obj_list == results
 
 
@@ -324,11 +325,77 @@ def test_model_api_list(model_api):
             "imported_from": None,
         },
     ]
+    params = {"page": 1, "filter": None, "order": None}
     with mock.patch.object(ModelAPI, "_list", return_value=obj_data_list) as fn:
         obj_list = model_api.list(page=1)
-        fn.assert_called_with(page=1)
+        fn.assert_called_with(**params)
     assert all(isinstance(obj, ModelObj) for obj in obj_list)
     assert all(x.data == y for x, y in zip(obj_list, obj_data_list))
+
+
+def test_model_api_list_filter(model_api):
+    obj_data_list = [
+        {
+            "id": 1016,
+            "text": "uRlrdQsqPxquIIZIXrskfLWNjJafc",
+            "date_time": "2019-11-10T07:28:34.088291Z",
+            "integer": 5,
+        },
+    ]
+    params = {"page": 1, "filter": {"id": 1016}, "order": None}
+    with mock.patch.object(ModelAPI, "_list", return_value=obj_data_list) as fn:
+        obj_list = model_api.list(page=1, filter={"id": 1016})
+        fn.assert_called_with(**params)
+    assert all(isinstance(obj, ModelObj) for obj in obj_list)
+    assert all(x.data == y for x, y in zip(obj_list, obj_data_list))
+
+
+def test_model_api_list_order(model_api):
+    obj_data_list = [
+        {
+            "id": 1017,
+            "text": "eisjgntignuseitguIUNIUFNE",
+            "date_time": "2017-07-10T07:28:34.088291Z",
+            "integer": 7,
+        },
+        {
+            "id": 1016,
+            "text": "uRlrdQsqPxquIIZIXrskfLWNjJafc",
+            "date_time": "2019-11-10T07:28:34.088291Z",
+            "integer": 5,
+        },
+    ]
+    params = {"page": 1, "filter": None, "order": "text"}
+    with mock.patch.object(ModelAPI, "_list", return_value=obj_data_list) as fn:
+        obj_list = model_api.list(page=1, order="text")
+        fn.assert_called_with(**params)
+    assert all(isinstance(obj, ModelObj) for obj in obj_list)
+    assert all(x.data == y for x, y in zip(obj_list, obj_data_list))
+
+
+@pytest.mark.parametrize(
+    "params,msg",
+    [
+        (
+            {"page": 1, "filter": (123), "order": None},
+            {
+                "detail": "filter must be a dict or yaml string containing a dict"
+            },
+        ),
+        (
+            {"page": 1, "filter": None, "order": (123)},
+            {"detail": "order must be a string"},
+        ),
+    ],
+)
+def test_model_api_list_invalid_params(model_api, params, msg):
+    response = Response()
+    response.status_code = 200
+    response._content = b"col1,col2\n1,2"
+    with mock.patch.object(Client, "request", return_value=response):
+        with pytest.raises(TypeError) as err:
+            model_api.list(**params)
+    assert str(err.value) == str(msg)
 
 
 def test_model_api_private_create(model_api):
