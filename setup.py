@@ -22,7 +22,7 @@ setup(
             "pytest==5.4.2",
             "pytest-cov==2.9.0",
             "flake8==3.8.2",
-            "pytest-randomly==3.3.1",
+            "pytest-randomly==3.4.0",
             "pytest-repeat==0.8.0",
             "pdoc3>=0.6.2,<0.8.0",
             "black~=19.10b0",
