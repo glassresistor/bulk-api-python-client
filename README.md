@@ -10,10 +10,10 @@ These instructions will get you a copy of the project up and running on your loc
 
 Since this is a private repo, you will have to install using SSH
 
-To install the project
+To install the project or upgrade it when bugfixes/features are added:
 
 ```
-pip install git+ssh://git@github.com/pivotbio/bulk-api-python-client.git
+pip install -U git+ssh://git@github.com/pivotbio/bulk-api-python-client.git
 ```
 
 ## Usage
