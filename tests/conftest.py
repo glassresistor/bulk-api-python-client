@@ -2,7 +2,6 @@ import pytest
 import random
 import string
 import json
-import yaml
 from io import BytesIO
 from unittest import mock
 from urllib.parse import urljoin
@@ -26,7 +25,7 @@ def client():
     Client.app_api_urls = None
     Client.model_api_urls = {}
     Client.app_api_cache = {}
-    yaml_data = {
+    json_data = {
         "definitions": {
             "bulk_importer.examplefortesting": {
                 "required": ["text", "date_time"],
@@ -51,9 +50,9 @@ def client():
         "paths": ["some_paths"],
     }
 
-    data = BytesIO(yaml.dump(yaml_data).encode())
+    data = json.dumps(json_data)
     response = Response()
-    response._content = b""
+    response._content = data
     response.status_code = 200
     response.raw = data
     with mock.patch.object(requests, "request", return_value=response):

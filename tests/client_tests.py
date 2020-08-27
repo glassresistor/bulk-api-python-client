@@ -3,7 +3,6 @@ import pytest
 import string
 import random
 import json
-import yaml
 from io import BytesIO
 from unittest import mock
 from urllib.parse import urljoin
@@ -45,12 +44,11 @@ def test_client():
     """Test Client class works as intented"""
     token = random_string()
     url = random_string()
-    yaml_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
-    data = BytesIO(yaml.dump(yaml_data).encode())
+    json_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
+    data = json.dumps(json_data)
     response = Response()
-    response._content = b""
+    response._content = data
     response.status_code = 200
-    response.raw = data
     with mock.patch.object(requests, "request", return_value=response):
         test_client = Client(token, api_url=url)
     assert test_client.token == token
@@ -65,7 +63,7 @@ def test_client_request(client):
     params = {"teset_param": 1}
     kwargs = {"headers": {"Authorization": "Token {}".format(client.token)}}
     response = Response()
-    response._content = b""
+    response._content = ""
     response.status_code = 200
     with mock.patch.object(requests, "request", return_value=response) as fn:
         client.request(method, full_path, params)
@@ -143,17 +141,17 @@ def test_client_request_json_errors(client, status_code, err_msg):
     assert str(err.value) == str(err_msg)
 
 
-def test_download_swagger_yaml():
+def test_download_swagger_json():
     token = random_string()
     url = random_string()
-    yaml_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
-    data = BytesIO(yaml.dump(yaml_data).encode())
+    json_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
+    data = json.dumps(json_data)
     method = "GET"
-    url = urljoin(BASE_URL, "http://localhost:8000/bulk/api/swagger.yaml")
+    url = urljoin(BASE_URL, "http://localhost:8000/bulk/api/swagger.json")
     params = {}
     kwargs = {"headers": {"Authorization": "Token {}".format(token)}}
     response = Response()
-    response._content = b""
+    response._content = data
     response.status_code = 200
     response.raw = data
     with mock.patch.object(requests, "request", return_value=response) as fn:
@@ -166,8 +164,8 @@ def test_download_swagger_yaml():
             stream=True,
             **kwargs,
         )
-    assert client.definitions == yaml_data["definitions"]
-    assert client.paths == yaml_data["paths"]
+    assert client.definitions == json_data["definitions"]
+    assert client.paths == json_data["paths"]
 
 
 def test_request_caching(client):

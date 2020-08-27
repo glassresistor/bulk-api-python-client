@@ -2,7 +2,6 @@ import os
 import requests
 import requests_cache
 import json
-import yaml
 
 from urllib.parse import urljoin
 from tempfile import gettempdir
@@ -52,12 +51,12 @@ class Client(object):
             ),
             expire_after=expiration_time,
         )
-        yaml_res = self.request(
-            method="GET", url=urljoin(self.api_url, "swagger.yaml"), params={},
+        json_res = self.request(
+            method="GET", url=urljoin(self.api_url, "swagger.json"), params={},
         )
-        self.yaml_data = yaml.safe_load(yaml_res.raw)
-        self.definitions = self.yaml_data["definitions"]
-        self.paths = self.yaml_data["paths"]
+        self.swagger_data = json.loads(json_res.content)
+        self.definitions = self.swagger_data["definitions"]
+        self.paths = self.swagger_data["paths"]
 
     def request(self, method, url, params, *args, **kwargs):
         """Request function to construct and send a request. Uses the Requests
