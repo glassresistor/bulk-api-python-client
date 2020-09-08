@@ -28,7 +28,7 @@ class Client(object):
     """
 
     def __init__(
-        self, token, api_url=None, expiration_time=7200,
+        self, token, api_url=None, expiration_time=None,
     ):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
@@ -44,6 +44,10 @@ class Client(object):
             self.api_url = "https://data-warehouse.pivot/bulk/api/"
         else:
             self.api_url = api_url
+        if expiration_time is None:
+            self.expiration_time = 7200
+        else:
+            self.expiration_time = expiration_time
         requests_cache.install_cache(
             "bulk-api-cache",
             backend=requests_cache.backends.sqlite.DbCache(

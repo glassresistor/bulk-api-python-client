@@ -41,10 +41,13 @@ def test_cert_path():
 
 
 @pytest.mark.parametrize(
-    "api_url,expected_url",
-    [(None, "https://data-warehouse.pivot/bulk/api/"), ("test", "test")],
+    "api_url,expiration_time,expected",
+    [
+        (None, None, ("https://data-warehouse.pivot/bulk/api/", 7200)),
+        ("test", 1, ("test", 1)),
+    ],
 )
-def test_client(api_url, expected_url):
+def test_client(api_url, expiration_time, expected):
     """Test Client class works as intented"""
     token = random_string()
     json_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
@@ -53,9 +56,12 @@ def test_client(api_url, expected_url):
     response._content = data
     response.status_code = 200
     with mock.patch.object(requests, "request", return_value=response):
-        test_client = Client(token, api_url=api_url)
+        test_client = Client(
+            token, api_url=api_url, expiration_time=expiration_time
+        )
     assert test_client.token == token
-    assert test_client.api_url == expected_url
+    assert test_client.api_url == expected[0]
+    assert test_client.expiration_time == expected[1]
 
 
 def test_client_request(client):
