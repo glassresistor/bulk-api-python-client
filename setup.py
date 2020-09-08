@@ -24,7 +24,7 @@ setup(
             "flake8==3.8.3",
             "pytest-randomly==3.4.1",
             "pytest-repeat==0.8.0",
-            "pdoc3>=0.6.2,<0.8.0",
+            "pdoc3>=0.6.2,<0.10.0",
             "black~=19.10b0",
         ]
     },
