@@ -8,6 +8,7 @@ from unittest import mock
 from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
 from requests.models import Response
+import requests_cache
 
 from bulk_api_client.client import Client
 from bulk_api_client.model import ModelAPI, ModelObj
@@ -94,6 +95,40 @@ def test_model_api_query(model_api):
     assert test_model_data_frame.columns.to_list() == ["id", "text"]
     assert test_model_data_frame.values.tolist() == [[1, "text1"], [2, "text2"]]
     assert test_model_data_frame.shape == (2, 2)
+
+
+def test_model_api_query_skip_cache(model_api):
+    """Test ModelAPI query_request method works as intented"""
+
+    test_fields = "- id\n- text"
+    test_order = "text"
+    test_filter = "key:value"
+    test_page = [1, 2]
+    test_page_size = 1
+
+    dataframes = [
+        read_csv(BytesIO(b"id,text\n1,text1")),
+        read_csv(BytesIO(b"id,text\n2,text2")),
+    ]
+
+    with mock.patch.object(ModelAPI, "_query",) as fn:
+        with mock.patch.object(requests_cache, "disabled",) as rc_fn:
+            fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
+            model_api.query(
+                fields=test_fields,
+                filter=test_filter,
+                order=test_order,
+                page_size=test_page_size,
+                skip_cache=True,
+            )
+            fn.assert_called_with(
+                fields=test_fields,
+                filter=test_filter,
+                order=test_order,
+                page=test_page.pop(),
+                page_size=test_page_size,
+            )
+            rc_fn.assert_called()
 
 
 @pytest.mark.parametrize(

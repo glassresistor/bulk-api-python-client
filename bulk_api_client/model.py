@@ -76,7 +76,14 @@ class ModelAPI(object):
                 }
             )
 
-    def query(self, fields=None, filter=None, order=None, page_size=None):
+    def query(
+        self,
+        fields=None,
+        filter=None,
+        order=None,
+        page_size=None,
+        skip_cache=None,
+    ):
         """Queries to create a Pandas DataFrame for given queryset. The default
         query may be obtained by calling the function, without passing
         any parameters.
@@ -87,6 +94,7 @@ class ModelAPI(object):
                 or a yaml string representation of a dict
             order (str): order for the order query
             page_size (str): page size for the page_size query; Default: 10,000
+            skip_cache (bool): pause global caching for query request
 
         Returns:
             pandas dataframe
@@ -96,13 +104,18 @@ class ModelAPI(object):
         current_page = 1
         pages_left = 1
         while pages_left > 0:
-            df, pages_left = self._query(
-                fields=fields,
-                filter=filter,
-                order=order,
-                page=current_page,
-                page_size=page_size,
-            )
+            kwargs = {
+                "fields": fields,
+                "filter": filter,
+                "order": order,
+                "page": current_page,
+                "page_size": page_size,
+            }
+            if skip_cache:
+                with requests_cache.disabled():
+                    df, pages_left = self._query(**kwargs)
+            else:
+                df, pages_left = self._query(**kwargs)
             current_page += 1
             dataframes.append(df)
         return pandas.concat(dataframes)

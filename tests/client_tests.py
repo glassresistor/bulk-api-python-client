@@ -192,7 +192,7 @@ def test_request_caching(client):
     response.from_cache = True
     with mock.patch.object(requests, "request", return_value=response):
         res = client.request(method, full_path, {})
-    res.from_cache = True
+    assert res.from_cache
 
 
 def test_client_app_method(client):
@@ -208,4 +208,4 @@ def test_client_clear_cache(client):
     """Test cache clearing method clears request cache"""
     with mock.patch.object(requests_cache, "clear") as fn:
         client.clear_cache()
-        fn.called = True
+        fn.assert_called()

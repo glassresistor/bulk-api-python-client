@@ -83,18 +83,19 @@ This file object cannot be overwritten or changed with a simple set action (i.e.
 ### Query
 
 ```
-.query(filter=...,order=...,page=,page_size=,fields=[...])
+.query(filter=...,order=...,page=,page_size=,fields=[...],skip_cache=bool)
 ```
 
 Returns a Pandas dataframe object
 
-Query     | Description                                                         | Example
---------- | ------------------------------------------------------------------- | ------------------------------------------
-fields    | Returns a data set of columns containing the specified field(s)     | query(fields=['field1','field2','field3'])
-filter    | Returns a data set containing objects that match the given field(s) | query(filter={'field_name1': 'value1'})
-order     | Returns a data set ordered by the given field(s)                    | query(order='field')
-page      | Returns a data set of a specified page number                       | query(page=1)
-page size | Limits the data set to specified number of data points              | query(page_size=10)
+| Query      | Description                                                         | Example                                    |
+| ---------- | ------------------------------------------------------------------- | ------------------------------------------ |
+| fields     | Returns a data set of columns containing the specified field(s)     | query(fields=['field1','field2','field3']) |
+| filter     | Returns a data set containing objects that match the given field(s) | query(filter={'field_name1': 'value1'})    |
+| order      | Returns a data set ordered by the given field(s)                    | query(order='field')                       |
+| page       | Returns a data set of a specified page number                       | query(page=1)                              |
+| page size  | Limits the data set to specified number of data points              | query(page_size=10)                        |
+| skip_cache | Skip any caching for this request                                   | query(skip_cache=True)                     |
 
 #### Example Queries
 
@@ -149,15 +150,15 @@ Example Field Yaml
 
 ```
 ---
- and:
-   field1__in:
-     - 1
-     - 2
-     - 3
-   field2: "text"
-   or:
-     fields3__gte: 1
-     fields4: "asdf"
+     and:
+       field1__in:
+         - 1
+         - 2
+         - 3
+       field2: "text"
+       or:
+         fields3__gte: 1
+         fields4: "4field"
 ```
 
 ## ModelObj
@@ -194,16 +195,16 @@ pytest -{flag} tests/
 
 ### Useful flags
 
-Flag                    | Description                                                                                                                                                                      | Example
------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------
--s                      | Show output                                                                                                                                                                      | pytest -s
--x                      | Stop after first failure                                                                                                                                                         | pytest -x
--vv                     | Verbose output from pytest                                                                                                                                                       | pytest -vv
--q, --quiet             | Less verbose                                                                                                                                                                     | pytest -q
---count                 | Run tests {count} # of times                                                                                                                                                     | pytest --count=10
-{test_file}::{function} | Run specified function in test                                                                                                                                                   | pytest tests/test_file::test_fn
--r chars                | Show extra test summary info as specified by chars: (f)ailed, (E)error, (s)skipped, (x)failed, (X)passed, (w)pytest-warnings (p)passed, (P)passed with output, (a)all except pP. | pytest -r fe
--k "expression"         | Only run tests that match expession (and fixtures)                                                                                                                               | pytest -k 'test_001 or test_some_other_test'
+| Flag                    | Description                                                                                                                                                                      | Example                                      |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| -s                      | Show output                                                                                                                                                                      | pytest -s                                    |
+| -x                      | Stop after first failure                                                                                                                                                         | pytest -x                                    |
+| -vv                     | Verbose output from pytest                                                                                                                                                       | pytest -vv                                   |
+| -q, --quiet             | Less verbose                                                                                                                                                                     | pytest -q                                    |
+| --count                 | Run tests {count} # of times                                                                                                                                                     | pytest --count=10                            |
+| {test_file}::{function} | Run specified function in test                                                                                                                                                   | pytest tests/test_file::test_fn              |
+| -r chars                | Show extra test summary info as specified by chars: (f)ailed, (E)error, (s)skipped, (x)failed, (X)passed, (w)pytest-warnings (p)passed, (P)passed with output, (a)all except pP. | pytest -r fe                                 |
+| -k "expression"         | Only run tests that match expession (and fixtures)                                                                                                                               | pytest -k 'test_001 or test_some_other_test' |
 
 ### Coding Style Tests
 
