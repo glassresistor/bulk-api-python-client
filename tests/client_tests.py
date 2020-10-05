@@ -121,9 +121,15 @@ def test_client_request_errors(client, status_code, err_msg):
 @pytest.mark.parametrize(
     "status_code,err_msg",
     [
-        (401, {"detail": "You do not have permission to perform this action."}),
-        (403, {"detail": "You do not have permission to perform this action."}),
-        (404, {"detail": "Not found."}),
+        (
+            401,
+            '{"detail": "You do not have permission to perform this action."}',
+        ),
+        (
+            403,
+            '{"detail": "You do not have permission to perform this action."}',
+        ),
+        (404, '{"detail": "Not found."}'),
     ],
 )
 def test_client_request_json_errors(client, status_code, err_msg):
@@ -134,7 +140,7 @@ def test_client_request_json_errors(client, status_code, err_msg):
     params = {"teset_param": 1}
     kwargs = {"headers": {"Authorization": "Token {}".format(client.token)}}
     response = Response()
-    response._content = json.dumps(err_msg)
+    response._content = err_msg
     response.status_code = status_code
     with mock.patch.object(requests, "request", return_value=response) as fn:
         with pytest.raises(BulkAPIError) as err:
