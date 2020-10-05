@@ -2,6 +2,7 @@ import os
 import requests
 import requests_cache
 import json
+import logging
 
 from urllib.parse import urljoin
 from tempfile import gettempdir
@@ -27,9 +28,7 @@ class Client(object):
     Dict of AppAPI objects, created via app(), key of app_label
     """
 
-    def __init__(
-        self, token, api_url=None, expiration_time=None,
-    ):
+    def __init__(self, token, api_url=None, expiration_time=None, log=False):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
 
@@ -55,12 +54,29 @@ class Client(object):
             ),
             expire_after=expiration_time,
         )
+        self.log = log
+        if self.log:
+            logging.basicConfig(level=logging.DEBUG)
         json_res = self.request(
             method="GET", url=urljoin(self.api_url, "swagger.json"), params={},
         )
         self.swagger_data = json.loads(json_res.content)
         self.definitions = self.swagger_data["definitions"]
         self.paths = self.swagger_data["paths"]
+
+    @property
+    def log(self):
+        return self._log
+
+    @log.setter
+    def log(self, value):
+        if value:
+            logging.basicConfig(level=logging.DEBUG)
+        else:
+            root_logger = logging.getLogger()
+            root_logger.setLevel(logging.WARNING)
+            root_logger.handlers = []
+        self._log = value
 
     def request(self, method, url, params, *args, **kwargs):
         """Request function to construct and send a request. Uses the Requests
