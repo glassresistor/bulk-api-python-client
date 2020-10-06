@@ -21,7 +21,7 @@ setup(
         "dev": [
             "pytest==6.1.1",
             "pytest-cov==2.10.1",
-            "flake8==3.8.3",
+            "flake8==3.8.4",
             "pytest-randomly==3.4.1",
             "pytest-repeat==0.8.0",
             "pdoc3>=0.6.2,<0.10.0",
