@@ -83,7 +83,7 @@ This file object cannot be overwritten or changed with a simple set action (i.e.
 ### Query
 
 ```
-.query(filter=...,order=...,page=,page_size=,fields=[...],skip_cache=bool)
+.query(filter=...,order=...,page_size=,fields=[...],skip_cache=bool)
 ```
 
 Returns a Pandas dataframe object
@@ -93,7 +93,6 @@ Returns a Pandas dataframe object
 | fields     | Returns a data set of columns containing the specified field(s)     | query(fields=['field1','field2','field3']) |
 | filter     | Returns a data set containing objects that match the given field(s) | query(filter={'field_name1': 'value1'})    |
 | order      | Returns a data set ordered by the given field(s)                    | query(order='field')                       |
-| page       | Returns a data set of a specified page number                       | query(page=1)                              |
 | page size  | Limits the data set to specified number of data points              | query(page_size=10)                        |
 | skip_cache | Skip any caching for this request                                   | query(skip_cache=True)                     |
 
