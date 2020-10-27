@@ -122,24 +122,31 @@ query(filter={'or': [{'question__startswith': 'Who'}, {'and': [{'question__start
 
 ### Fields
 
-Queries now support using YAML for for fields as well as renaming field column output
+Queries now support using dict for for fields as well as renaming field column output
 
-Example Fields with Renaming
-
-```
-[field1, {field2: field2_new_name}]
-```
-
-Example Field Yaml with Renamed Fields
+Example Fields
 
 ```
----
- - field1
- - field2
- - field3__related: new_name
- - field4
- - field5: field5_new_name
+['field1_name', 'field2_name', 'fk__fieldname']
 ```
+
+Example Fields Dict/OrderedDict with Renamed Fields
+
+```
+{field1: new_field1_name}
+
+or
+
+OrderedDict({field1: new_field1_name})
+```
+
+Legacy: List of Fields dicts denoting alias and distinct values within the field
+
+```
+[{field1: {'alias': new_field1_name, 'distinct': True}}]
+```
+
+(Note: This will be deprecated in future versions)
 
 ### Filter
 

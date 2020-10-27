@@ -14,8 +14,9 @@ setup(
     install_requires=[
         "pandas>=0.25.2",
         "requests>=2.22,<2.25",
-        "requests-cache~=0.5.0",
+        "requests-cache>=0.5.0",
         "PyYAML>=5.1.2,<5.4.0",
+        "yamlloader>=0.5.5",
     ],
     extras_require={
         "dev": [

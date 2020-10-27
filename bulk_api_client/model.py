@@ -3,6 +3,8 @@ import json
 import yaml
 import pandas
 import requests_cache
+import yamlloader
+from collections import OrderedDict
 
 from urllib.parse import urljoin
 from io import BytesIO
@@ -76,6 +78,29 @@ class ModelAPI(object):
                 }
             )
 
+    def fields_dict_to_list(self, fields_dict):
+        """
+        Creates a list of single dict items from a dict. Makes assumption that
+        a non-dict value is an alias. Does not have support for values more
+        complex than being a nested dict (to specify alias or distinct) or
+        single values (string)
+
+        Args:
+            fields_dict (dict): dict of fields columns (with alias and/or
+            distinct)
+
+        Returns:
+            list of single dicts
+
+        """
+        fields_list = []
+        for k, v in fields_dict.items():
+            if any([isinstance(v, d) for d in [dict, OrderedDict]]):
+                fields_list.append({k: v})
+            else:
+                fields_list.append({k: {"alias": v}})
+        return fields_list
+
     def query(
         self,
         fields=None,
@@ -144,8 +169,12 @@ class ModelAPI(object):
             # If fields is a string, validate it is correct YAML for a list
             if isinstance(fields, str):
                 fields = yaml.safe_load(fields)
-            if not isinstance(fields, list):
+            if not any(
+                [isinstance(fields, x) for x in [list, dict, OrderedDict]]
+            ):
                 raise field_error
+            if any([isinstance(fields, x) for x in [OrderedDict, dict]]):
+                fields = self.fields_dict_to_list(fields)
             fields = yaml.safe_dump(fields)
         if filter is not None:
             # If filter is a string, validate it is correct YAML for a dict

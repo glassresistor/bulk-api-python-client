@@ -4,6 +4,7 @@ import string
 import random
 import json
 from io import BytesIO, IOBase
+from collections import OrderedDict
 from unittest import mock
 from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
@@ -132,10 +133,29 @@ def test_model_api_query_skip_cache(model_api):
 
 
 @pytest.mark.parametrize(
-    "filter,fields",
-    [("key: value", "- id\n- text"), ({"key": "value"}, ["id", "text"])],
+    "filter,fields,expected_fields",
+    [
+        ("key: value", "- id\n- text", "- id\n- text\n"),
+        ({"key": "value"}, ["id", "text"], "- id\n- text\n"),
+        ({"key": "value"}, {"field": "name"}, "- field:\n    alias: name\n",),
+        (
+            {"key": "value"},
+            {"field": {"alias": "name"}},
+            "- field:\n    alias: name\n",
+        ),
+        (
+            {"key": "value"},
+            OrderedDict({"field": "name"}),
+            "- field:\n    alias: name\n",
+        ),
+        (
+            {"key": "value"},
+            OrderedDict({"field": {"alias": "name"}}),
+            "- field:\n    alias: name\n",
+        ),
+    ],
 )
-def test_model_api_private_query(model_api, filter, fields):
+def test_model_api_private_query(model_api, filter, fields, expected_fields):
     """Test ModelAPI private query method works as intented"""
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
     url = urljoin(urljoin(path, "{}/".format(model_api.model_name)), "query")
@@ -145,7 +165,7 @@ def test_model_api_private_query(model_api, filter, fields):
     test_page_size = 1
 
     params = {
-        "fields": "- id\n- text\n",
+        "fields": expected_fields,
         "filter": "key: value\n",
         "order": test_order,
         "page": test_page,
