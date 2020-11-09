@@ -3,12 +3,12 @@ import json
 import yaml
 import pandas
 import requests_cache
-import yamlloader
 from collections import OrderedDict
 
 from urllib.parse import urljoin
 from io import BytesIO
 
+from bulk_api_client.query_helpers import Q
 from bulk_api_client.exceptions import BulkAPIError
 
 
@@ -180,6 +180,8 @@ class ModelAPI(object):
             # If filter is a string, validate it is correct YAML for a dict
             if isinstance(filter, str):
                 filter = yaml.safe_load(filter)
+            if isinstance(filter, Q):
+                filter = filter.output_filter()
             if not isinstance(filter, dict):
                 raise filter_error
             # Whether it was a dict or string initially, convert to YAML

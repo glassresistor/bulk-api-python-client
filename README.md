@@ -120,6 +120,18 @@ Complex filter query
 query(filter={'or': [{'question__startswith': 'Who'}, {'and': [{'question__startswith': 'What'}, {'integer__gte': 1'}]}])
 ```
 
+Filter query using Q object
+
+```
+query(filter=Q(field1=data))
+```
+
+Complex filter query using Q object
+
+```
+query(filter=Q(question__startswith='Who') | Q(question__startswith='What') & Q(integer__gte=1))
+```
+
 ### Fields
 
 Queries now support using dict for for fields as well as renaming field column output

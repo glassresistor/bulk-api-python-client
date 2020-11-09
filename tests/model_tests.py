@@ -13,6 +13,7 @@ import requests_cache
 
 from bulk_api_client.client import Client
 from bulk_api_client.model import ModelAPI, ModelObj
+from bulk_api_client.query_helpers import Q
 from bulk_api_client.exceptions import BulkAPIError
 
 
@@ -216,6 +217,48 @@ def test_model_api_query_request_null_params(model_api):
     with mock.patch.object(Client, "request", return_value=response) as fn:
         test_model_data_frame, pages_left = model_api._query()
         fn.assert_called_with("GET", url, params=params)
+    assert isinstance(test_model_data_frame, DataFrame)
+    assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
+    assert test_model_data_frame.values.tolist() == [[1, 2]]
+    assert test_model_data_frame.shape == (1, 2)
+    assert pages_left == 0
+
+
+def test_model_api_query_q_object(model_api):
+    path = model_api.app.client.app_api_urls[model_api.app.app_label]
+    url = urljoin(path, os.path.join(model_api.model_name, "query"))
+    q_obj = Q(col1=1) & Q(col2=2)
+    test_fields = "- col1\n- col2"
+    test_order = "text"
+    test_filter = q_obj
+    test_page = [1, 2]
+    test_page_size = 1
+
+    params = {
+        "fields": "- col1\n- col2\n",
+        "filter": "AND:\n- col1: 1\n- col2: 2\n",
+        "order": test_order,
+        "page": test_page.pop(0),
+        "page_size": test_page_size,
+    }
+
+    response = Response()
+    response.status_code = 200
+    response.headers["page_count"] = "1"
+    response.headers["current_page"] = "1"
+    response._content = b"col1,col2\n1,2"
+    response.raw = BytesIO(b"col1,col2\n1,2")
+    with mock.patch.object(Client, "request", return_value=response) as fn:
+        test_model_data_frame, pages_left = model_api._query(
+            fields=test_fields,
+            filter=test_filter,
+            order=test_order,
+            page_size=test_page_size,
+        )
+        fn.assert_called_with("GET", url, params=params)
+        fn.assert_called_with(
+            "GET", url, params=params,
+        )
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
     assert test_model_data_frame.values.tolist() == [[1, 2]]
