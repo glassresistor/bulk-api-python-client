@@ -17,12 +17,17 @@ pip install -U git+ssh://git@github.com/pivotbio/bulk-api-python-client.git
 ```
 
 ## Usage
+From bash or in your systems RC file.
 
 ```
-from bulk_api_client import Client
+export BULK_API_TOKEN='<token>'
+```
 
-client = Client(token, api_url='https://data-warehouse.pivot/bulk/api/', expiration_time=7200)
-client.app('app_label').model('model_name')
+From Python
+
+```
+from bulk_api_client.env_client import env_client as client
+ModelName = client.app('app_label').model('model_name')
 ```
 
 ## ModelAPI
@@ -32,7 +37,7 @@ client.app('app_label').model('model_name')
 List all objects on a model. Only 100 objects can be returned at a time. Use the page option to query for different pages
 
 ```
-.list(page=1)
+ModelName.list(page=1)
 ```
 
 Returns a list of ModelObj objects
@@ -40,7 +45,7 @@ Returns a list of ModelObj objects
 List can also take a filter and an order similar to the query function. This is useful because rather than only getting that functionality on a query that returns a dataframe, you can now filter and order for ModelObjs
 
 ```
-.list(page=1, filter={'or': [{'field_name1': 'value1'}, {'field_name2': 'value2'}]}, order='field', fields=['field1','field2','field3'])
+ModelName.list(page=1, filter={'or': [{'field_name1': 'value1'}, {'field_name2': 'value2'}]}, order='field', fields=['field1','field2','field3'])
 ```
 
 ### Get
@@ -48,7 +53,7 @@ List can also take a filter and an order similar to the query function. This is 
 Get a model object using it's primary key
 
 ```
-.get(pk=1)
+ModelName.get(pk=1)
 ```
 
 Returns a ModelObj object
@@ -58,7 +63,7 @@ Returns a ModelObj object
 Create an object on a model using a dictionary of data on the object
 
 ```
-.create(obj_data={})
+ModelName.create(obj_data={})
 ```
 
 Returns a ModelObj object
@@ -73,7 +78,7 @@ with open(file_path, "rb") as file:
          "text": "model_text",
          "data_file": file,
      }
-     obj = model_api.create(obj_data)
+     obj = ModelName.create(obj_data)
 ```
 
 With a ModelObj, a file field on the instance downloads the file from the database to be readable by the user. This will be an open python file object ('rb' mode).
@@ -83,7 +88,7 @@ This file object cannot be overwritten or changed with a simple set action (i.e.
 ### Query
 
 ```
-.query(filter=...,order=...,page_size=,fields=[...],skip_cache=bool)
+ModelName.query(filter=...,order=...,page_size=,fields=[...],skip_cache=bool)
 ```
 
 Returns a Pandas dataframe object
@@ -102,7 +107,7 @@ Returns a Pandas dataframe object
 query(filter={'or': [{'field_name1': 'value1'}, {'field_name2': 'value2'}]}, order='field', fields=['field1','field2','field3'])
 ```
 
-joins (on foreign key models use double underscore)
+joins (on foreign key fields use double underscore)
 
 ```
 query(filter={'field__field_on_related_model': 'value'})
@@ -114,22 +119,22 @@ field starts with
 query(filter={'id__startswith': 110})
 ```
 
-Complex filter query
+### Complex filter query
 
 ```
 query(filter={'or': [{'question__startswith': 'Who'}, {'and': [{'question__startswith': 'What'}, {'integer__gte': 1'}]}])
 ```
 
-Filter query using Q object
+# Filter query using Q object
 
-```
-query(filter=Q(field1=data))
-```
+Q objects can be used to simplify making complex queries by allowing users to use pythons built in boolean operators
 
-Complex filter query using Q object
-
+This produces the same query as the one above.
 ```
-query(filter=Q(question__startswith='Who') | Q(question__startswith='What') & Q(integer__gte=1))
+from bulk_api_client import Q
+
+filter_obj = Q(question_startswith='Who') or (Q(question__startswith='What') and Q(integer__gte= 1))
+ModelName.query(filter=filter_obj)
 ```
 
 ### Fields
