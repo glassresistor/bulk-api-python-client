@@ -2,7 +2,10 @@ import pytest
 import random
 import string
 import json
+import imp
+import os
 from io import BytesIO
+from contextlib import contextmanager
 from unittest import mock
 from urllib.parse import urljoin
 from requests.models import Response
@@ -16,6 +19,40 @@ def random_string(stringLength=10):
     """Generate a random string of fixed length """
     letters = string.ascii_letters
     return "".join(random.choice(letters) for i in range(stringLength))
+
+
+@contextmanager
+def setenv(**mapping):
+    """``with`` context to temporarily modify the environment variables"""
+    backup_values = {}
+    backup_remove = set()
+    for key, value in mapping.items():
+        if key in os.environ:
+            backup_values[key] = os.environ[key]
+        else:
+            backup_remove.add(key)
+        os.environ[key] = value
+
+    try:
+        yield
+    finally:
+        for k, v in backup_values.items():
+            os.environ[k] = v
+        for k in backup_remove:
+            del os.environ[k]
+
+
+pytest.setenv = setenv
+
+
+def reimport_env_client():
+    from bulk_api_client import env_client
+
+    imp.reload(env_client)
+    return env_client.env_client
+
+
+pytest.reimport_env_client = reimport_env_client
 
 
 @pytest.fixture

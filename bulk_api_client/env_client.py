@@ -9,6 +9,9 @@ if not token:
 
 api_url = os.getenv("BULK_API_URL")
 
-timeout = int(os.getenv("BULK_API_TIMEOUT"))
+expiration_time = os.getenv("BULK_API_EXPIRATION_TIME")
 
-env_client = Client(token, api_url=api_url, timeout=timeout)
+if expiration_time:
+    expiration_time = int(expiration_time)
+
+env_client = Client(token, api_url=api_url, expiration_time=expiration_time)
