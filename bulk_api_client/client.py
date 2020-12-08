@@ -17,17 +17,6 @@ CERT_PATH = os.path.join(
 
 
 class Client(object):
-    app_api_urls = None
-    """Dict of Bulk Importer app urls. Updated with the initialization of a
-    AppAPI object"""
-    model_api_urls = {}
-    """Dict of Bulk Importer model urls. Updated with the initialization of a
-    ModelAPI object"""
-    app_api_cache = {}
-    """
-    Dict of AppAPI objects, created via app(), key of app_label
-    """
-
     def __init__(self, token, api_url=None, expiration_time=None, log=False):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
@@ -39,6 +28,17 @@ class Client(object):
 
         """
         self.token = token
+        self.app_api_urls = None
+        """Dict of Bulk Importer app urls. Updated with the initialization of a
+        AppAPI object"""
+        self.model_api_urls = {}
+        """Dict of Bulk Importer model urls. Updated with the initialization of a
+        ModelAPI object"""
+        self.app_api_cache = {}
+        """
+        Dict of AppAPI objects, created via app(), key of app_label
+        """
+
         if api_url is None:
             self.api_url = "https://data-warehouse.pivot/bulk/api/"
         else:

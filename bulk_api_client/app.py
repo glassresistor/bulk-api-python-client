@@ -5,7 +5,6 @@ from .model import ModelAPI
 
 
 class AppAPI(object):
-    model_api_cache = {}
     """
     Cache of ModelAPI objects, keyed by model_name.
     """
@@ -24,6 +23,7 @@ class AppAPI(object):
         """
         self.client = client
         self.app_label = app_label
+        self.model_api_cache = {}
 
         url = self.client.api_url
         params = {}
@@ -34,6 +34,9 @@ class AppAPI(object):
             raise BulkAPIError(
                 {"app_api": "Application does not exist in bulk api"}
             )
+
+    def __str__(self):
+        return self.app_label
 
     def model(self, model_name):
         """Creates a ModelAPI object from a given model name
