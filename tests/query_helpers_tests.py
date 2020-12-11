@@ -6,7 +6,7 @@ from bulk_api_client.exceptions import InvalidQObject
 
 def test_init_q_obj():
     q_obj = Q(test_field="test")
-    assert q_obj.output_filter() == {"AND": [{"test_field": "test"}]}
+    assert q_obj.output_filter() == {"and": [{"test_field": "test"}]}
 
 
 def test_q_obj_chain():
@@ -34,18 +34,18 @@ def test_q_obj_chain():
     # chain OR multi
     q7 = q3 | q5
 
-    assert q1.output_filter() == {"AND": [{"field1": 1}, {"field2": 2}]}
-    assert q1_or.output_filter() == {"OR": [{"field1": 1}, {"field2": 2}]}
+    assert q1.output_filter() == {"and": [{"field1": 1}, {"field2": 2}]}
+    assert q1_or.output_filter() == {"or": [{"field1": 1}, {"field2": 2}]}
     assert q2.output_filter() == {
-        "AND": [{"field1": 1}, {"field2": 2}, {"field3": 3}]
+        "and": [{"field1": 1}, {"field2": 2}, {"field3": 3}]
     }
     assert q3.output_filter() == {
-        "AND": [{"field1": 1}, {"field2": 2}, {"field4": 4}, {"field5": 5}]
+        "and": [{"field1": 1}, {"field2": 2}, {"field4": 4}, {"field5": 5}]
     }
-    assert q4.output_filter() == {"AND": [{"field1": 1}, {"field2": 2}]}
-    assert q5.output_filter() == {"AND": [{"field6": 6}, {"field7": 7}]}
+    assert q4.output_filter() == {"and": [{"field1": 1}, {"field2": 2}]}
+    assert q5.output_filter() == {"and": [{"field6": 6}, {"field7": 7}]}
     assert q6.output_filter() == {
-        "AND": [
+        "and": [
             {"field1": 1},
             {"field2": 2},
             {"field4": 4},
@@ -55,16 +55,16 @@ def test_q_obj_chain():
         ]
     }
     assert q7.output_filter() == {
-        "OR": [
+        "or": [
             {
-                "AND": [
+                "and": [
                     {"field1": 1},
                     {"field2": 2},
                     {"field4": 4},
                     {"field5": 5},
                 ]
             },
-            {"AND": [{"field6": 6}, {"field7": 7}]},
+            {"and": [{"field6": 6}, {"field7": 7}]},
         ]
     }
 

@@ -8,8 +8,8 @@ class Q:
     'output_filter' method to produce a dictionary containing the full chain.
     """
 
-    AND = "AND"
-    OR = "OR"
+    AND = "and"
+    OR = "or"
     default = AND
 
     def __init__(self, _conn=None, **kwargs):

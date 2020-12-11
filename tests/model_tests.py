@@ -236,7 +236,7 @@ def test_model_api_query_q_object(model_api):
 
     params = {
         "fields": "- col1\n- col2\n",
-        "filter": "AND:\n- col1: 1\n- col2: 2\n",
+        "filter": "and:\n- col1: 1\n- col2: 2\n",
         "order": test_order,
         "page": test_page.pop(0),
         "page_size": test_page_size,
