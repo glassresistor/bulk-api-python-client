@@ -80,32 +80,29 @@ class ModelAPI(object):
 
     def fields_dict_to_list(self, fields_dict):
         """
-        Creates a list of single dict items from a dict. Makes assumption that
-        a non-dict value is an alias. Does not have support for values more
-        complex than being a nested dict (to specify alias or distinct) or
-        single values (string)
+        Creates a list of single dict items from a dict to meet query api
+        specification.
+
+        E.g. converts
+            {"field1": "field1_alias", "field2": "field2_alias"}
+        to
+            [{"field1": "field1_alias"}, {"field2": "field2_alias"}]
 
         Args:
-            fields_dict (dict): dict of fields columns (with alias and/or
-            distinct)
+            fields_dict (dict): dict of fields columns to desired aliases
 
         Returns:
             list of single dicts
 
         """
-        fields_list = []
-        for k, v in fields_dict.items():
-            if any([isinstance(v, d) for d in [dict, OrderedDict]]):
-                fields_list.append({k: v})
-            else:
-                fields_list.append({k: {"alias": v}})
-        return fields_list
+        return [{k: v} for k, v in fields_dict.items()]
 
     def query(
         self,
         fields=None,
         filter=None,
         order=None,
+        distinct=False,
         page_size=None,
         skip_cache=None,
     ):
@@ -118,6 +115,7 @@ class ModelAPI(object):
             filter (str or dict): filter for the filter query; must be a dict
                 or a yaml string representation of a dict
             order (str): order for the order query
+            distinct (bool): whether to remove duplicate rows from the results
             page_size (str): page size for the page_size query; Default: 10,000
             skip_cache (bool): pause global caching for query request
 
@@ -132,6 +130,7 @@ class ModelAPI(object):
             kwargs = {
                 "fields": fields,
                 "filter": filter,
+                "distinct": distinct,
                 "order": order,
                 "page": current_page,
                 "page_size": page_size,
@@ -146,7 +145,13 @@ class ModelAPI(object):
         return pandas.concat(dataframes)
 
     def _query(
-        self, fields=None, filter=None, order=None, page=None, page_size=None
+        self,
+        fields=None,
+        filter=None,
+        order=None,
+        distinct=False,
+        page=None,
+        page_size=None,
     ):
         """Queries to create a Pandas DataFrame for given queryset. The default
         query may be obtained by calling the function, without passing
@@ -157,6 +162,7 @@ class ModelAPI(object):
             filter (str or dict): filter for the filter query; must be a dict
                 or a yaml string representation of a dict
             order (str): order for the order query
+            distinct (bool): whether to remove duplicate rows from the results
             page (str): page number for the page query; Default: 1
             page_size (str): page size for the page_size query; Default: 10,000
 
@@ -190,6 +196,8 @@ class ModelAPI(object):
         if order is not None:
             if not isinstance(order, str):
                 raise TypeError({"detail": "order must be a string"})
+        if not isinstance(distinct, bool):
+            raise TypeError({"detail": "distinct must be a boolean"})
         if page is not None and (not isinstance(page, int) or page <= 0):
             raise TypeError({"detail": "page must be a positive integer"})
         if page is None:
@@ -207,6 +215,7 @@ class ModelAPI(object):
             "fields": fields,
             "filter": filter,
             "order": order,
+            "distinct": distinct,
             "page": page,
             "page_size": page_size,
         }

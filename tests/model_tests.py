@@ -70,6 +70,7 @@ def test_model_api_query(model_api):
     test_fields = "- id\n- text"
     test_order = "text"
     test_filter = "key:value"
+    test_distinct = True
     test_page = [1, 2]
     test_page_size = 1
 
@@ -84,12 +85,14 @@ def test_model_api_query(model_api):
             fields=test_fields,
             filter=test_filter,
             order=test_order,
+            distinct=test_distinct,
             page_size=test_page_size,
         )
         fn.assert_called_with(
             fields=test_fields,
             filter=test_filter,
             order=test_order,
+            distinct=test_distinct,
             page=test_page.pop(),
             page_size=test_page_size,
         )
@@ -105,6 +108,7 @@ def test_model_api_query_skip_cache(model_api):
     test_fields = "- id\n- text"
     test_order = "text"
     test_filter = "key:value"
+    test_distinct = True
     test_page = [1, 2]
     test_page_size = 1
 
@@ -120,6 +124,7 @@ def test_model_api_query_skip_cache(model_api):
                 fields=test_fields,
                 filter=test_filter,
                 order=test_order,
+                distinct=test_distinct,
                 page_size=test_page_size,
                 skip_cache=True,
             )
@@ -127,6 +132,7 @@ def test_model_api_query_skip_cache(model_api):
                 fields=test_fields,
                 filter=test_filter,
                 order=test_order,
+                distinct=test_distinct,
                 page=test_page.pop(),
                 page_size=test_page_size,
             )
@@ -138,22 +144,8 @@ def test_model_api_query_skip_cache(model_api):
     [
         ("key: value", "- id\n- text", "- id\n- text\n"),
         ({"key": "value"}, ["id", "text"], "- id\n- text\n"),
-        ({"key": "value"}, {"field": "name"}, "- field:\n    alias: name\n",),
-        (
-            {"key": "value"},
-            {"field": {"alias": "name"}},
-            "- field:\n    alias: name\n",
-        ),
-        (
-            {"key": "value"},
-            OrderedDict({"field": "name"}),
-            "- field:\n    alias: name\n",
-        ),
-        (
-            {"key": "value"},
-            OrderedDict({"field": {"alias": "name"}}),
-            "- field:\n    alias: name\n",
-        ),
+        ({"key": "value"}, {"field": "name"}, "- field: name\n",),
+        ({"key": "value"}, OrderedDict({"field": "name"}), "- field: name\n",),
     ],
 )
 def test_model_api_private_query(model_api, filter, fields, expected_fields):
@@ -162,6 +154,7 @@ def test_model_api_private_query(model_api, filter, fields, expected_fields):
     url = urljoin(urljoin(path, "{}/".format(model_api.model_name)), "query")
     test_fields = fields
     test_order = "text"
+    test_distinct = True
     test_page = 1
     test_page_size = 1
 
@@ -169,6 +162,7 @@ def test_model_api_private_query(model_api, filter, fields, expected_fields):
         "fields": expected_fields,
         "filter": "key: value\n",
         "order": test_order,
+        "distinct": False,
         "page": test_page,
         "page_size": test_page_size,
     }
@@ -204,6 +198,7 @@ def test_model_api_query_request_null_params(model_api):
         "fields": None,
         "filter": None,
         "order": None,
+        "distinct": False,
         "page": 1,
         "page_size": None,
     }
@@ -230,6 +225,7 @@ def test_model_api_query_q_object(model_api):
     q_obj = Q(col1=1) & Q(col2=2)
     test_fields = "- col1\n- col2"
     test_order = "text"
+    test_distinct = True
     test_filter = q_obj
     test_page = [1, 2]
     test_page_size = 1
@@ -238,6 +234,7 @@ def test_model_api_query_q_object(model_api):
         "fields": "- col1\n- col2\n",
         "filter": "and:\n- col1: 1\n- col2: 2\n",
         "order": test_order,
+        "distinct": test_distinct,
         "page": test_page.pop(0),
         "page_size": test_page_size,
     }
@@ -253,6 +250,7 @@ def test_model_api_query_q_object(model_api):
             fields=test_fields,
             filter=test_filter,
             order=test_order,
+            distinct=test_distinct,
             page_size=test_page_size,
         )
         fn.assert_called_with("GET", url, params=params)
@@ -345,6 +343,7 @@ def test_model_api_query_request_fresh_cache(model_api):
         "fields": None,
         "filter": None,
         "order": None,
+        "distinct": False,
         "page": 1,
         "page_size": None,
     }

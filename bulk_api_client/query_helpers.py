@@ -24,8 +24,7 @@ class Q:
         chain.
 
         Args:
-            self (Q): dict of fields columns (with alias and/or
-            distinct)
+            self: Q object containing fields, filters on fields and operator
             object_on_right (Q): Q object to the right of self within the chain
 
         Returns:
