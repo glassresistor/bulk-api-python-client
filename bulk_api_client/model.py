@@ -365,7 +365,7 @@ class ModelAPI(object):
         uri = os.path.join(path, str(pk))
         data = self._get(uri)
 
-        return ModelObj.with_properties(self, uri, data=data)
+        return ModelObj.with_properties(self, uri, path, data=data)
 
     def _update(self, uri, obj_data, patch=True):
         """Updates a model object given it's primary key and new object data;
@@ -535,7 +535,7 @@ class ModelObj:
     data = property(get_data, set_data)
 
     @classmethod
-    def with_properties(cls, model_api, uri, data=None):
+    def with_properties(cls, model_api, uri, path, data=None):
         """
         Returns an object with proerties of the given model to be modified
         directly and reflected in the database. Mimics objects used by ORMs
@@ -543,6 +543,7 @@ class ModelObj:
         Args:
             model_api (obj): ModelAPI its related to
             uri (str): uri of the resource
+            path (str): uri to the resource collection, to obtain definitions
             data (dict): property which memoizes _data
 
         Returns:
@@ -559,8 +560,12 @@ class ModelObj:
             pass
 
         model = ".".join([model_api.app.app_label, model_api.model_name])
+        if model not in model_api.app.client.definitions:
+            model_api.app.client.definitions[model] = ModelObj._get_definitions(
+                model_api, path
+            )
         model_properties = model_api.app.client.definitions[model]["properties"]
-        for field, property_dict in model_properties.items():
+        for field, _ in model_properties.items():
             get_f = _get_f(field, model_properties)
             setattr(ModelObjWithProperties, "get_%s" % field, get_f)
 
@@ -576,6 +581,19 @@ class ModelObj:
                 ),
             )
         return ModelObjWithProperties(model_api, uri, data)
+
+    @staticmethod
+    def _get_definitions(model_api, path):
+        response = model_api.app.client.request("OPTIONS", path, params={})
+        return {
+            "properties": ModelObj._metadata_to_field_properties(
+                response.json()
+            )
+        }
+
+    @staticmethod
+    def _metadata_to_field_properties(metadata):
+        return {item["key"]: item for item in metadata}
 
     def save(self):
         """Makes a call to the put update method of the model_api object

@@ -53,16 +53,18 @@ class Client(object):
                 location=os.path.join(gettempdir(), "bulk-api-cache")
             ),
             expire_after=expiration_time,
+            allowable_methods=("GET", "OPTIONS"),
         )
         self.log = log
         if self.log:
             logging.basicConfig(level=logging.DEBUG)
+        self.definitions = {}
+
+        # to remove:
         json_res = self.request(
             method="GET", url=urljoin(self.api_url, "swagger.json"), params={},
         )
         self.swagger_data = json.loads(json_res.content)
-        self.definitions = self.swagger_data["definitions"]
-        self.paths = self.swagger_data["paths"]
 
     @property
     def log(self):
