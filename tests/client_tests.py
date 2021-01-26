@@ -87,23 +87,31 @@ def test_client_request(client):
 
 
 @pytest.mark.parametrize(
-    "status_code,err_msg",
+    "status_code,err_vars",
     [
         (401, "detail: You do not have permission to perform this action."),
         (403, "detail: You do not have permission to perform this action."),
         (404, "detail: Not found."),
     ],
 )
-def test_client_request_errors(client, status_code, err_msg):
+def test_client_request_errors(client, status_code, err_vars):
     """Test Client request method handles errors as intended"""
     method = "GET"
     path = random_string()
     full_path = urljoin(client.api_url, path)
     params = {"teset_param": 1}
     kwargs = {"headers": {"Authorization": "Token {}".format(client.token)}}
+    err_msg = (
+        "{} Error raised — something went wrong.\nPlease send this "
+        "message to data-services+api-error@pivotbio.com, including "
+        "the link below:\n\n{}\nIf you are curious as the the nature of"
+        " the problem following the above link might provide some "
+        "help.".format(status_code, full_path)
+    )
     response = Response()
     response._content = err_msg
     response.status_code = status_code
+    response.url = full_path
     with mock.patch.object(requests, "request", return_value=response) as fn:
         with pytest.raises(BulkAPIError) as err:
             client.request(method, full_path, params)
@@ -115,6 +123,7 @@ def test_client_request_errors(client, status_code, err_msg):
             stream=True,
             **kwargs,
         )
+
     assert str(err.value) == err_msg
 
 
