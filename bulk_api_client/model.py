@@ -374,7 +374,7 @@ class ModelAPI(object):
         uri = os.path.join(path, str(pk))
         data = self._get(uri)
 
-        return ModelObj.with_properties(self, uri, path, data=data)
+        return ModelObj.with_properties(self, uri, data=data, path=path)
 
     def _update(self, uri, obj_data, patch=True):
         """Updates a model object given it's primary key and new object data;
@@ -464,7 +464,6 @@ def _get_f(field, properties):
     """
 
     def get_f(cls):
-        print(f"Getting field {field}")
         field_val = cls.data.get(field)
         if properties[field].get("format") == "uri":
             if "api_download" in field_val:
@@ -545,7 +544,7 @@ class ModelObj:
     data = property(get_data, set_data)
 
     @classmethod
-    def with_properties(cls, model_api, uri, path=None, data=None):
+    def with_properties(cls, model_api, uri, data=None, path=None):
         """
         Returns an object with proerties of the given model to be modified
         directly and reflected in the database. Mimics objects used by ORMs
@@ -595,7 +594,6 @@ class ModelObj:
 
     @staticmethod
     def _get_definitions(model_api, path):
-        print(f"Getting definitions for {model_api} at {path}")
         response = model_api.app.client.request("OPTIONS", path, params={})
         return {
             "properties": ModelObj._metadata_to_field_properties(

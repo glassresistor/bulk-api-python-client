@@ -18,7 +18,6 @@ class App:
 
 
 for definition in env_client.swagger_data["definitions"].keys():
-    print(f"Init definition {definition}")
     app_name, model_name = definition.split(".")
     app = getattr(models, app_name, None)
     if not app:
