@@ -330,7 +330,7 @@ class ModelAPI(object):
             self.model_name
         ]
         uri = os.path.join(path, str(data["id"]))
-        return ModelObj.with_properties(self, uri=uri, data=data)
+        return ModelObj.with_properties(self, uri=uri, data=data, path=path)
 
     def _get(self, uri):
         """Gets a model object given it's primary key; Makes a 'GET' method
@@ -455,6 +455,7 @@ def _get_f(field, properties):
     """
 
     def get_f(cls):
+        print(f"Getting field {field}")
         field_val = cls.data.get(field)
         if properties[field].get("format") == "uri":
             if "api_download" in field_val:
@@ -535,7 +536,7 @@ class ModelObj:
     data = property(get_data, set_data)
 
     @classmethod
-    def with_properties(cls, model_api, uri, path, data=None):
+    def with_properties(cls, model_api, uri, path=None, data=None):
         """
         Returns an object with proerties of the given model to be modified
         directly and reflected in the database. Mimics objects used by ORMs
@@ -550,7 +551,6 @@ class ModelObj:
             ModelObjWithProperties obj
 
         """
-
         if not isinstance(model_api, ModelAPI):
             raise BulkAPIError(
                 {"ModelObj": "Given model is not a ModelAPI object"}
@@ -561,6 +561,8 @@ class ModelObj:
 
         model = ".".join([model_api.app.app_label, model_api.model_name])
         if model not in model_api.app.client.definitions:
+            if path is None:  # deduce path from uri
+                path = "/".join(uri.split("/")[0:-1])
             model_api.app.client.definitions[model] = ModelObj._get_definitions(
                 model_api, path
             )
@@ -584,6 +586,7 @@ class ModelObj:
 
     @staticmethod
     def _get_definitions(model_api, path):
+        print(f"Getting definitions for {model_api} at {path}")
         response = model_api.app.client.request("OPTIONS", path, params={})
         return {
             "properties": ModelObj._metadata_to_field_properties(

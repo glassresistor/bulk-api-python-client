@@ -8,10 +8,12 @@ from bulk_api_client import client
 
 def test_models():
     FakeClient = mock.MagicMock()
-    FakeClient.definitions = {
-        "app1.modelone": {},
-        "app1.modeltwo": {},
-        "app2.modelthree": {},
+    FakeClient.swagger_data = {
+        "definitions": {
+            "app1.modelone": {},
+            "app1.modeltwo": {},
+            "app2.modelthree": {},
+        }
     }
     FakeApp1 = mock.MagicMock()
     FakeApp2 = mock.MagicMock()

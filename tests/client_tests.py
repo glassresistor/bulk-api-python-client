@@ -179,8 +179,8 @@ def test_download_swagger_json():
             stream=True,
             **kwargs,
         )
-    assert client.definitions == json_data["definitions"]
-    assert client.paths == json_data["paths"]
+    assert client.swagger_data["definitions"] == json_data["definitions"]
+    assert client.swagger_data["paths"] == json_data["paths"]
 
 
 def test_request_caching(client):
