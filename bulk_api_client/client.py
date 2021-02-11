@@ -68,11 +68,12 @@ class Client(object):
             logging.basicConfig(level=logging.DEBUG)
         self.definitions = {}
 
-        # to remove:
-        json_res = self.request(
-            method="GET", url=urljoin(self.api_url, "swagger.json"), params={},
+        apps_res = self.request(
+            method="GET",
+            url=self.api_url,
+            params={},
         )
-        self.swagger_data = json.loads(json_res.content)
+        self.apps = json.loads(apps_res.content)
 
     @property
     def log(self):

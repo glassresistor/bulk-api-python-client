@@ -79,7 +79,10 @@ def test_model_api_query(model_api):
         read_csv(BytesIO(b"id,text\n2,text2")),
     ]
 
-    with mock.patch.object(ModelAPI, "_query",) as fn:
+    with mock.patch.object(
+        ModelAPI,
+        "_query",
+    ) as fn:
         fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
         test_model_data_frame = model_api.query(
             fields=test_fields,
@@ -117,8 +120,14 @@ def test_model_api_query_skip_cache(model_api):
         read_csv(BytesIO(b"id,text\n2,text2")),
     ]
 
-    with mock.patch.object(ModelAPI, "_query",) as fn:
-        with mock.patch.object(requests_cache, "disabled",) as rc_fn:
+    with mock.patch.object(
+        ModelAPI,
+        "_query",
+    ) as fn:
+        with mock.patch.object(
+            requests_cache,
+            "disabled",
+        ) as rc_fn:
             fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
             model_api.query(
                 fields=test_fields,
@@ -144,8 +153,16 @@ def test_model_api_query_skip_cache(model_api):
     [
         ("key: value", "- id\n- text", "- id\n- text\n"),
         ({"key": "value"}, ["id", "text"], "- id\n- text\n"),
-        ({"key": "value"}, {"field": "name"}, "- field: name\n",),
-        ({"key": "value"}, OrderedDict({"field": "name"}), "- field: name\n",),
+        (
+            {"key": "value"},
+            {"field": "name"},
+            "- field: name\n",
+        ),
+        (
+            {"key": "value"},
+            OrderedDict({"field": "name"}),
+            "- field: name\n",
+        ),
     ],
 )
 def test_model_api_private_query(model_api, filter, fields, expected_fields):
@@ -255,7 +272,9 @@ def test_model_api_query_q_object(model_api):
         )
         fn.assert_called_with("GET", url, params=params)
         fn.assert_called_with(
-            "GET", url, params=params,
+            "GET",
+            url,
+            params=params,
         )
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
@@ -1248,7 +1267,7 @@ def test_model_obj_file_property(app_api):
     with mock.patch.object(Client, "request", return_value=response):
         model_api = ModelAPI(app_api, model_name)
     model_obj = ModelObj.with_properties(model_api, uri, data)
-    # breakpoint()
+
     response._content = b"abc123"
     with mock.patch.object(Client, "request", return_value=response):
         data_file = model_obj.data_file
