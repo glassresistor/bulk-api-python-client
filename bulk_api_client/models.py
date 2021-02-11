@@ -3,6 +3,7 @@ import json
 from urllib.parse import urljoin
 
 from bulk_api_client.env_client import env_client
+from bulk_api_client.exceptions import BulkAPIError
 
 models = sys.modules[__name__]
 __all__ = []
@@ -34,14 +35,24 @@ class App:
                 return d
         return None
 
-    def get_models(app):
-        pass
+    def add_models(self, app_response):
+        """
+        Get the list of models/urls from the ApiAppView and add them all.
+        """
+        for model_name in app_response.keys():
+            self.add_model(model_name)
 
 
 for app_name, app_url in env_client.apps.items():
-    # app_name, model_name = definition.split(".")
-    # app = getattr(models, app_name, None)
-    # if not app:
+    try:
+        res = env_client.request("get", app_url, {})
+    except BulkAPIError:
+        continue  # some apps have no API-accessible models and 500 instead
+    try:
+        app_response = json.loads(res.content)
+    except:
+        continue  # if something went wrong in parsing this response, skip it
+
+    # Create the app and its models
     app = App(app_name)
-    app.get_models(app_url)
-    app.add_model(model_name)
+    app.add_models(app_response)
