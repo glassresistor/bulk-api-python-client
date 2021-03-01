@@ -157,10 +157,13 @@ Example Fields Dict/OrderedDict with Renamed Fields
 
 ```
 {field1: new_field1_name}
+```
 
 or
 
+```
 OrderedDict({field1: new_field1_name})
+```
 
 ### Filter
 
