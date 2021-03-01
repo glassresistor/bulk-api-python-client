@@ -1,6 +1,7 @@
 import os
 import requests
 import requests_cache
+import httpx
 import json
 import logging
 
@@ -68,11 +69,7 @@ class Client(object):
             logging.basicConfig(level=logging.DEBUG)
         self.definitions = {}
 
-        apps_res = self.request(
-            method="GET",
-            url=self.api_url,
-            params={},
-        )
+        apps_res = self.request(method="GET", url=self.api_url, params={},)
         self.apps = json.loads(apps_res.content)
 
     @property
@@ -89,13 +86,21 @@ class Client(object):
             root_logger.handlers = []
         self._log = value
 
-    def request(self, method, url, params, *args, **kwargs):
+    def _get_request_headers(self, extra_headers=None):
+        headers = {
+            "Authorization": "Token {}".format(self.token),
+        }
+        if extra_headers:
+            headers.update(extra_headers)
+        return headers
+
+    def request(self, method, url, params=None, **kwargs):
         """Request function to construct and send a request. Uses the Requests
         python library
 
         Args:
             method (str): method for the request
-            path (str): path to the resource the client should access
+            url (str): url to the resource the client should access
             params (dict): (optional) Dictionary, list of tuples or bytes to
             send in the query string for the Request.
 
@@ -103,17 +108,13 @@ class Client(object):
             response obj
 
         """
-        headers = {
-            "Authorization": "Token {}".format(self.token),
-        }
-        if kwargs.get("headers"):
-            kwargs["headers"] = {**headers, **kwargs["headers"]}
-        else:
-            kwargs["headers"] = headers
+        kwargs["headers"] = self._get_request_headers(
+            kwargs.get("headers", None)
+        )
         response = requests.request(
             method=method,
             url=url,
-            params=params,
+            params=params or {},
             verify=CERT_PATH,
             stream=True,
             **kwargs,
@@ -123,6 +124,39 @@ class Client(object):
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError:
+            content = response.content
+
+            if is_json(content):
+                raise BulkAPIError(content)
+
+            raise BulkAPIError(
+                "{} Error raised — something went wrong.\nPlease send this "
+                "message to data-services+api-error@pivotbio.com, including "
+                "the link below:\n\n{}\nIf you are curious as the the nature of"
+                " the problem following the above link might provide some "
+                "help.".format(response.status_code, response.url)
+            )
+        else:
+            return response
+
+    async def request_async(self, method, url, params=None, **kwargs):
+        """
+        Async version of request(); uses the httpx library for async support.
+        """
+        kwargs["headers"] = self._get_request_headers(
+            kwargs.get("headers", None)
+        )
+        async with httpx.AsyncClient(
+            verify=CERT_PATH, timeout=30.0
+        ) as async_client:
+            response = await async_client.request(
+                method=method, url=url, params=params or {}, **kwargs,
+            )
+
+        # catch 4XX client error or 5XX server error response
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError:
             content = response.content
 
             if is_json(content):

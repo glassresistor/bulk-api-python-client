@@ -16,6 +16,7 @@ setup(
         "requests>=2.22,<2.25",
         "requests-cache>=0.5.0",
         "PyYAML>=5.1.2,<5.4.0",
+        "http3~=0.16.1",
     ],
     extras_require={
         "dev": [
