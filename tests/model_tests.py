@@ -567,13 +567,12 @@ def test_model_api_create_file(app_api, tmpdir):
     model = ".".join([app_api.app_label, model_name])
 
     model_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "text": {"title": "Text", "type": "string", "minLength": 1},
         "data_file": {
             "title": "Data File",
-            "type": "string",
-            "readOnly": True,
-            "format": "uri",
+            "type": "foreignkey",
+            "read_only": True,
         },
     }
     data_file_uri = urljoin(
@@ -585,7 +584,7 @@ def test_model_api_create_file(app_api, tmpdir):
         "text": "model_text",
         "data_file": data_file_uri,
     }
-    app_api.client.definitions[model] = {"properties": model_properties}
+    app_api.client.definitions[model] = model_properties
     response_data = {
         model_name: urljoin(app_api.client.api_url, model_name),
     }
@@ -616,6 +615,11 @@ def test_model_api_create_with_related(client):
     """Test ModelAPI create method with POST request calls the private create
     method correct parameters, and that the data returned is consistent
     """
+    client.definitions["bulk_importer.examplefortesting"] = {"id": ""}
+    client.definitions["bulk_importer.relatedexamplefortesting"] = {
+        "id": "",
+        "parent": {"type": "foreignkey"},
+    }
     # Create app
     app_data = {
         "bulk_importer": urljoin(client.api_url, "bulk_importer"),
@@ -890,13 +894,13 @@ def test_model_api_delete(model_api):
 def test_model_obj(model_api, uri, data):
     """Test ModelObj properties are as set when creating an instance"""
     model = ".".join([model_api.app.app_label, model_api.model_name])
-    model_api.app.client.definitions[model]["properties"]["text"] = {
+    model_api.app.client.definitions[model]["text"] = {
         "title": "Text",
         "type": "string",
         "minLength": 1,
     }
     with mock.patch.object(ModelAPI, "_get", return_value={"id": 1}) as fn_get:
-        model_obj = ModelObj.with_properties(model_api, uri, data)
+        model_obj = ModelObj.with_properties(model_api, uri, data=data)
         assert model_obj.model_api == model_api
         assert model_obj.uri == uri
         assert model_obj.data == data or fn_get.return_value
@@ -905,6 +909,22 @@ def test_model_obj(model_api, uri, data):
     new_text = random_string()
     model_obj.text = new_text
     assert model_obj.data["text"] == new_text
+
+
+def test_model_api_get_definitions(model_api):
+    """
+    Test of with_properties() without cached model definitions.
+    """
+    uri = "/bulk/api/bulk_importer/examplefortesting/1"
+    model_api.app.client.definitions = {}
+    response = Response()
+    # provide the definitions for the OPTIONS request
+    response._content = b'[{"key":"id","type":"number"}]'
+    response.status_code = 200
+    with mock.patch.object(Client, "request") as fn:
+        fn.return_value = response
+        model_obj = ModelObj.with_properties(model_api, uri, data={"id": 27})
+        assert model_obj.id == 27
 
 
 def test_model_obj_get_data(model_api):
@@ -1040,11 +1060,11 @@ def test_model_obj_property_duplication_regression(app_api):
     model_1 = ".".join([app_api.app_label, model_name_1])
     model_2 = ".".join([app_api.app_label, model_name_2])
     model_1_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "text": {"title": "Text", "type": "string", "minLength": 1},
     }
     model_2_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "name": {
             "title": "Name",
             "type": "string",
@@ -1059,8 +1079,8 @@ def test_model_obj_property_duplication_regression(app_api):
             "x-nullable": True,
         },
     }
-    app_api.client.definitions[model_1] = {"properties": model_1_properties}
-    app_api.client.definitions[model_2] = {"properties": model_2_properties}
+    app_api.client.definitions[model_1] = model_1_properties
+    app_api.client.definitions[model_2] = model_2_properties
     response = Response()
     response._content = json.dumps(data)
     response.status_code = 200
@@ -1109,16 +1129,16 @@ def test_model_obj_fk_property(app_api):
     updated_model = ".".join([app_api.app_label, updated_model_name])
 
     model_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "text": {"title": "Text", "type": "string", "minLength": 1},
-        "parent": {"title": "Parent", "type": "string", "format": "uri"},
+        "parent": {"title": "Parent", "type": "foreignkey"},
     }
     related_model_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "text": {"title": "Text", "type": "string", "minLength": 1},
     }
     updated_model_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "integer": {
             "title": "Integer",
             "type": "integer",
@@ -1147,13 +1167,9 @@ def test_model_obj_fk_property(app_api):
         "id": 333,
         "integer": 5,
     }
-    app_api.client.definitions[model] = {"properties": model_properties}
-    app_api.client.definitions[related_model] = {
-        "properties": related_model_properties
-    }
-    app_api.client.definitions[updated_model] = {
-        "properties": updated_model_properties
-    }
+    app_api.client.definitions[model] = model_properties
+    app_api.client.definitions[related_model] = related_model_properties
+    app_api.client.definitions[updated_model] = updated_model_properties
     response_data = {
         model_name: urljoin(app_api.client.api_url, model_name),
         related_model_name: urljoin(app_api.client.api_url, related_model_name),
@@ -1210,15 +1226,11 @@ def test_model_obj_file_property(app_api):
     model = ".".join([app_api.app_label, model_name])
 
     model_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "text": {"title": "Text", "type": "string", "minLength": 1},
-        "data_file": {
-            "title": "Data File",
-            "type": "string",
-            "readOnly": True,
-            "format": "uri",
-        },
+        "data_file": {"title": "Data File", "type": "uri", "read_only": True,},
     }
+    app_api.client.definitions[model] = model_properties
     uri = urljoin(BASE_URL, "{}/{}/{}".format(app_api.app_label, model_name, 1))
     data_file_uri = urljoin(
         BASE_URL,
@@ -1229,9 +1241,10 @@ def test_model_obj_file_property(app_api):
         "text": "model_text",
         "data_file": data_file_uri,
     }
-    app_api.client.definitions[model] = {"properties": model_properties}
     response_data = {
-        model_name: urljoin(app_api.client.api_url, model_name),
+        model_name: urljoin(
+            app_api.client.api_url, app_api.app_label, model_name
+        ),
     }
     response = Response()
     response._content = json.dumps(response_data)
@@ -1240,6 +1253,7 @@ def test_model_obj_file_property(app_api):
     with mock.patch.object(Client, "request", return_value=response):
         model_api = ModelAPI(app_api, model_name)
     model_obj = ModelObj.with_properties(model_api, uri, data)
+
     response._content = b"abc123"
     with mock.patch.object(Client, "request", return_value=response):
         data_file = model_obj.data_file

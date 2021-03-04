@@ -165,33 +165,6 @@ def test_client_request_json_errors(client, status_code, err_msg):
     assert str(err.value) == str(err_msg)
 
 
-def test_download_swagger_json():
-    token = random_string()
-    url = random_string()
-    json_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
-    data = json.dumps(json_data)
-    method = "GET"
-    url = urljoin(BASE_URL, "http://localhost:8000/bulk/api/swagger.json")
-    params = {}
-    kwargs = {"headers": {"Authorization": "Token {}".format(token)}}
-    response = Response()
-    response._content = data
-    response.status_code = 200
-    response.raw = data
-    with mock.patch.object(requests, "request", return_value=response) as fn:
-        client = Client(token, api_url=url)
-        fn.assert_called_with(
-            method=method,
-            url=url,
-            params=params,
-            verify=CERT_PATH,
-            stream=True,
-            **kwargs,
-        )
-    assert client.definitions == json_data["definitions"]
-    assert client.paths == json_data["paths"]
-
-
 def test_request_caching(client):
     method = "GET"
     path = random_string()

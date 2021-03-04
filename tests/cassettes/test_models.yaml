@@ -1,0 +1,919 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/
+  response:
+    body:
+      string: '{"bulk_importer":"https://data-warehouse.pivot/bulk/api/bulk_importer/","uav":"https://data-warehouse.pivot/bulk/api/uav/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1367'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:05 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/
+  response:
+    body:
+      string: '{"bulk_importer":"https://data-warehouse.pivot/bulk/api/bulk_importer/","uav":"https://data-warehouse.pivot/bulk/api/uav/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1367'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:06 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/
+  response:
+    body:
+      string: '{"bulkimport":"https://data-warehouse.pivot/bulk/api/bulk_importer/bulkimport/","examplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplefortesting/","relatedexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/relatedexamplefortesting/","namedexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/namedexamplefortesting/","relatednamedexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/relatednamedexamplefortesting/","relatedmtmexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/relatedmtmexamplefortesting/","storedquery":"https://data-warehouse.pivot/bulk/api/bulk_importer/storedquery/","examplegfkfortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplegfkfortesting/","examplemtm":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplemtm/","examplemtmthrough":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplemtmthrough/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '965'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:07 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/
+  response:
+    body:
+      string: '{"bulk_importer":"https://data-warehouse.pivot/bulk/api/bulk_importer/","uav":"https://data-warehouse.pivot/bulk/api/uav/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1367'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:07 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/bulkimport/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"upload_type","type":"select","read_only":false,"ui":{"label":"upload
+        type"},"validation":{"required":true},"extra":{},"translated":false,"choices":[{"label":"Plant
+        LIMS Experiment Data","value":"excel|plant_lims.plant_lims_experiment"},{"label":"Plant
+        LIMS Plot","value":"excel|plant_lims.plant_lims_plot"},{"label":"Yield Aggregates","value":"excel|temporary_models.yield_aggregates"},{"label":"Temporary
+        Zonal Stats","value":"excel|temporary_models.zonal_stats"},{"label":"Raw Combine","value":"excel|temporary_models.raw_combine"},{"label":"MSU-BI
+        Liquid Formulation","value":"excel|f_and_f.msu_liquid_viability_assay"},{"label":"Sig:
+        Greenhouse Data","value":"sig|greenhouse"},{"label":"Sig: Field Trial Data","value":"sig|field"},{"label":"UAV
+        Shapefile","value":"uav_shapefile"},{"label":"UAV:QC","value":"uav_qc"},{"label":"MDV:CCI","value":"mdv|mdv.cci"},{"label":"FTR:CCI","value":"mdv|ftr.cci"},{"label":"MDV:SLA","value":"mdv|mdv.sla"},{"label":"FTR:SLA","value":"mdv|ftr.sla"},{"label":"MDV:DUALEX","value":"mdv|mdv.dualex"},{"label":"FTR:DUALEX","value":"mdv|ftr.dualex"},{"label":"MDV:HEIGHT","value":"mdv|mdv.height"},{"label":"FTR:HEIGHT","value":"mdv|ftr.height"},{"label":"IN10T
+        Trials","value":"in10t|trials"},{"label":"IN10T As Applied","value":"in10t|as_applied"},{"label":"IN10T
+        Planting","value":"in10t|planting"},{"label":"IN10T Processed Harvest","value":"in10t|processed_harvest"},{"label":"EDE
+        ARM Uploader","value":"ede|ede_uploader"},{"label":"Biolector Uploader","value":"bioprocessing|biolector"},{"label":"Biomass
+        Measurement Uploader","value":"biomass|biomass_uploader"},{"label":"IV AMM
+        ARA Experiment Uploader","value":"iv|experiment"}]},{"key":"data_file","type":"uri","read_only":false,"ui":{"label":"data
+        file"},"validation":{"required":true,"max":100},"extra":{},"translated":false},{"key":"notes","type":"text","read_only":false,"ui":{"label":"notes"},"validation":{"required":false},"extra":{},"translated":false},{"key":"update","type":"checkbox","read_only":false,"ui":{"label":"update","help":"Check
+        here to update existing data from import"},"validation":{"required":false},"extra":{},"translated":false,"default":false},{"key":"extra_data","type":"text","read_only":false,"ui":{"label":"extra
+        data","help":"Extra data provided in form accompanying upload"},"validation":{"required":false},"extra":{},"translated":false,"default":{}},{"key":"results","type":"text","read_only":false,"ui":{"label":"results","help":"Results
+        from upload plugin"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_by","type":"foreignkey","read_only":true,"ui":{"label":"created
+        by"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"auth","singular":"user","plural":"users"}},{"key":"_meta","app_label":"bulk_importer","model_name":"bulkimport","django_model_name":"BulkImport"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3302'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:08 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/examplefortesting/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"text","type":"text","read_only":false,"ui":{"label":"text"},"validation":{"required":true},"extra":{},"translated":false},{"key":"date_time","type":"datetime","read_only":false,"ui":{"label":"date
+        time"},"validation":{"required":true},"extra":{},"translated":false},{"key":"integer","type":"number","read_only":false,"ui":{"label":"integer"},"validation":{"required":false,"min":-2147483648,"max":2147483647},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"_meta","app_label":"bulk_importer","model_name":"examplefortesting","django_model_name":"ExampleForTesting"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1230'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:08 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/relatedexamplefortesting/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"text","type":"text","read_only":false,"ui":{"label":"text"},"validation":{"required":true},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"parent","type":"foreignkey","read_only":false,"ui":{"label":"parent"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"examplefortesting","plural":"examplefortestings"}},{"key":"_meta","app_label":"bulk_importer","model_name":"relatedexamplefortesting","django_model_name":"RelatedExampleForTesting"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1170'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:09 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/namedexamplefortesting/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"name","type":"text","read_only":false,"ui":{"label":"name"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"text","type":"text","read_only":false,"ui":{"label":"text"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"_meta","app_label":"bulk_importer","model_name":"namedexamplefortesting","django_model_name":"NamedExampleForTesting"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1072'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:09 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/relatednamedexamplefortesting/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"text","type":"text","read_only":false,"ui":{"label":"text"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"parent","type":"foreignkey","read_only":false,"ui":{"label":"parent"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"namedexamplefortesting","plural":"namedexamplefortestings"}},{"key":"co_parent","type":"foreignkey","read_only":false,"ui":{"label":"co
+        parent"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"namedexamplefortesting","plural":"namedexamplefortestings"}},{"key":"_meta","app_label":"bulk_importer","model_name":"relatednamedexamplefortesting","django_model_name":"RelatedNamedExampleForTesting"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1462'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:10 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/relatedmtmexamplefortesting/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"name","type":"text","read_only":false,"ui":{"label":"name"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"related_named_examples","type":"manytomany-lists","read_only":false,"ui":{"label":"related
+        named examples"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"relatednamedexamplefortesting","plural":"relatednamedexamplefortestings"}},{"key":"_meta","app_label":"bulk_importer","model_name":"relatedmtmexamplefortesting","django_model_name":"RelatedMTMExampleForTesting"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1248'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:11 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/storedquery/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"name","type":"text","read_only":false,"ui":{"label":"name","help":"Unique
+        name of the QuerySet to store"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"slug","type":"text","read_only":true,"ui":{"label":"slug"},"validation":{"required":false},"extra":{},"translated":false},{"key":"fields","type":"text","read_only":false,"ui":{"label":"fields","help":"Limits
+        data set to columns of the specified field(s). Example: fields: field1,field2,fk__field3"},"validation":{"required":false},"extra":{},"translated":false},{"key":"filter","type":"text","read_only":false,"ui":{"label":"filter","help":"Limits
+        data set to rows containing objects that match the given field(s). Example:
+        filter: text=text1|text=text2&id__startswith=123"},"validation":{"required":false},"extra":{},"translated":false},{"key":"order","type":"text","read_only":false,"ui":{"label":"order","help":"Ordered
+        data set by the given field(s); Default is name. Example: order: field"},"validation":{"required":false,"max":256},"extra":{},"translated":false},{"key":"page","type":"number","read_only":false,"ui":{"label":"page","help":"Specified
+        page number of the data set. Example: page: 1"},"validation":{"required":false,"min":1,"max":2147483647},"extra":{},"translated":false},{"key":"page_size","type":"number","read_only":false,"ui":{"label":"page
+        size","help":"Limits the data set to specified number of data points. Example:
+        page size: 1"},"validation":{"required":false,"min":1,"max":2147483647},"extra":{},"translated":false},{"key":"model","type":"foreignkey","read_only":false,"ui":{"label":"model"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"contenttypes","singular":"contenttype","plural":"contenttypes"}},{"key":"_meta","app_label":"bulk_importer","model_name":"storedquery","django_model_name":"StoredQuery"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2004'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:11 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/examplegfkfortesting/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"text","type":"text","read_only":false,"ui":{"label":"text"},"validation":{"required":true},"extra":{},"translated":false},{"key":"content_id","type":"number","read_only":false,"ui":{"label":"content
+        id"},"validation":{"required":true,"min":0,"max":2147483647},"extra":{},"translated":false},{"key":"nr_gfk_id","type":"number","read_only":false,"ui":{"label":"nr
+        gfk id"},"validation":{"required":false,"min":0,"max":2147483647},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"content_type","type":"foreignkey","read_only":false,"ui":{"label":"content
+        type"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"contenttypes","singular":"contenttype","plural":"contenttypes"}},{"key":"nr_gfk_type","type":"foreignkey","read_only":false,"ui":{"label":"nr
+        gfk type"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"contenttypes","singular":"contenttype","plural":"contenttypes"}},{"key":"_meta","app_label":"bulk_importer","model_name":"examplegfkfortesting","django_model_name":"ExampleGFKForTesting"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1740'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:12 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/examplemtm/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"name","type":"text","read_only":false,"ui":{"label":"name"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"relationships","type":"manytomany-lists","read_only":false,"ui":{"label":"relationships"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"examplemtm","plural":"examplemtms"}},{"key":"_meta","app_label":"bulk_importer","model_name":"examplemtm","django_model_name":"ExampleMTM"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1159'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:13 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/examplemtmthrough/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"relationship_type","type":"text","read_only":false,"ui":{"label":"relationship
+        type"},"validation":{"required":true,"max":10},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"left","type":"foreignkey","read_only":false,"ui":{"label":"left"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"examplemtm","plural":"examplemtms"}},{"key":"right","type":"foreignkey","read_only":false,"ui":{"label":"right"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"examplemtm","plural":"examplemtms"}},{"key":"_meta","app_label":"bulk_importer","model_name":"examplemtmthrough","django_model_name":"ExampleMTMThrough"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1401'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:13 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/uav/
+  response:
+    body:
+      string: '{"flight":"https://data-warehouse.pivot/bulk/api/uav/flight/","orthotile":"https://data-warehouse.pivot/bulk/api/uav/orthotile/","plotgeometry":"https://data-warehouse.pivot/bulk/api/uav/plotgeometry/","plotmeasurement":"https://data-warehouse.pivot/bulk/api/uav/plotmeasurement/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '281'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:14 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/uav/flight/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"flight_date","type":"date","read_only":false,"ui":{"label":"flight
+        date","help":"Day that drone scan was performed"},"validation":{"required":true},"extra":{},"translated":false},{"key":"vendor","type":"text","read_only":false,"ui":{"label":"vendor","help":"Vendor
+        who performed UAV flight"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"sensor","type":"select","read_only":false,"ui":{"label":"sensor","help":"Sensor
+        used on flight"},"validation":{"required":true},"extra":{},"translated":false,"choices":[{"label":"RedEdgeMX-Micasense","value":"rededgemx-micasense"},{"label":"Altum-Micasense","value":"altum-micasense"},{"label":"6X-Sentera","value":"6x-sentera"},{"label":"Double4K-Sentera","value":"double4k-sentera"}]},{"key":"ortho","type":"text","read_only":false,"ui":{"label":"ortho"},"validation":{"required":true,"max":100},"extra":{},"translated":false},{"key":"elevation","type":"text","read_only":false,"ui":{"label":"elevation","help":"Elevation
+        TIFF"},"validation":{"required":false},"extra":{},"translated":false},{"key":"qc_status","type":"text","read_only":false,"ui":{"label":"qc
+        status","help":"Has scan passed quality control or it''s stillin progress?"},"validation":{"required":false,"max":256},"extra":{},"translated":false},{"key":"qc_score","type":"text","read_only":false,"ui":{"label":"qc
+        score","help":"Quality control score from human curator"},"validation":{"required":false,"max":256},"extra":{},"translated":false},{"key":"qc_notes","type":"text","read_only":false,"ui":{"label":"qc
+        notes","help":"Quality control notes from the human curator"},"validation":{"required":false},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"_meta","app_label":"uav","model_name":"flight","django_model_name":"Flight"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2434'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:14 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/uav/orthotile/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"tile","type":"text","read_only":false,"ui":{"label":"tile","help":"Main
+        spectral GeoTIFF of site"},"validation":{"required":true},"extra":{},"translated":false},{"key":"x_pos","type":"number","read_only":false,"ui":{"label":"x
+        pos"},"validation":{"required":true,"min":-2147483648,"max":2147483647},"extra":{},"translated":false},{"key":"y_pos","type":"number","read_only":false,"ui":{"label":"y
+        pos"},"validation":{"required":true,"min":-2147483648,"max":2147483647},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"flight","type":"foreignkey","read_only":false,"ui":{"label":"flight"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"uav","singular":"flight","plural":"flights"}},{"key":"_meta","app_label":"uav","model_name":"orthotile","django_model_name":"OrthoTile"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1476'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:15 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/uav/plotgeometry/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"geometry","type":"text","read_only":false,"ui":{"label":"geometry","help":"Shapefile
+        .shp for plot"},"validation":{"required":true},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"plot","type":"foreignkey","read_only":false,"ui":{"label":"plot"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"plant_lims","singular":"plot","plural":"plots"}},{"key":"_meta","app_label":"uav","model_name":"plotgeometry","django_model_name":"PlotGeometry"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1144'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:15 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/uav/plotmeasurement/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"qc_score","type":"text","read_only":false,"ui":{"label":"qc
+        score","help":"Result of human QC, generally green, yellow or red"},"validation":{"required":false,"max":16},"extra":{},"translated":false},{"key":"qc_notes","type":"text","read_only":false,"ui":{"label":"qc
+        notes","help":"Quality control notes from the human curator"},"validation":{"required":false},"extra":{},"translated":false},{"key":"ndvi_mean","type":"number","read_only":false,"ui":{"label":"ndvi
+        mean"},"validation":{"required":false},"extra":{},"translated":false},{"key":"ndvi_median","type":"number","read_only":false,"ui":{"label":"ndvi
+        median"},"validation":{"required":false},"extra":{},"translated":false},{"key":"ndvi_std","type":"number","read_only":false,"ui":{"label":"ndvi
+        std"},"validation":{"required":false},"extra":{},"translated":false},{"key":"ndre_mean","type":"number","read_only":false,"ui":{"label":"ndre
+        mean"},"validation":{"required":false},"extra":{},"translated":false},{"key":"ndre_median","type":"number","read_only":false,"ui":{"label":"ndre
+        median"},"validation":{"required":false},"extra":{},"translated":false},{"key":"ndre_std","type":"number","read_only":false,"ui":{"label":"ndre
+        std"},"validation":{"required":false},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"plot_geometry","type":"foreignkey","read_only":false,"ui":{"label":"plot
+        geometry"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"uav","singular":"plotgeometry","plural":"plotgeometries"}},{"key":"flight","type":"foreignkey","read_only":false,"ui":{"label":"flight"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"uav","singular":"flight","plural":"flights"}},{"key":"_meta","app_label":"uav","model_name":"plotmeasurement","django_model_name":"PlotMeasurement"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '2483'
+      Content-Type:
+      - application/json
+      Date:
+      - Tue, 02 Mar 2021 01:01:16 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+version: 1

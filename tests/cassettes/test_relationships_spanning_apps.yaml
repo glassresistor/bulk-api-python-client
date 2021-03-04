@@ -1,0 +1,317 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/
+  response:
+    body:
+      string: '{"admin":"https://data-warehouse.pivot/bulk/api/admin/","auth":"https://data-warehouse.pivot/bulk/api/auth/","contenttypes":"https://data-warehouse.pivot/bulk/api/contenttypes/","sessions":"https://data-warehouse.pivot/bulk/api/sessions/","gis":"https://data-warehouse.pivot/bulk/api/gis/","django_celery_beat":"https://data-warehouse.pivot/bulk/api/django_celery_beat/","django_celery_results":"https://data-warehouse.pivot/bulk/api/django_celery_results/","authtoken":"https://data-warehouse.pivot/bulk/api/authtoken/","bulk_importer":"https://data-warehouse.pivot/bulk/api/bulk_importer/","rails_lims":"https://data-warehouse.pivot/bulk/api/rails_lims/","plant_lims":"https://data-warehouse.pivot/bulk/api/plant_lims/","f_and_f":"https://data-warehouse.pivot/bulk/api/f_and_f/","bioprocessing":"https://data-warehouse.pivot/bulk/api/bioprocessing/","spectro":"https://data-warehouse.pivot/bulk/api/spectro/","uav":"https://data-warehouse.pivot/bulk/api/uav/","nproc":"https://data-warehouse.pivot/bulk/api/nproc/","lab":"https://data-warehouse.pivot/bulk/api/lab/","iv":"https://data-warehouse.pivot/bulk/api/iv/","product":"https://data-warehouse.pivot/bulk/api/product/","reports":"https://data-warehouse.pivot/bulk/api/reports/","in10t":"https://data-warehouse.pivot/bulk/api/in10t/","temporary_models":"https://data-warehouse.pivot/bulk/api/temporary_models/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1367'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:47 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/
+  response:
+    body:
+      string: '{"admin":"https://data-warehouse.pivot/bulk/api/admin/","auth":"https://data-warehouse.pivot/bulk/api/auth/","contenttypes":"https://data-warehouse.pivot/bulk/api/contenttypes/","sessions":"https://data-warehouse.pivot/bulk/api/sessions/","gis":"https://data-warehouse.pivot/bulk/api/gis/","django_celery_beat":"https://data-warehouse.pivot/bulk/api/django_celery_beat/","django_celery_results":"https://data-warehouse.pivot/bulk/api/django_celery_results/","authtoken":"https://data-warehouse.pivot/bulk/api/authtoken/","bulk_importer":"https://data-warehouse.pivot/bulk/api/bulk_importer/","rails_lims":"https://data-warehouse.pivot/bulk/api/rails_lims/","plant_lims":"https://data-warehouse.pivot/bulk/api/plant_lims/","f_and_f":"https://data-warehouse.pivot/bulk/api/f_and_f/","bioprocessing":"https://data-warehouse.pivot/bulk/api/bioprocessing/","spectro":"https://data-warehouse.pivot/bulk/api/spectro/","uav":"https://data-warehouse.pivot/bulk/api/uav/","nproc":"https://data-warehouse.pivot/bulk/api/nproc/","lab":"https://data-warehouse.pivot/bulk/api/lab/","iv":"https://data-warehouse.pivot/bulk/api/iv/","product":"https://data-warehouse.pivot/bulk/api/product/","reports":"https://data-warehouse.pivot/bulk/api/reports/","in10t":"https://data-warehouse.pivot/bulk/api/in10t/","temporary_models":"https://data-warehouse.pivot/bulk/api/temporary_models/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1367'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:47 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/uav/
+  response:
+    body:
+      string: '{"flight":"https://data-warehouse.pivot/bulk/api/uav/flight/","orthotile":"https://data-warehouse.pivot/bulk/api/uav/orthotile/","plotgeometry":"https://data-warehouse.pivot/bulk/api/uav/plotgeometry/","plotmeasurement":"https://data-warehouse.pivot/bulk/api/uav/plotmeasurement/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '281'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:48 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/uav/plotgeometry/1
+  response:
+    body:
+      string: '{"id":1,"created_at":"2020-09-04T17:04:04.705776Z","updated_at":"2020-09-04T17:04:04.705804Z","geometry":"SRID=4326;POLYGON
+        ((-83.55068293720581 31.5457992416781, -83.5507207562792 31.5458049068535,
+        -83.55070009502769 31.5459044301479, -83.5506623657858 31.5458987649786, -83.55068293720581
+        31.5457992416781))","imported_from":"https://data-warehouse.pivot/bulk/api/bulk_importer/bulkimport/1319","plot":"https://data-warehouse.pivot/bulk/api/plant_lims/plot/11695"}'
+    headers:
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '466'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:49 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/uav/plotgeometry/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"geometry","type":"text","read_only":false,"ui":{"label":"geometry","help":"Shapefile
+        .shp for plot"},"validation":{"required":true},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"plot","type":"foreignkey","read_only":false,"ui":{"label":"plot"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"plant_lims","singular":"plot","plural":"plots"}},{"key":"_meta","app_label":"uav","model_name":"plotgeometry","django_model_name":"PlotGeometry"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1144'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:49 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/plant_lims/
+  response:
+    body:
+      string: '{"protocol":"https://data-warehouse.pivot/bulk/api/plant_lims/protocol/","cro":"https://data-warehouse.pivot/bulk/api/plant_lims/cro/","location":"https://data-warehouse.pivot/bulk/api/plant_lims/location/","experiment":"https://data-warehouse.pivot/bulk/api/plant_lims/experiment/","fertilizer":"https://data-warehouse.pivot/bulk/api/plant_lims/fertilizer/","substance":"https://data-warehouse.pivot/bulk/api/plant_lims/substance/","substancestrain":"https://data-warehouse.pivot/bulk/api/plant_lims/substancestrain/","treatment":"https://data-warehouse.pivot/bulk/api/plant_lims/treatment/","inoculation":"https://data-warehouse.pivot/bulk/api/plant_lims/inoculation/","plot":"https://data-warehouse.pivot/bulk/api/plant_lims/plot/","rep":"https://data-warehouse.pivot/bulk/api/plant_lims/rep/","block":"https://data-warehouse.pivot/bulk/api/plant_lims/block/","plant":"https://data-warehouse.pivot/bulk/api/plant_lims/plant/","sample":"https://data-warehouse.pivot/bulk/api/plant_lims/sample/","qpcrstandard":"https://data-warehouse.pivot/bulk/api/plant_lims/qpcrstandard/","qpcrmeasurement":"https://data-warehouse.pivot/bulk/api/plant_lims/qpcrmeasurement/","qpcramplificationcurve":"https://data-warehouse.pivot/bulk/api/plant_lims/qpcramplificationcurve/","biomassmeasurement":"https://data-warehouse.pivot/bulk/api/plant_lims/biomassmeasurement/","soilmeasurement":"https://data-warehouse.pivot/bulk/api/plant_lims/soilmeasurement/","tissuemeasurement":"https://data-warehouse.pivot/bulk/api/plant_lims/tissuemeasurement/","analytemeasurement":"https://data-warehouse.pivot/bulk/api/plant_lims/analytemeasurement/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1623'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:50 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/plant_lims/plot/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"qc_score","type":"select","read_only":false,"ui":{"label":"qc
+        score"},"validation":{"required":false},"extra":{},"translated":false,"choices":[{"label":"Green","value":"Green"},{"label":"Yellow","value":"Yellow"},{"label":"Red","value":"Red"}]},{"key":"qc_notes","type":"text","read_only":false,"ui":{"label":"qc
+        notes"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"name","type":"text","read_only":false,"ui":{"label":"name"},"validation":{"required":true,"max":256},"extra":{},"translated":false},{"key":"notes","type":"text","read_only":false,"ui":{"label":"notes"},"validation":{"required":false},"extra":{},"translated":false},{"key":"lookup_key","type":"number","read_only":false,"ui":{"label":"lookup
+        key"},"validation":{"required":false,"min":-2147483648,"max":2147483647},"extra":{},"translated":false},{"key":"row","type":"number","read_only":false,"ui":{"label":"row"},"validation":{"required":false,"min":-2147483648,"max":2147483647},"extra":{},"translated":false},{"key":"col","type":"number","read_only":false,"ui":{"label":"col"},"validation":{"required":false,"min":-2147483648,"max":2147483647},"extra":{},"translated":false},{"key":"treated_plot_width_ft","type":"number","read_only":false,"ui":{"label":"treated
+        plot width ft","help":"Width in feet of treated area of plot"},"validation":{"required":false},"extra":{},"translated":false},{"key":"treated_plot_length_ft","type":"number","read_only":false,"ui":{"label":"treated
+        plot length ft","help":"Length in feet of treated area of plot"},"validation":{"required":false},"extra":{},"translated":false},{"key":"harvested_plot_width_ft","type":"number","read_only":false,"ui":{"label":"harvested
+        plot width ft","help":"Width in feet of harvested area of plot"},"validation":{"required":false},"extra":{},"translated":false},{"key":"harvested_plot_length_ft","type":"number","read_only":false,"ui":{"label":"harvested
+        plot length ft","help":"Length in feet of harvested area of plot"},"validation":{"required":false},"extra":{},"translated":false},{"key":"imported_from","type":"foreignkey","read_only":true,"ui":{"label":"imported
+        from"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"bulk_importer","singular":"bulkimport","plural":"bulkimports"}},{"key":"rep","type":"foreignkey","read_only":false,"ui":{"label":"rep"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"plant_lims","singular":"rep","plural":"reps"}},{"key":"treatment","type":"foreignkey","read_only":false,"ui":{"label":"treatment"},"validation":{"required":true},"extra":{},"translated":false,"related_endpoint":{"app":"plant_lims","singular":"treatment","plural":"treatments"}},{"key":"_meta","app_label":"plant_lims","model_name":"plot","django_model_name":"Plot"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3242'
+      Content-Type:
+      - application/json
+      Date:
+      - Wed, 03 Mar 2021 01:38:50 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+version: 1

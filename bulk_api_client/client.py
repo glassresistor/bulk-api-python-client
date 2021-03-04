@@ -3,10 +3,7 @@ import requests
 import requests_cache
 import json
 import logging
-
-from urllib.parse import urljoin
 from tempfile import gettempdir
-
 
 from bulk_api_client.app import AppAPI
 from bulk_api_client.exceptions import BulkAPIError
@@ -61,16 +58,21 @@ class Client(object):
                 location=os.path.join(gettempdir(), "bulk-api-cache")
             ),
             expire_after=expiration_time,
+            allowable_methods=("GET", "OPTIONS"),
         )
         self.log = log
         if self.log:
             logging.basicConfig(level=logging.DEBUG)
-        json_res = self.request(
-            method="GET", url=urljoin(self.api_url, "swagger.json"), params={},
-        )
-        self.swagger_data = json.loads(json_res.content)
-        self.definitions = self.swagger_data["definitions"]
-        self.paths = self.swagger_data["paths"]
+        self.definitions = {}
+
+        self.load_apps()
+
+    def load_apps(self):
+        """
+        Retrieves the top-level list of apps.
+        """
+        apps_res = self.request(method="GET", url=self.api_url, params={},)
+        self.apps = json.loads(apps_res.content)
 
     @property
     def log(self):

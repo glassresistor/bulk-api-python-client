@@ -456,28 +456,34 @@ def _get_f(field, properties):
 
     Args:
         field (str): ModelAPI its related to
-        properties (dict): uri of the resource
+        properties (dict): Model properties from the OPTIONS endpoint, in
+            {fieldname: {field definition metadata}} format
 
     Returns:
-
-
+        getter method
     """
 
     def get_f(cls):
         field_val = cls.data.get(field)
-        if properties[field].get("format") == "uri":
-            if "api_download" in field_val:
-                response = cls.model_api.app.client.request(
-                    "GET", field_val, {}
-                )
-                return BytesIO(response.content)
-            elif hasattr(cls, "_%s" % field):
+        if properties[field].get("type") == "foreignkey":
+            if hasattr(cls, "_%s" % field):
+                # The related object was set locally with set_f; return that
                 return getattr(cls, "_%s" % field)
+            # Create a ModelObj for the related object and return it
             path = field_val.replace(cls.model_api.app.client.api_url, "")
             app_label, model_name, _id = path.split("/")
             model = cls.model_api.app.client.app(app_label).model(model_name)
             related_obj = ModelObj.with_properties(model, field_val)
             return related_obj
+        elif (
+            properties[field].get("type") == "uri"
+            and "api_download" in field_val
+        ):
+            # This is a file available through the API; return the file
+            # instead of displaying the URI
+            response = cls.model_api.app.client.request("GET", field_val, {})
+            return BytesIO(response.content)
+
         return field_val
 
     return get_f
@@ -490,16 +496,17 @@ def _set_f(field, properties):
 
     Args:
         field (str): ModelAPI its related to
-        properties (dict): uri of the resource
+        properties (dict): Model properties from the OPTIONS endpoint, in
+            {fieldname: {field definition metadata}} format
 
     Returns:
-
+        setter method
     """
 
     def set_f(cls, val):
-        if properties[field].get("readOnly", False):
+        if properties[field].get("read_only", False):
             raise BulkAPIError({"ModelObj": "Cannot set a read only property"})
-        if properties[field].get("format") == "uri":
+        if properties[field].get("type") == "foreignkey":
             if not isinstance(val, ModelObj):
                 raise BulkAPIError(
                     {"ModelObj": "New related model must be a _ModelObj"}
@@ -515,7 +522,7 @@ class ModelObj:
     """
     **DO NOT CALL DIRECTLY**
     Base object which handles mapping local data to api actions. Must call the
-    with_properties class method funnction to get properties
+    with_properties class method function to get properties
 
     Args:
         model_api (obj): ModelAPI its related to
@@ -558,7 +565,6 @@ class ModelObj:
             ModelObjWithProperties obj
 
         """
-
         if not isinstance(model_api, ModelAPI):
             raise BulkAPIError(
                 {"ModelObj": "Given model is not a ModelAPI object"}
@@ -567,9 +573,12 @@ class ModelObj:
         class ModelObjWithProperties(cls):
             pass
 
-        model = ".".join([model_api.app.app_label, model_api.model_name])
-        model_properties = model_api.app.client.definitions[model]["properties"]
-        for field, property_dict in model_properties.items():
+        model_properties = ModelObj._get_model_properties(model_api)
+        for field, _ in model_properties.items():
+            if field == "_meta":
+                # don't create a field named _meta;
+                # that's the django definitions
+                continue
             get_f = _get_f(field, model_properties)
             setattr(ModelObjWithProperties, "get_%s" % field, get_f)
 
@@ -585,6 +594,31 @@ class ModelObj:
                 ),
             )
         return ModelObjWithProperties(model_api, uri, data)
+
+    @staticmethod
+    def _get_model_properties(model_api):
+        """
+        Retrieves and caches the properties for a given model, provided by
+        the model's api object.
+        """
+        model = ".".join([model_api.app.app_label, model_api.model_name])
+        if model not in model_api.app.client.definitions:
+            path = model_api.app.client.model_api_urls[model_api.app.app_label][
+                model_api.model_name
+            ]
+            model_api.app.client.definitions[model] = ModelObj._get_definitions(
+                model_api, path
+            )
+        return model_api.app.client.definitions[model]
+
+    @staticmethod
+    def _get_definitions(model_api, path):
+        response = model_api.app.client.request("OPTIONS", path, params={})
+        return ModelObj._metadata_to_field_properties(response.json())
+
+    @staticmethod
+    def _metadata_to_field_properties(metadata):
+        return {item["key"]: item for item in metadata}
 
     def save(self):
         """Makes a call to the put update method of the model_api object

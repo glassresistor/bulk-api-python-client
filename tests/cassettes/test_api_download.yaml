@@ -1,0 +1,193 @@
+interactions:
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/
+  response:
+    body:
+      string: '{"admin":"https://data-warehouse.pivot/bulk/api/admin/","auth":"https://data-warehouse.pivot/bulk/api/auth/","contenttypes":"https://data-warehouse.pivot/bulk/api/contenttypes/","sessions":"https://data-warehouse.pivot/bulk/api/sessions/","gis":"https://data-warehouse.pivot/bulk/api/gis/","django_celery_beat":"https://data-warehouse.pivot/bulk/api/django_celery_beat/","django_celery_results":"https://data-warehouse.pivot/bulk/api/django_celery_results/","authtoken":"https://data-warehouse.pivot/bulk/api/authtoken/","bulk_importer":"https://data-warehouse.pivot/bulk/api/bulk_importer/","rails_lims":"https://data-warehouse.pivot/bulk/api/rails_lims/","plant_lims":"https://data-warehouse.pivot/bulk/api/plant_lims/","f_and_f":"https://data-warehouse.pivot/bulk/api/f_and_f/","bioprocessing":"https://data-warehouse.pivot/bulk/api/bioprocessing/","spectro":"https://data-warehouse.pivot/bulk/api/spectro/","uav":"https://data-warehouse.pivot/bulk/api/uav/","nproc":"https://data-warehouse.pivot/bulk/api/nproc/","lab":"https://data-warehouse.pivot/bulk/api/lab/","iv":"https://data-warehouse.pivot/bulk/api/iv/","product":"https://data-warehouse.pivot/bulk/api/product/","reports":"https://data-warehouse.pivot/bulk/api/reports/","in10t":"https://data-warehouse.pivot/bulk/api/in10t/","temporary_models":"https://data-warehouse.pivot/bulk/api/temporary_models/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '1367'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 04 Mar 2021 01:45:04 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/
+  response:
+    body:
+      string: '{"bulkimport":"https://data-warehouse.pivot/bulk/api/bulk_importer/bulkimport/","examplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplefortesting/","relatedexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/relatedexamplefortesting/","namedexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/namedexamplefortesting/","relatednamedexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/relatednamedexamplefortesting/","relatedmtmexamplefortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/relatedmtmexamplefortesting/","storedquery":"https://data-warehouse.pivot/bulk/api/bulk_importer/storedquery/","examplegfkfortesting":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplegfkfortesting/","examplemtm":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplemtm/","examplemtmthrough":"https://data-warehouse.pivot/bulk/api/bulk_importer/examplemtmthrough/"}'
+    headers:
+      Allow:
+      - GET, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '965'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 04 Mar 2021 01:45:05 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      User-Agent:
+      - python-requests/2.22.0
+    method: GET
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/bulkimport/1319
+  response:
+    body:
+      string: '{"id":1319,"created_at":"2020-06-11T19:25:45.506893Z","updated_at":"2020-06-11T19:25:45.506916Z","upload_type":"uav|uav_uploader","data_file":"https://data-warehouse.pivot/bulk/api_download/Chula_2019_06_06_6yWzcfk.zip","notes":"","update":false,"extra_data":{},"results":null,"created_by":"https://data-warehouse.pivot/bulk/api/auth/user/5"}'
+    headers:
+      Allow:
+      - GET, PUT, PATCH, DELETE, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '342'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 04 Mar 2021 01:45:05 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+- request:
+    body: null
+    headers:
+      Accept:
+      - '*/*'
+      Accept-Encoding:
+      - gzip, deflate
+      Authorization:
+      - Token fake-token
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '0'
+      User-Agent:
+      - python-requests/2.22.0
+    method: OPTIONS
+    uri: https://data-warehouse.pivot/bulk/api/bulk_importer/bulkimport/
+  response:
+    body:
+      string: '[{"key":"id","type":"number","read_only":true,"ui":{"label":"ID"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_at","type":"datetime","read_only":true,"ui":{"label":"created
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"updated_at","type":"datetime","read_only":true,"ui":{"label":"updated
+        at"},"validation":{"required":false},"extra":{},"translated":false},{"key":"upload_type","type":"select","read_only":false,"ui":{"label":"upload
+        type"},"validation":{"required":true},"extra":{},"translated":false,"choices":[{"label":"Plant
+        LIMS Experiment Data","value":"excel|plant_lims.plant_lims_experiment"},{"label":"Plant
+        LIMS Plot","value":"excel|plant_lims.plant_lims_plot"},{"label":"Yield Aggregates","value":"excel|temporary_models.yield_aggregates"},{"label":"Temporary
+        Zonal Stats","value":"excel|temporary_models.zonal_stats"},{"label":"Raw Combine","value":"excel|temporary_models.raw_combine"},{"label":"MSU-BI
+        Liquid Formulation","value":"excel|f_and_f.msu_liquid_viability_assay"},{"label":"Sig:
+        Greenhouse Data","value":"sig|greenhouse"},{"label":"Sig: Field Trial Data","value":"sig|field"},{"label":"UAV
+        Shapefile","value":"uav_shapefile"},{"label":"UAV:QC","value":"uav_qc"},{"label":"MDV:CCI","value":"mdv|mdv.cci"},{"label":"FTR:CCI","value":"mdv|ftr.cci"},{"label":"MDV:SLA","value":"mdv|mdv.sla"},{"label":"FTR:SLA","value":"mdv|ftr.sla"},{"label":"MDV:DUALEX","value":"mdv|mdv.dualex"},{"label":"FTR:DUALEX","value":"mdv|ftr.dualex"},{"label":"MDV:HEIGHT","value":"mdv|mdv.height"},{"label":"FTR:HEIGHT","value":"mdv|ftr.height"},{"label":"IN10T
+        Trials","value":"in10t|trials"},{"label":"IN10T As Applied","value":"in10t|as_applied"},{"label":"IN10T
+        Planting","value":"in10t|planting"},{"label":"IN10T Processed Harvest","value":"in10t|processed_harvest"},{"label":"EDE
+        ARM Uploader","value":"ede|ede_uploader"},{"label":"Biolector Uploader","value":"bioprocessing|biolector"},{"label":"Biomass
+        Measurement Uploader","value":"biomass|biomass_uploader"},{"label":"Colonization
+        Breakdown Uploader","value":"colonization|colonization_breakdown_uploader"},{"label":"IV
+        AMM ARA Experiment Uploader","value":"iv|experiment"},{"label":"QC Scorable
+        Uploader","value":"qc|qc_scorable"}]},{"key":"data_file","type":"uri","read_only":false,"ui":{"label":"data
+        file"},"validation":{"required":true,"max":100},"extra":{},"translated":false},{"key":"notes","type":"text","read_only":false,"ui":{"label":"notes"},"validation":{"required":false},"extra":{},"translated":false},{"key":"update","type":"checkbox","read_only":false,"ui":{"label":"update","help":"Check
+        here to update existing data from import"},"validation":{"required":false},"extra":{},"translated":false,"default":false},{"key":"extra_data","type":"text","read_only":false,"ui":{"label":"extra
+        data","help":"Extra data provided in form accompanying upload"},"validation":{"required":false},"extra":{},"translated":false,"default":{}},{"key":"results","type":"text","read_only":false,"ui":{"label":"results","help":"Results
+        from upload plugin"},"validation":{"required":false},"extra":{},"translated":false},{"key":"created_by","type":"foreignkey","read_only":true,"ui":{"label":"created
+        by"},"validation":{"required":false},"extra":{},"translated":false,"related_endpoint":{"app":"auth","singular":"user","plural":"users"}},{"key":"_meta","app_label":"bulk_importer","model_name":"bulkimport","django_model_name":"BulkImport"}]'
+    headers:
+      Allow:
+      - GET, POST, HEAD, OPTIONS
+      Connection:
+      - keep-alive
+      Content-Length:
+      - '3459'
+      Content-Type:
+      - application/json
+      Date:
+      - Thu, 04 Mar 2021 01:45:05 GMT
+      Referrer-Policy:
+      - same-origin
+      Server:
+      - nginx/1.14.0 (Ubuntu)
+      Vary:
+      - Accept
+      X-Content-Type-Options:
+      - nosniff
+      X-Frame-Options:
+      - DENY
+    status:
+      code: 200
+      message: OK
+version: 1

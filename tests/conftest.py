@@ -60,31 +60,15 @@ def client():
     token = random_string()
     url = "http://test.org/api/"
     Client.app_api_urls = None
-    Client.model_api_urls = {}
+    Client.model_api_urls = {
+        "bulk_importer": {
+            "examplefortesting": "/bulk/api/bulk_importer/examplefortesting"
+        }
+    }
     Client.app_api_cache = {}
     json_data = {
-        "definitions": {
-            "bulk_importer.examplefortesting": {
-                "required": ["text", "date_time"],
-                "type": "object",
-                "properties": {
-                    "text": {"title": "Text", "type": "string", "minLength": 1},
-                },
-            },
-            "bulk_importer.relatedexamplefortesting": {
-                "required": ["text", "parent"],
-                "type": "object",
-                "properties": {
-                    "text": {"title": "Text", "type": "string", "minLength": 1},
-                    "parent": {
-                        "title": "Parent",
-                        "type": "string",
-                        "format": "uri",
-                    },
-                },
-            },
-        },
-        "paths": ["some_paths"],
+        "bulk_importer": "https://data-warehouse.pivot/bulk/api/bulk_importer/",
+        "uav": "https://data-warehouse.pivot/bulk/api/uav/",
     }
 
     data = json.dumps(json_data)
@@ -95,6 +79,20 @@ def client():
     with mock.patch.object(requests, "request", return_value=response):
         client = Client(token, api_url=url)
     client.clear_cache()
+    return client
+
+
+@pytest.fixture
+def vcr_client():
+    """
+    Version of the client without anything mocked; use only in tests with
+    `@pytest.mark.vcr()`
+    """
+    # unset this when recording new cassettes, then find-and-replace the
+    # token in the resulting cassette.
+    with pytest.setenv(BULK_API_TOKEN="fake-token"):
+        client = reimport_env_client()
+
     return client
 
 
@@ -124,7 +122,7 @@ def model_api(app_api):
     }
     model = ".".join([app_api.app_label, model_name])
     properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "name": {
             "title": "Name",
             "type": "string",
@@ -162,13 +160,12 @@ def model_api_file(app_api):
     model = ".".join([app_api.app_label, model_name])
 
     model_properties = {
-        "id": {"title": "ID", "type": "integer", "readOnly": True},
+        "id": {"title": "ID", "type": "integer", "read_only": True},
         "text": {"title": "Text", "type": "string", "minLength": 1},
         "data_file": {
             "title": "Data File",
-            "type": "string",
-            "readOnly": True,
-            "format": "uri",
+            "type": "foreignkey",
+            "read_only": True,
         },
     }
     app_api.client.definitions[model] = {"properties": model_properties}
