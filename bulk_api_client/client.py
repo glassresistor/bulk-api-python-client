@@ -3,6 +3,7 @@ import requests
 import requests_cache
 import json
 import logging
+import importlib_metadata
 from tempfile import gettempdir
 
 from bulk_api_client.app import AppAPI
@@ -67,6 +68,8 @@ class Client(object):
 
         self.load_apps()
 
+        self.check_version()
+
     def load_apps(self):
         """
         Retrieves the top-level list of apps.
@@ -87,6 +90,30 @@ class Client(object):
             root_logger.setLevel(logging.WARNING)
             root_logger.handlers = []
         self._log = value
+
+    def check_version(self):
+        """Make request to github api for lastest version of repo. Return
+        warning message to user if installed version does not match the most
+        recent release
+        """
+
+        github_url_path = (
+            "https://api.github.com/repos/pivotbio/bulk-api-python-client/tags"
+        )
+        gh_res = self.request(method="GET", url=github_url_path, params={},)
+        latest_version = gh_res.json()[0]["name"]
+
+        try:
+            current_version = importlib_metadata.version("bulk_api_client")
+        except importlib_metadata.PackageNotFoundError:
+            pass
+            print("Unable to locate bulk_api_client module")
+        else:
+            if latest_version != current_version:
+                print(
+                    f"You are not on the latest version. "
+                    f"Please update to version {latest_version}"
+                )
 
     def request(self, method, url, params, *args, **kwargs):
         """Request function to construct and send a request. Uses the Requests

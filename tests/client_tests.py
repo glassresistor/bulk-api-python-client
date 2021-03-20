@@ -3,12 +3,19 @@ import pytest
 import string
 import random
 import json
+import logging
 from io import BytesIO
 from unittest import mock
 from urllib.parse import urljoin
 from requests.models import Response
 
-from bulk_api_client.client import Client, requests, CERT_PATH, requests_cache
+from bulk_api_client.client import (
+    Client,
+    requests,
+    CERT_PATH,
+    requests_cache,
+    importlib_metadata,
+)
 from bulk_api_client.app import AppAPI
 from bulk_api_client.model import is_kv
 from bulk_api_client.exceptions import BulkAPIError
@@ -55,7 +62,11 @@ def test_client(api_url, expiration_time, expected):
     response = Response()
     response._content = data
     response.status_code = 200
-    with mock.patch.object(requests, "request", return_value=response):
+    gh_res = Response()
+    gh_res._content = b'[{"name":"0.0"}]'
+    gh_res.status_code = 200
+    with mock.patch.object(requests, "request",) as fn:
+        fn.side_effect = [response, gh_res]
         test_client = Client(
             token, api_url=api_url, expiration_time=expiration_time
         )
@@ -191,3 +202,42 @@ def test_client_clear_cache(client):
     with mock.patch.object(requests_cache, "clear") as fn:
         client.clear_cache()
         fn.assert_called()
+
+
+def test_outdated_version(capfd):
+    token = random_string()
+    json_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
+    data = json.dumps(json_data)
+    response = Response()
+    response._content = data
+    response.status_code = 200
+    gh_res = Response()
+    gh_res._content = b'[{"name":"0.0"}]'
+    gh_res.status_code = 200
+    with mock.patch.object(requests, "request",) as fn:
+        fn.side_effect = [response, gh_res]
+        with mock.patch.object(importlib_metadata, "version") as ver_fn:
+            ver_fn.side_effect = [""]
+            Client(token)
+    out, err = capfd.readouterr()
+    assert (
+        out
+        == "You are not on the latest version. Please update to version 0.0\n"
+    )
+
+
+def test_outdated_version_module_exception(capfd):
+    token = random_string()
+    json_data = {"definitions": ["some_definitions"], "paths": ["some_paths"]}
+    data = json.dumps(json_data)
+    response = Response()
+    response._content = data
+    response.status_code = 200
+    gh_res = Response()
+    gh_res._content = b'[{"name":"0.0"}]'
+    gh_res.status_code = 200
+    with mock.patch.object(requests, "request") as fn:
+        fn.side_effect = [response, gh_res]
+        Client(token)
+    out, err = capfd.readouterr()
+    assert out == "Unable to locate bulk_api_client module\n"

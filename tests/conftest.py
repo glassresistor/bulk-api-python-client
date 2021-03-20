@@ -76,7 +76,11 @@ def client():
     response._content = data
     response.status_code = 200
     response.raw = data
-    with mock.patch.object(requests, "request", return_value=response):
+    gh_res = Response()
+    gh_res._content = b'[{"name":"0.0"}]'
+    gh_res.status_code = 200
+    with mock.patch.object(requests, "request") as fn:
+        fn.side_effect = [response, gh_res]
         client = Client(token, api_url=url)
     client.clear_cache()
     return client
