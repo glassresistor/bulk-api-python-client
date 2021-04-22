@@ -133,15 +133,17 @@ query(filter={'or': [{'question__startswith': 'Who'}, {'and': [{'question__start
 
 # Filter query using Q object
 
-Q objects can be used to simplify making complex queries by allowing users to use pythons built in boolean operators
+Q objects can be used to simplify making complex queries by allowing users to use pythons built in _bitwise_ boolean operators `&` (and), `~` (not), or `|` (or)
 
 This produces the same query as the one above.
 ```
 from bulk_api_client import Q
 
-filter_obj = Q(question_startswith='Who') or (Q(question__startswith='What') and Q(integer__gte= 1))
+filter_obj = Q(question_startswith='Who') | (Q(question__startswith='What') & Q(integer__gte= 1))
 ModelName.query(filter=filter_obj)
 ```
+
+Note that these are not intended to be used with the _logical_ Boolean operators `and`, `not`, or `or`.
 
 ### Fields
 
