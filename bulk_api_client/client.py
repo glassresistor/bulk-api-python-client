@@ -4,6 +4,7 @@ import requests_cache
 import json
 import logging
 from tempfile import gettempdir
+from urllib.parse import urljoin
 
 from bulk_api_client.app import AppAPI
 from bulk_api_client.exceptions import BulkAPIError
@@ -11,6 +12,7 @@ from bulk_api_client.exceptions import BulkAPIError
 CERT_PATH = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "data-warehouse.pivot.pem"
 )
+DOWNLOAD_PATH = "/api_download/"
 
 
 def is_json(d):
@@ -155,3 +157,38 @@ class Client(object):
         if app_label not in self.app_api_cache:
             self.app_api_cache[app_label] = AppAPI(self, app_label)
         return self.app_api_cache[app_label]
+
+    def download_using_file_name(self, file_name, out_path):
+        """
+        Download file from model using file name on model object
+        Args:
+            file_name (str): File name from model
+            out_path (str): Path to download file to
+
+        Returns:
+            full_path (str): Path to downloaded file
+
+        Example usage:
+        flight = Flight.get(pk=59)
+        path = client.download_using_file_name(flight.ortho, '/home/username')
+        print(path)
+        /home/username/ortho.tif
+        """
+        # Query API only returns file name not full URL
+        if DOWNLOAD_PATH not in file_name:
+            base_url = self.api_url.replace("/api/", "/api_download/")
+            url = urljoin(base_url, file_name)
+        else:
+            # Get file name off end of url if through list / get
+            url = file_name
+            file_name = os.path.basename(file_name)
+
+        full_path = os.path.join(out_path, file_name)
+
+        with requests_cache.disabled():
+            response = self.request("GET", url, {})
+            with open(full_path, "wb") as file:
+                for chunk in response.iter_content(chunk_size=None):
+                    file.write(chunk)
+
+        return full_path

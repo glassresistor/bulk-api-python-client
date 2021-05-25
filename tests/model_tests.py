@@ -1257,4 +1257,4 @@ def test_model_obj_file_property(app_api):
     response._content = b"abc123"
     with mock.patch.object(Client, "request", return_value=response):
         data_file = model_obj.data_file
-    assert isinstance(data_file, IOBase)
+    assert data_file == data_file_uri

@@ -57,6 +57,7 @@ docs/
 target/
 
 # Jupyter Notebook
+*.ipynb
 .ipynb_checkpoints
 
 # pyenv
@@ -80,3 +81,6 @@ venv.bak/
 *.swo
 *.~lock.*
 .DS_Store
+
+# cache
+*.sqlite

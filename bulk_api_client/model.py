@@ -475,14 +475,6 @@ def _get_f(field, properties):
             model = cls.model_api.app.client.app(app_label).model(model_name)
             related_obj = ModelObj.with_properties(model, field_val)
             return related_obj
-        elif (
-            properties[field].get("type") == "uri"
-            and "api_download" in field_val
-        ):
-            # This is a file available through the API; return the file
-            # instead of displaying the URI
-            response = cls.model_api.app.client.request("GET", field_val, {})
-            return BytesIO(response.content)
 
         return field_val
 

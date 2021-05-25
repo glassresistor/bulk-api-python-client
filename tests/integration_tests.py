@@ -41,24 +41,3 @@ def test_cannot_set_readonly_field(vcr_client):
     pg = PlotGeometry.get(1)
     with pytest.raises(BulkAPIError):
         pg.created_at = "2024-01-01"
-
-
-@pytest.mark.vcr()
-def test_api_download(vcr_client):
-    client = vcr_client
-    client.clear_cache()
-    client.load_apps()
-
-    BulkImport = client.app("bulk_importer").model("BulkImport")
-
-    bi = BulkImport.get(1319)
-    # trigger the BulkImport load
-    assert bi.id == 1319
-
-    # still need to mock the response, as SSL cert errors will happen
-    response = Response()
-    response.status_code = 200
-    response._content = b"abc123"
-    with mock.patch.object(client, "request", return_value=response):
-        data_file = bi.data_file
-    assert isinstance(data_file, IOBase)

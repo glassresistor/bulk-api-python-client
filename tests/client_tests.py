@@ -191,3 +191,23 @@ def test_client_clear_cache(client):
     with mock.patch.object(requests_cache, "clear") as fn:
         client.clear_cache()
         fn.assert_called()
+
+
+@pytest.mark.parametrize(
+    "file_name", ["ortho.tif", "http://test.org/api_download/ortho.tif",],
+)
+def test_download_file(client, file_name):
+    path = "/some/path"
+    full_path = os.path.join(path, "ortho.tif")
+    response = mock.MagicMock(spec=Response)
+    response.iter_content.return_value = ["chunk1"]
+    with mock.patch.object(
+        client, "request", return_value=response
+    ) as mock_request:
+        with mock.patch("builtins.open", mock.mock_open()) as mock_file:
+            final_path = client.download_using_file_name(file_name, path)
+            mock_request.assert_called_with(
+                "GET", "http://test.org/api_download/ortho.tif", {},
+            )
+            mock_file.assert_called_with(full_path, "wb")
+            assert final_path == "/some/path/ortho.tif"
