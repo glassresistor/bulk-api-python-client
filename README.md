@@ -22,10 +22,11 @@ pip install -U git+https://github.com/pivotbio/bulk-api-python-client.git
 
 
 ## Usage
-From bash or in your systems RC file.
+From bash or in your systems RC file add the bulk api token, and optionally the api url.
 
 ```
 export BULK_API_TOKEN='<token>'
+export BULK_API_URL="https://data-warehouse.pivot/bulk/api/" # Optional, defaults to production data warehouse
 ```
 
 From Python
@@ -86,7 +87,24 @@ with open(file_path, "rb") as file:
      obj = ModelName.create(obj_data)
 ```
 
-With a ModelObj, a file field on the instance downloads the file from the database to be readable by the user. This will be an open python file object ('rb' mode).
+When retrieving a ModelObj though `.get`, `.list`, or `.query`, a file field on the instance only provides the file name to avoid loading the large amounts of data directly into memory. To download the associated file, use the client method `.download_using_file_name` as shown below:
+
+```python
+# Using get or list
+Flight = client.app("uav").model("flight")
+flight = Flight.get(pk=59)
+
+file_path = client.download_using_file_name(flight.ortho, "/home/username") # replace /home/username with desired path
+# If you want to immediately load the file into memory
+with open(file_path, "rb") as file:
+  image = process_image(file) # Use whatever function here to process file
+
+# Using query
+df = flight.query(id__lt=60)
+file_path = client.download_using_file_name(df.loc[0, "ortho"], "/home/username")
+```
+
+This method downloads the file from the database to the hard drive to later be read by the user by returning the file path. 
 
 This file object cannot be overwritten or changed with a simple set action (i.e. `model_obj.file = new_file`), as it is read-only. Instead, any changes to the file must use the update method, which will change the file saved to the database completely. Reference the [ModelObj update section](#update) on how to us that method.
 
