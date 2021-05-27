@@ -222,13 +222,15 @@ class ModelAPI(object):
 
         with self.app.client.request("GET", url, params=params) as response:
             pages_left = int(response.headers["page_count"]) - page
-
-            df = pandas.concat(
-                pandas.read_csv(
-                    BytesIO(response.content), chunksize=CSV_CHUNKSIZE
-                ),
-                ignore_index=True,
-            )
+            if response.content:
+                df = pandas.concat(
+                    pandas.read_csv(
+                        BytesIO(response.content), chunksize=CSV_CHUNKSIZE
+                    ),
+                    ignore_index=True,
+                )
+            else:
+                df = pandas.DataFrame()
 
         return df, pages_left
 
