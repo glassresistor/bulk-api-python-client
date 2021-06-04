@@ -12,7 +12,7 @@ from bulk_api_client.exceptions import BulkAPIError
 CERT_PATH = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "data-warehouse.pivot.pem"
 )
-DOWNLOAD_PATH = "/api_download/"
+DOWNLOAD_PATH = "download/"
 
 
 def is_json(d):
@@ -158,13 +158,15 @@ class Client(object):
             self.app_api_cache[app_label] = AppAPI(self, app_label)
         return self.app_api_cache[app_label]
 
-    def download_using_file_name(self, file_name, out_path):
+    def download_using_file_name(
+        self, file_name, out_path, local_filename=None
+    ):
         """
         Download file from model using file name on model object
         Args:
             file_name (str): File name from model
             out_path (str): Path to download file to
-
+            local_filename (str[Optional]): file name to use locally
         Returns:
             full_path (str): Path to downloaded file
 
@@ -174,16 +176,20 @@ class Client(object):
         print(path)
         /home/username/ortho.tif
         """
+        if not os.path.exists(out_path):
+            raise FileNotFoundError(f"Local path {out_path} does not exist.")
+
         # Query API only returns file name not full URL
         if DOWNLOAD_PATH not in file_name:
-            base_url = self.api_url.replace("/api/", "/api_download/")
-            url = urljoin(base_url, file_name)
+            url = "".join([self.api_url, DOWNLOAD_PATH, file_name])
         else:
             # Get file name off end of url if through list / get
             url = file_name
-            file_name = os.path.basename(file_name)
 
-        full_path = os.path.join(out_path, file_name)
+        if local_filename is None:
+            full_path = os.path.join(out_path, os.path.basename(file_name))
+        else:
+            full_path = os.path.join(out_path, local_filename)
 
         with requests_cache.disabled():
             response = self.request("GET", url, {})
