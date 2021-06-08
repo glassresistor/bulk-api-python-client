@@ -1,21 +1,21 @@
-import os
-import pytest
-import string
-import random
 import json
-from io import BytesIO, IOBase
+import os
+import random
+import re
+import string
 from collections import OrderedDict
+from io import BytesIO, IOBase
 from unittest import mock
-from pandas import DataFrame, read_csv
 from urllib.parse import urljoin
-from requests.models import Response
-import requests_cache
 
+import pytest
+import requests_cache
 from bulk_api_client.client import Client
+from bulk_api_client.exceptions import BulkAPIError, ValidationError
 from bulk_api_client.model import ModelAPI, ModelObj
 from bulk_api_client.query_helpers import Q
-from bulk_api_client.exceptions import BulkAPIError
-
+from pandas import DataFrame, read_csv
+from requests.models import Response
 
 BASE_URL = "http://test.org/api/"
 
@@ -502,11 +502,11 @@ def test_model_api_private_create(model_api):
     path = model_api.app.client.app_api_urls[model_api.app.app_label]
     url = urljoin(path, "{}/".format(model_api.model_name))
     content = (
-        b'[{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'
+        b'{"id": 1016, "created_at": "2019-11-01T19:17:50.415922Z",'
         b'"updated_at": "2019-11-01T19:17:50.416090Z", "text":'
         b'"EYdVWVxempVwBpqMENtuYmGZJskLE", "date_time":'
         b'"2019-11-10T07:28:34.088291Z",'
-        b'"integer": 5, "imported_from": null}]'
+        b'"integer": 5, "imported_from": null}'
     )
     obj_data = {
         "text": "EYdVWVxempVwBpqMENtuYmGZJskLE",
@@ -553,6 +553,31 @@ def test_model_api_create(model_api):
         fn.assert_called_with(obj_data)
     assert isinstance(obj, ModelObj)
     assert obj.data == data
+
+
+def test_validation_errors_raised_for_bulk_imports(model_api):
+    """
+    Tests that validation error is thrown when errors are
+    in results of creating an object (i.e. BulkImport)
+    """
+    obj_data = {
+        "text": "EYdVWVxempVwBpqMENtuYmGZJskLE",
+        "date_time": "2019-11-01T19:17:50.416090Z",
+        "integer": 5,
+    }
+    content = b'{"id": 1016, "results": {"errors": ["Invalid datetime.", "Please enter a number."]}}'
+    response = Response()
+    response.status_code = 201
+    response._content = content
+    with mock.patch.object(
+        Client, "request", return_value=response
+    ) as mock_request:
+        with pytest.raises(
+            ValidationError,
+            match=re.escape("Invalid datetime.\nPlease enter a number."),
+        ):
+            _ = model_api.create(obj_data)
+            mock_request.assert_called_with(obj_data)
 
 
 def test_model_api_create_file(app_api, tmpdir):

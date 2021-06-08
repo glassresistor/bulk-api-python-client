@@ -9,7 +9,7 @@ from urllib.parse import urljoin
 from io import BytesIO
 
 from bulk_api_client.query_helpers import Q
-from bulk_api_client.exceptions import BulkAPIError
+from bulk_api_client.exceptions import BulkAPIError, ValidationError
 
 
 CSV_CHUNKSIZE = 10 ** 6
@@ -324,7 +324,14 @@ class ModelAPI(object):
 
         response = self.app.client.request("POST", url, params={}, **kwargs)
 
-        return json.loads(response.content)
+        content = json.loads(response.content)
+        # For validation of created bulk imports
+        if content.get("results", dict()).get("errors"):
+            raise ValidationError(
+                "\n".join([error for error in content["results"]["errors"]])
+            )
+
+        return content
 
     def create(self, obj_data):
         """Makes call to private create method and creates ModelObj instance
