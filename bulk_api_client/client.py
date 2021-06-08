@@ -171,10 +171,10 @@ class Client(object):
             full_path (str): Path to downloaded file
 
         Example usage:
-        flight = Flight.get(pk=59)
-        path = client.download_using_file_name(flight.ortho, '/home/username')
+        model = Model.get(pk=59)
+        path = client.download_using_file_name(model.file_name, '/home/username')
         print(path)
-        /home/username/ortho.tif
+        /home/username/file.tif
         """
         if not os.path.exists(out_path):
             raise FileNotFoundError(f"Local path {out_path} does not exist.")

@@ -4,7 +4,7 @@ from distutils.core import setup
 
 setup(
     name="bulk-api-python-client",
-    version="0.0.1",
+    version="3.4.0",
     description="",
     author="Mikela Clemmons & Donnell Muse",
     author_email="infra@pivotbio.com",

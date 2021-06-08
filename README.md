@@ -91,17 +91,18 @@ When retrieving a ModelObj though `.get`, `.list`, or `.query`, a file field on 
 
 ```python
 # Using get or list
-Flight = client.app("uav").model("flight")
-flight = Flight.get(pk=59)
+model = Model.get(pk=59)
 
-file_path = client.download_using_file_name(flight.ortho, "/home/username") # replace /home/username with desired path
+# replace /home/username with desired path
+# specify local file name with local_filename optional argument
+file_path = client.download_using_file_name(model.file_name, "/home/username", local_filename="file.tif") 
 # If you want to immediately load the file into memory
 with open(file_path, "rb") as file:
   image = process_image(file) # Use whatever function here to process file
 
 # Using query
-df = flight.query(id__lt=60)
-file_path = client.download_using_file_name(df.loc[0, "ortho"], "/home/username")
+df = Model.query(id__lt=60)
+file_path = client.download_using_file_name(df.loc[0, "file_name"], "/home/username", local_filename="file.tif")
 ```
 
 This method downloads the file from the database to the hard drive to later be read by the user by returning the file path. 
