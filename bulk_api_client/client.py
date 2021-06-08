@@ -24,7 +24,14 @@ def is_json(d):
 
 
 class Client(object):
-    def __init__(self, token, api_url=None, expiration_time=None, log=False):
+    def __init__(
+        self,
+        token,
+        api_url=None,
+        expiration_time=None,
+        log=False,
+        no_cache=False,
+    ):
         """API Client object for bulk_importer to handle app and model requests.
         Requies a user token with access to data-warehouse
 
@@ -54,14 +61,15 @@ class Client(object):
             self.expiration_time = 7200
         else:
             self.expiration_time = expiration_time
-        requests_cache.install_cache(
-            "bulk-api-cache",
-            backend=requests_cache.backends.sqlite.DbCache(
-                location=os.path.join(gettempdir(), "bulk-api-cache")
-            ),
-            expire_after=expiration_time,
-            allowable_methods=("GET", "OPTIONS"),
-        )
+        if not no_cache:
+            requests_cache.install_cache(
+                "bulk-api-cache",
+                backend=requests_cache.backends.sqlite.DbCache(
+                    location=os.path.join(gettempdir(), "bulk-api-cache")
+                ),
+                expire_after=expiration_time,
+                allowable_methods=("GET", "OPTIONS"),
+            )
         self.log = log
         if self.log:
             logging.basicConfig(level=logging.DEBUG)
