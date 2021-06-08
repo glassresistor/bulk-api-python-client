@@ -15,7 +15,7 @@ setup(
         "pandas>=0.25.2",
         "requests>=2.22,<2.25",
         "requests-cache~=0.6.4",
-        "PyYAML>=5.1.2,<5.4.0",
+        "PyYAML~=5.4.1",
     ],
     extras_require={
         "dev": [
