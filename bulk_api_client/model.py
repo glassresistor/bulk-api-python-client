@@ -222,7 +222,9 @@ class ModelAPI(object):
 
         with self.app.client.request("GET", url, params=params) as response:
             pages_left = int(response.headers["page_count"]) - page
-            if response.content:
+            if response.content and not str.isspace(
+                response.content.decode("utf-8")
+            ):
                 df = pandas.concat(
                     pandas.read_csv(
                         BytesIO(response.content), chunksize=CSV_CHUNKSIZE
