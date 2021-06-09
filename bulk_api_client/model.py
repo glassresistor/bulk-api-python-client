@@ -125,8 +125,9 @@ class ModelAPI(object):
         """
         dataframes = []
         current_page = 1
-        pages_left = 1
-        while pages_left > 0:
+        df_count = page_size
+
+        while df_count == page_size:
             kwargs = {
                 "fields": fields,
                 "filter": filter,
@@ -137,9 +138,10 @@ class ModelAPI(object):
             }
             if skip_cache:
                 with requests_cache.disabled():
-                    df, pages_left = self._query(**kwargs)
+                    df = self._query(**kwargs)
             else:
-                df, pages_left = self._query(**kwargs)
+                df = self._query(**kwargs)
+            df_count = len(df.index)
             current_page += 1
             dataframes.append(df)
         return pandas.concat(dataframes)
@@ -221,7 +223,6 @@ class ModelAPI(object):
         }
 
         with self.app.client.request("GET", url, params=params) as response:
-            pages_left = int(response.headers["page_count"]) - page
             if response.content:
                 df = pandas.concat(
                     pandas.read_csv(
@@ -231,8 +232,7 @@ class ModelAPI(object):
                 )
             else:
                 df = pandas.DataFrame()
-
-        return df, pages_left
+        return df
 
     def _list(self, page, filter=None, order=None):
         """Lists all model object of a given model; Makes a 'GET' method request

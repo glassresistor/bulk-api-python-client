@@ -65,7 +65,7 @@ class Client(object):
             requests_cache.install_cache(
                 "bulk-api-cache",
                 backend=requests_cache.backends.sqlite.DbCache(
-                    location=os.path.join(gettempdir(), "bulk-api-cache")
+                    db_path=os.path.join(gettempdir(), "bulk-api-cache")
                 ),
                 expire_after=expiration_time,
                 allowable_methods=("GET", "OPTIONS"),

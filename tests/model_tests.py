@@ -71,16 +71,17 @@ def test_model_api_query(model_api):
     test_order = "text"
     test_filter = "key:value"
     test_distinct = True
-    test_page = [1, 2]
+    test_page = [1, 2, 3]
     test_page_size = 1
 
     dataframes = [
         read_csv(BytesIO(b"id,text\n1,text1")),
         read_csv(BytesIO(b"id,text\n2,text2")),
+        read_csv(BytesIO(b"id,text")),
     ]
 
     with mock.patch.object(ModelAPI, "_query",) as fn:
-        fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
+        fn.side_effect = dataframes
         test_model_data_frame = model_api.query(
             fields=test_fields,
             filter=test_filter,
@@ -109,17 +110,18 @@ def test_model_api_query_skip_cache(model_api):
     test_order = "text"
     test_filter = "key:value"
     test_distinct = True
-    test_page = [1, 2]
+    test_page = [1, 2, 3]
     test_page_size = 1
 
     dataframes = [
         read_csv(BytesIO(b"id,text\n1,text1")),
         read_csv(BytesIO(b"id,text\n2,text2")),
+        read_csv(BytesIO(b"id,text")),
     ]
 
     with mock.patch.object(ModelAPI, "_query",) as fn:
         with mock.patch.object(requests_cache, "disabled",) as rc_fn:
-            fn.side_effect = [(dataframes[0], 1), (dataframes[1], 0)]
+            fn.side_effect = dataframes
             model_api.query(
                 fields=test_fields,
                 filter=test_filter,
@@ -170,11 +172,10 @@ def test_model_api_private_query(model_api, filter, fields, expected_fields):
     response = Response()
     response._content = b"col1,col2\n1,2\n3,4"
     response.status_code = 200
-    response.headers["page_count"] = "1"
     response.headers["current_page"] = "1"
     response.raw = BytesIO(b"col1,col2\n1,2\n3,4")
     with mock.patch.object(Client, "request", return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api._query(
+        test_model_data_frame = model_api._query(
             fields=test_fields,
             filter=filter,
             order=test_order,
@@ -186,7 +187,6 @@ def test_model_api_private_query(model_api, filter, fields, expected_fields):
     assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
     assert test_model_data_frame.values.tolist() == [[1, 2], [3, 4]]
     assert test_model_data_frame.shape == (2, 2)
-    assert pages_left == 0
 
 
 def test_model_api_query_request_null_params(model_api):
@@ -205,18 +205,16 @@ def test_model_api_query_request_null_params(model_api):
 
     response = Response()
     response.status_code = 200
-    response.headers["page_count"] = "1"
     response.headers["current_page"] = "1"
     response._content = b"col1,col2\n1,2"
     response.raw = BytesIO(b"col1,col2\n1,2")
     with mock.patch.object(Client, "request", return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api._query()
+        test_model_data_frame = model_api._query()
         fn.assert_called_with("GET", url, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
     assert test_model_data_frame.values.tolist() == [[1, 2]]
     assert test_model_data_frame.shape == (1, 2)
-    assert pages_left == 0
 
 
 def test_model_api_query_q_object(model_api):
@@ -241,12 +239,11 @@ def test_model_api_query_q_object(model_api):
 
     response = Response()
     response.status_code = 200
-    response.headers["page_count"] = "1"
     response.headers["current_page"] = "1"
     response._content = b"col1,col2\n1,2"
     response.raw = BytesIO(b"col1,col2\n1,2")
     with mock.patch.object(Client, "request", return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api._query(
+        test_model_data_frame = model_api._query(
             fields=test_fields,
             filter=test_filter,
             order=test_order,
@@ -261,7 +258,6 @@ def test_model_api_query_q_object(model_api):
     assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
     assert test_model_data_frame.values.tolist() == [[1, 2]]
     assert test_model_data_frame.shape == (1, 2)
-    assert pages_left == 0
 
 
 @pytest.mark.parametrize(
@@ -324,14 +320,13 @@ def test_model_api_query_request_regression(model_api):
     response = Response()
     response._content = b"col1,col2\n1,2\n3,4"
     response.status_code = 200
-    response.headers["page_count"] = "1"
     response.headers["current_page"] = "1"
     response.raw = BytesIO(b"col1,col2\n1,2\n3,4")
     with mock.patch.object(Client, "request", return_value=response):
-        test_model_data_frame, pages_left = model_api._query()
+        test_model_data_frame = model_api._query()
     model_api.app.client.clear_cache()
     with mock.patch.object(Client, "request", return_value=response):
-        test_model_data_frame, pages_left = model_api._query()
+        test_model_data_frame = model_api._query()
 
 
 def test_model_api_query_request_fresh_cache(model_api):
@@ -350,18 +345,16 @@ def test_model_api_query_request_fresh_cache(model_api):
     model_api.app.client.clear_cache()
     response = Response()
     response.status_code = 200
-    response.headers["page_count"] = "1"
     response.headers["current_page"] = "1"
     response._content = b"col1,col2\n3,4"
     response.raw = BytesIO(b"col1,col2\n3,4")
     with mock.patch.object(Client, "request", return_value=response) as fn:
-        test_model_data_frame, pages_left = model_api._query()
+        test_model_data_frame = model_api._query()
         fn.assert_called_with("GET", url, params=params)
     assert isinstance(test_model_data_frame, DataFrame)
     assert test_model_data_frame.columns.to_list() == ["col1", "col2"]
     assert test_model_data_frame.values.tolist() == [[3, 4]]
     assert test_model_data_frame.shape == (1, 2)
-    assert pages_left == 0
 
 
 def test_model_api_private_list(model_api):
