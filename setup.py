@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(
-    name="bulk-api-python-client",
+    name="bulk-api-client",
     version="3.4.1",
     description="",
     author="Mikela Clemmons & Donnell Muse",
