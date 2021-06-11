@@ -66,26 +66,41 @@ Returns a ModelObj object
 
 ### Create
 
-Create an object on a model using a dictionary of data on the object
+Create an instance on a model using a dictionary of data with the model class while returning a ModelObj instance.
 
 ```
-ModelName.create(obj_data={})
+model_name_instance = ModelName.create(obj_data={})
 ```
 
-Returns a ModelObj object
 
 #### File Field
 
-ModelAPI supports create/update of an instance with a file as a field. This file field accepts an open file/file buffer. This file is stored in the database and retrievable.
+The ModelAPI supports creating and updating of an instance with a file as a field. This file field accepts an open file/file buffer. This file is stored in S3 and is retrievable through the API (see below).
 
-```
+```python
 with open(file_path, "rb") as file:
-     obj_data = {
+     data = {
          "text": "model_text",
          "data_file": file,
      }
-     obj = ModelName.create(obj_data)
+     instance = ModelName.create(data)
 ```
+
+You can use this pattern to also update the instance (if implemented) by attaching a file and specifying `"update": True`.
+
+```python
+with open(file_path, "rb") as file:
+  instance = ModelName.create(
+    {
+      "upload_type": "excel|excel_type",
+      "data_file": file,
+      "update": True,
+    }
+  )
+```
+
+In both cases, a `ValidationError` will be raised if the data could not be imported because of missing required fields, wrong data types, etc.
+
 
 When retrieving a ModelObj though `.get`, `.list`, or `.query`, a file field on the instance only provides the file name to avoid loading the large amounts of data directly into memory. To download the associated file, use the client method `.download_using_file_name` as shown below:
 
