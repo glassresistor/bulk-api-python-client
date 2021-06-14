@@ -123,6 +123,9 @@ class ModelAPI(object):
             pandas dataframe
 
         """
+
+        if not page_size:
+            page_size = 10000  # temp fix TODO: use page_size header returned
         dataframes = []
         current_page = 1
         df_count = page_size
