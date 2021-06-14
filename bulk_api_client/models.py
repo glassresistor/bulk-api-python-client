@@ -10,8 +10,9 @@ __all__ = []
 
 
 class App:
-    def __init__(self, app_name):
+    def __init__(self, app_name, app_response):
         self.app = env_client.app(app_name)
+        self.app_response = app_response
         setattr(models, app_name, self)
         __all__.append(app_name)
 
@@ -25,8 +26,6 @@ class App:
         django_model_name = self.get_metadata(res.content)["django_model_name"]
         app_model = self.app.model(model_name)
 
-        setattr(models, django_model_name, app_model)
-
         setattr(self, django_model_name, app_model)
 
     def get_metadata(self, content):
@@ -35,11 +34,11 @@ class App:
                 return d
         return None
 
-    def add_models(self, app_response):
+    def add_models(self):
         """
         Get the list of models/urls from the ApiAppView and add them all.
         """
-        for model_name in app_response.keys():
+        for model_name in self.app_response.keys():
             self.add_model(model_name)
 
 
@@ -54,5 +53,5 @@ for app_name, app_url in env_client.apps.items():
         continue  # if something went wrong in parsing this response, skip it
 
     # Create the app and its models
-    app = App(app_name)
+    app = App(app_name, app_response)
     app.add_models(app_response)
