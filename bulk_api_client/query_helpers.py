@@ -67,13 +67,13 @@ class Q:
 
         """
         if self._conn == conn:
-            # Add right object's children to self if they exist, if self has not
+            # Add right object's children to self if they exist, if object_on_right has not
             # been negated, if conn param and right object's connector match,
             # and if right object has at least one child, else make right object
             # a child of self
             if (
                 object_on_right._children
-                and not self.negated
+                and not object_on_right.negated
                 and (
                     conn == object_on_right._conn
                     or len(object_on_right._children) == 1
@@ -111,10 +111,10 @@ class Q:
     def __invert__(self):
         """
         Creates a fresh Q object with connection "not" and sets its children as
-        the self Q, whio is calling this method, using the add method. In dict
+        the self Q, whi is calling this method, using the add method. In dict
         form, this evaluates to:
 
-        {"not": [{self_conn: [self_children]}]}
+        {"not": [{self.children}]}
 
         Args:
             self (Q obj)
@@ -153,6 +153,8 @@ class Q:
             dict
 
         """
+        if len(self._children) == 1 and not isinstance(self._children[0], Q):
+            return {self._children[0][0]: self._children[0][1]}
         return {
             self._conn: [
                 c.output_filter() if isinstance(c, Q) else {c[0]: c[1]}

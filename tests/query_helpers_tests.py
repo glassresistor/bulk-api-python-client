@@ -6,7 +6,12 @@ from bulk_api_client.exceptions import InvalidQObject
 
 def test_init_q_obj():
     q_obj = Q(test_field="test")
-    assert q_obj.output_filter() == {"and": [{"test_field": "test"}]}
+    assert q_obj.output_filter() == {"test_field": "test"}
+
+
+def test_init_q_with_multiple_arguments():
+    q_obj = Q(field1=1, field2=2)
+    assert q_obj.output_filter() == {"and": [{"field1": 1}, {"field2": 2}]}
 
 
 def test_q_obj_chain():
@@ -72,10 +77,33 @@ def test_q_obj_chain():
 def test_invert_Q():
     q = ~Q(field1=1)
     q2 = ~Q(field2=2, field3=3)
+    q3 = ~Q(field1=1) & Q(field2=2)
+    q4 = Q(field1=1) | ~Q(field2=2)
+    q5 = Q(field1=1) & ~Q(field2=2) & Q(field3=3)
+    q6 = Q(field1=1) & ~Q(field2=2) | Q(field3=3)
+    q7 = ~Q(field1=1) & ~Q(field2=2)
 
-    assert q.output_filter() == {"not": [{"and": [{"field1": 1}]}]}
+    assert q.output_filter() == {"not": [{"field1": 1}]}
     assert q2.output_filter() == {
         "not": [{"and": [{"field2": 2}, {"field3": 3}]}]
+    }
+    assert q3.output_filter() == {
+        "and": [{"not": [{"field1": 1}]}, {"field2": 2}]
+    }
+    assert q4.output_filter() == {
+        "or": [{"field1": 1}, {"not": [{"field2": 2}]}]
+    }
+    assert q5.output_filter() == {
+        "and": [{"field1": 1}, {"not": [{"field2": 2}]}, {"field3": 3}]
+    }
+    assert q6.output_filter() == {
+        "or": [
+            {"and": [{"field1": 1}, {"not": [{"field2": 2}]}]},
+            {"field3": 3},
+        ]
+    }
+    assert q7.output_filter() == {
+        "and": [{"not": [{"field1": 1}]}, {"not": [{"field2": 2}]}]
     }
 
 
